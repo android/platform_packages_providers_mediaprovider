@@ -561,6 +561,11 @@ public class MediaProvider extends ContentProvider {
             // To work around this, we drop and recreate the affected view and trigger.
             recreateAudioView(db);
         }
+
+        if (fromVersion < 73) {
+            // Add ringtone flag to video table, matching audio ringtones
+            db.execSQL("ALTER TABLE video ADD COLUMN is_ringtone INTEGER;");
+        }
     }
 
     private static void recreateAudioView(SQLiteDatabase db) {
@@ -2112,7 +2117,7 @@ public class MediaProvider extends ContentProvider {
 
     private static String TAG = "MediaProvider";
     private static final boolean LOCAL_LOGV = true;
-    private static final int DATABASE_VERSION = 72;
+    private static final int DATABASE_VERSION = 73;
     private static final String INTERNAL_DATABASE_NAME = "internal.db";
 
     // maximum number of cached external databases to keep
