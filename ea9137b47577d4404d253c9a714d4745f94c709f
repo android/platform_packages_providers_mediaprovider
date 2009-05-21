@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAATn///3U\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 1001146
+      },
+      "writtenOn": "2009-05-21T03:31:22Z",
+      "side": 1,
+      "message": "Please add a blank line before the if",
+      "revId": "ea9137b47577d4404d253c9a714d4745f94c709f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAATn///3Q\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 1001146
+      },
+      "writtenOn": "2009-05-21T03:31:22Z",
+      "side": 1,
+      "message": "incorrect indent",
+      "revId": "ea9137b47577d4404d253c9a714d4745f94c709f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAATn///3M\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 1001146
+      },
+      "writtenOn": "2009-05-21T03:31:22Z",
+      "side": 1,
+      "message": "Does the table contain the is_ringtone column when it is first created? (no update, first boot)",
+      "revId": "ea9137b47577d4404d253c9a714d4745f94c709f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
