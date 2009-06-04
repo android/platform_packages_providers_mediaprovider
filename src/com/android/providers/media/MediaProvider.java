@@ -1390,6 +1390,7 @@ public class MediaProvider extends ContentProvider {
             case IMAGES_MEDIA:
                 out.table = "images";
                 break;
+
             case IMAGES_MEDIA_ID:
                 out.table = "images";
                 where = "_id = " + uri.getPathSegments().get(3);
