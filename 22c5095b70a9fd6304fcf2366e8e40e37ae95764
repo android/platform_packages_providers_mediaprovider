@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAA8H//+TA\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2010-10-27T16:52:39Z",
+      "side": 1,
+      "message": "Not sure I like this. Would it be possible to check the size of the image (without decoding it) to see if it is of reasonable size?",
+      "revId": "22c5095b70a9fd6304fcf2366e8e40e37ae95764",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
