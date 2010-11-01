@@ -34,6 +34,24 @@
       "revId": "22c5095b70a9fd6304fcf2366e8e40e37ae95764",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAA8H//9uo\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2010-11-01T16:36:49Z",
+      "side": 1,
+      "message": "We only generate a few specific sizes of thumbnails, but point taken; given the steps the code goes through to create the thumbnail, just checking the size is probably not going to be enough.",
+      "parentUuid": "AAAA8H//9xA\u003d",
+      "revId": "22c5095b70a9fd6304fcf2366e8e40e37ae95764",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
