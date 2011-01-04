@@ -327,12 +327,6 @@ public class MediaProvider extends ContentProvider {
                                     Log.w(TAG, "original file hasn't been stored yet: " + mCurrentThumbRequest.mPath);
                                 }
                             }
-                        } catch (IOException ex) {
-                            Log.w(TAG, ex);
-                        } catch (UnsupportedOperationException ex) {
-                            // This could happen if we unplug the sd card during insert/update/delete
-                            // See getDatabaseForUri.
-                            Log.w(TAG, ex);
                         } catch (OutOfMemoryError err) {
                             /*
                              * Note: Catching Errors is in most cases considered
@@ -344,6 +338,16 @@ public class MediaProvider extends ContentProvider {
                              * these problems than by catching OutOfMemoryError.
                              */
                             Log.w(TAG, err);
+                        } catch (Exception ex) {
+                            /*
+                             * Failing to generate a thumbnail is not considered
+                             * a failure that should generate error messages or
+                             * stop the operation.
+                             * Catch all exceptions here since there are many
+                             * things that can go wrong here, e.g. unplugging or
+                             * mounting the SD card during insert/update/delete.
+                             */
+                            Log.w(TAG, ex);
                         } finally {
                             synchronized (mCurrentThumbRequest) {
                                 mCurrentThumbRequest.mState = MediaThumbRequest.State.DONE;
@@ -356,8 +360,16 @@ public class MediaProvider extends ContentProvider {
                     synchronized (mThumbRequestStack) {
                         d = (ThumbData)mThumbRequestStack.pop();
                     }
-
-                    makeThumbInternal(d);
+                    try {
+                        makeThumbInternal(d);
+                    } catch (Exception ex) {
+                        /*
+                         * Same thing here, failing to generate a thumbnail is
+                         * not considered a failure that should generate error
+                         * messages or stop the user operation.
+                         */
+                        Log.w(TAG, ex);
+                    }
                     synchronized (mPendingThumbs) {
                         mPendingThumbs.remove(d.path);
                     }
