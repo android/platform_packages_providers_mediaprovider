@@ -417,6 +417,7 @@ public class MediaProvider extends ContentProvider {
             db.execSQL("DROP TABLE IF EXISTS audio_playlists");
             db.execSQL("DROP TABLE IF EXISTS audio_playlists_map");
             db.execSQL("DROP TRIGGER IF EXISTS audio_playlists_cleanup");
+            db.execSQL("DROP TRIGGER IF EXISTS album_cleanup");
             db.execSQL("DROP TRIGGER IF EXISTS albumart_cleanup1");
             db.execSQL("DROP TRIGGER IF EXISTS albumart_cleanup2");
             db.execSQL("DROP TABLE IF EXISTS video");
@@ -589,6 +590,13 @@ public class MediaProvider extends ContentProvider {
                                "DELETE FROM audio_playlists_map WHERE playlist_id = old._id;" +
                                "SELECT _DELETE_FILE(old._data);" +
                            "END");
+
+                // Cleans up album table entry when all tracks in the album have been deleted
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS album_cleanup AFTER DELETE ON audio_meta " +
+                        "WHEN (SELECT count(*) FROM audio_meta WHERE album_id = old.album_id) = 0 " +
+                        "BEGIN " +
+                            "DELETE FROM albums WHERE album_id = old.album_id;" +
+                        "END");
 
                 // Cleans up album_art table entry when an album is deleted
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS albumart_cleanup1 DELETE ON albums " +
