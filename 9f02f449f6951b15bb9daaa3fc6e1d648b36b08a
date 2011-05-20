@@ -1,0 +1,8 @@
+Change-Id: I0aaf70d26351addc716d197e71e9e4d6875461c7
+Code-Review+2: Dave Sparks <davidsparks@android.com>
+Verified+1: Dave Sparks <davidsparks@android.com>
+Submitted-by: Dave Sparks <davidsparks@android.com>
+Submitted-at: Fri, 05 Jun 2009 09:23:44 -0700
+Reviewed-on: https://review.source.android.com/10265
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master

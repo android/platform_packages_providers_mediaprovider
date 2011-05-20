@@ -1,0 +1,8 @@
+Code-Review+1: Jean-Baptiste Queru <jbq@google.com>
+Verified+1: Jean-Baptiste Queru <jbq@google.com>
+Code-Review+2: Marco Nelissen <marcone@google.com>
+Submitted-by: Jean-Baptiste Queru <jbq@google.com>
+Submitted-at: Mon, 29 Nov 2010 16:01:10 -0700
+Reviewed-on: https://review.source.android.com/19158
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master

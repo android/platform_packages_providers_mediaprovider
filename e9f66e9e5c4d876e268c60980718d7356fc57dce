@@ -1,0 +1,8 @@
+Change-Id: Ie9f66e9e5c4d876e268c60980718d7356fc57dce
+Code-Review+2: Jean-Baptiste Queru <jbq@google.com>
+Verified+1: Jean-Baptiste Queru <jbq@google.com>
+Submitted-by: Jean-Baptiste Queru <jbq@google.com>
+Submitted-at: Wed, 18 Mar 2009 14:00:58 -0700
+Reviewed-on: https://review.source.android.com/9205
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
