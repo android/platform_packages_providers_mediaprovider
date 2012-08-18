@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAIrn///+k\u003d",
+        "filename": "src/com/android/providers/media/MediaScannerService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1006166
+      },
+      "writtenOn": "2012-08-18T20:55:50Z",
+      "side": 1,
+      "message": "could you fix the indenting inside the try{} block?",
+      "revId": "aeec7ec414e575ec2393340ccfc0a72c01d89e07",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
