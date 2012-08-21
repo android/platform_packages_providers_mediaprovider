@@ -4421,11 +4421,20 @@ public class MediaProvider extends ContentProvider {
         msg.sendToTarget();
     }
 
+    //Return ture if the artPath is the dir as it in mExternalStoragePaths
+    //for multi storage support
+    private static boolean isRootStorageDir(String artPath) {
+        for ( int i = 0; i < mExternalStoragePaths.length; i++) {
+            if((mExternalStoragePaths[i] != null)&&(artPath.equalsIgnoreCase(mExternalStoragePaths[i])))
+                return true;
+        }
+        return false;
+    }
+
     // Extract compressed image data from the audio file itself or, if that fails,
     // look for a file "AlbumArt.jpg" in the containing directory.
     private static byte[] getCompressedAlbumArt(Context context, String path) {
         byte[] compressed = null;
-
         try {
             File f = new File(path);
             ParcelFileDescriptor pfd = ParcelFileDescriptor.open(f,
@@ -4457,7 +4466,8 @@ public class MediaProvider extends ContentProvider {
                     synchronized (sFolderArtMap) {
                         if (sFolderArtMap.containsKey(artPath)) {
                             bestmatch = sFolderArtMap.get(artPath);
-                        } else if (!artPath.equalsIgnoreCase(sdroot) &&
+                        } else if (/*!artPath.equalsIgnoreCase(sdroot)*/
+                                !isRootStorageDir(artPath) &&
                                 !artPath.equalsIgnoreCase(dwndir)) {
                             File dir = new File(artPath);
                             String [] entrynames = dir.list();
