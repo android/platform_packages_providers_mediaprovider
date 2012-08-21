@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAIwn///3k\u003d",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000660
+      },
+      "writtenOn": "2012-08-21T17:30:31Z",
+      "side": 1,
+      "message": "Please use braces for the multiline conditional.",
+      "revId": "4599003425f9b83319805a3522aeb31bfd2f1d30",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
