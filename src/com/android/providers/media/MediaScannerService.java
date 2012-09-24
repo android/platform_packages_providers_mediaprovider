@@ -264,6 +264,10 @@ public class MediaScannerService extends Service implements Runnable
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Exception in handleMessage", e);
+                //when exception happens, we still need to release wakelock
+                if(mWakeLock.isHeld()){
+                    mWakeLock.release();
+                }
             }
 
             stopSelf(msg.arg1);
