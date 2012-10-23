@@ -50,7 +50,9 @@ public class MtpService extends Service {
     private void addStorageDevicesLocked() {
         if (mPtpMode) {
             // In PTP mode we support only primary storage
-            addStorageLocked(mVolumeMap.get(mVolumes[0].getPath()));
+            if (mVolumeMap.get(mVolumes[0].getPath()) != null) {
+                addStorageLocked(mVolumeMap.get(mVolumes[0].getPath()));
+            }
         } else {
             for (StorageVolume volume : mVolumeMap.values()) {
                 addStorageLocked(volume);
