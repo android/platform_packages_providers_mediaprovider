@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAKtX///8I\u003d",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1016843
+      },
+      "writtenOn": "2012-10-24T16:56:26Z",
+      "side": 1,
+      "message": "Would it be shorter using temporary variable\n\n StorageVolume volume \u003d mVolumeMap.get(mVolumes[0].getPath());\n if (volume !\u003d null)\n   addStorageLocked(volume);\n\n? And just single access to HashMap.",
+      "revId": "12f1ec831522a505c74a4ad171d7b064258fd220",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
