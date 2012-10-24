@@ -192,6 +192,9 @@ public class MtpService extends Service {
     public void onDestroy() {
         unregisterReceiver(mReceiver);
         mStorageManager.unregisterListener(mStorageEventListener);
+        if (mDatabase != null) {
+            mDatabase.release();
+        }
     }
 
     private final IMtpService.Stub mBinder =
