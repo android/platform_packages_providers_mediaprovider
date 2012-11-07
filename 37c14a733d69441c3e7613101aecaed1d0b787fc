@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAALR3//+f0\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 4424,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2012-11-07T17:25:16Z",
+      "side": 1,
+      "message": "ture -\u003e true",
+      "revId": "37c14a733d69441c3e7613101aecaed1d0b787fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAALR3//+fw\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 4428,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2012-11-07T17:25:16Z",
+      "side": 1,
+      "message": "Use android code style: space after \"if\", spaces around \"\u0026\u0026\", and break line to fit in 100 chars.",
+      "revId": "37c14a733d69441c3e7613101aecaed1d0b787fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAALR3//+fY\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 4461,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2012-11-07T17:25:16Z",
+      "side": 1,
+      "message": "this isn\u0027t needed anymore",
+      "revId": "37c14a733d69441c3e7613101aecaed1d0b787fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAALR3//+fs\u003d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 4469,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2012-11-07T17:25:16Z",
+      "side": 1,
+      "message": "Remove the part in /* .. */",
+      "revId": "37c14a733d69441c3e7613101aecaed1d0b787fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
