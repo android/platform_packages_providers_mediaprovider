@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAALoX//++8\u003d",
+        "filename": "src/com/android/providers/media/MediaScannerService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1006166
+      },
+      "writtenOn": "2012-11-16T19:07:33Z",
+      "side": 1,
+      "message": "can you move this to a finally {} block?\n\n} catch (Exception e) {\n    ...\n} finally {\n    // do release here\n}",
+      "revId": "fe41237b182a0c893ed214847010089b38c3c98d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
