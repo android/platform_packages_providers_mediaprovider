@@ -1730,7 +1730,8 @@ public class MediaProvider extends ContentProvider {
         }
 
         if (fromVersion < 509) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS log (time DATETIME PRIMARY KEY, message TEXT);");
+            db.execSQL("CREATE TABLE IF NOT EXISTS log (time DATETIME, message TEXT);");
+            db.execSQL("CREATE INDEX IF NOT EXISTS log_idx ON log(time);");
         }
 
         // Emulated external storage moved to user-specific paths
