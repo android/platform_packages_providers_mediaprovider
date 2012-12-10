@@ -1730,12 +1730,8 @@ public class MediaProvider extends ContentProvider {
         }
 
         if (fromVersion < 509) {
-	    // Constraint violation failures can be occurred by time based primary declaration on log table.
-            // Primary key is removed and an index for time column is added to keep existing process flow.
-            // lg-database START [lg-database@lge.com]
             db.execSQL("CREATE TABLE IF NOT EXISTS log (time DATETIME, message TEXT);");
             db.execSQL("CREATE INDEX IF NOT EXISTS log_idx ON log(time);");+            
-	    // lg-database END
         }
 
         // Emulated external storage moved to user-specific paths

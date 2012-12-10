@@ -107,16 +107,11 @@ public class MediaScannerService extends Service implements Runnable
                 Log.e(TAG, "exception in MediaScanner.scan()", e);
             }
 
-	    // There was no exception catching code from contents resolver.
-            // Accessing DB or file can make exceptions anytime.
-            // lg-database START[lg-database@lge.com]
             try {
                 getContentResolver().delete(scanUri, null, null);
             } catch (Exception e) {
                 Log.e(TAG, "Exception in getContentResolver().delete()", e);
             }
-            // lg-database END
-
         } finally {
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_FINISHED, uri));
             mWakeLock.release();
