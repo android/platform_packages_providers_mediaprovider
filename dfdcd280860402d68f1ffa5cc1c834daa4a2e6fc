@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "Ple11hfM",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1733,
+      "author": {
+        "id": 1003957
+      },
+      "writtenOn": "2013-02-07T04:21:26Z",
+      "side": 1,
+      "message": "spaces not tabs",
+      "revId": "dfdcd280860402d68f1ffa5cc1c834daa4a2e6fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "Plc16yeE",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1734,
+      "author": {
+        "id": 1003957
+      },
+      "writtenOn": "2013-02-07T04:21:26Z",
+      "side": 1,
+      "message": "Need to bump the DB version to ensure this change is applied.\n\nThat also means we will need to migrate the data in case the table already exists with a primary key.  (I don\u0027t think SQLite lets you drop the primary key.)",
+      "revId": "dfdcd280860402d68f1ffa5cc1c834daa4a2e6fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "PlS0bjdY",
+        "filename": "src/com/android/providers/media/MediaScannerService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1003957
+      },
+      "writtenOn": "2013-02-07T04:21:26Z",
+      "side": 1,
+      "message": "spaces not tabs",
+      "revId": "dfdcd280860402d68f1ffa5cc1c834daa4a2e6fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "PlQ0Y0dU",
+        "filename": "src/com/android/providers/media/MediaScannerService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1003957
+      },
+      "writtenOn": "2013-02-07T04:21:26Z",
+      "side": 1,
+      "message": "Why are we deleting the just inserted record?  I\u0027m confused.",
+      "revId": "dfdcd280860402d68f1ffa5cc1c834daa4a2e6fc",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
