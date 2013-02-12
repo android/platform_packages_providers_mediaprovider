@@ -584,7 +584,29 @@ public class MediaProvider extends ContentProvider {
 
         StorageManager storageManager =
                 (StorageManager)context.getSystemService(Context.STORAGE_SERVICE);
-        mExternalStoragePaths = storageManager.getVolumePaths();
+
+        // Find a primary storage first and then add the other storages.
+        // It is assumed that mExternalStoragePaths[0] is a primary storage for each user,
+        // espeically in getStorageId(). But in a multiple users environment, a primary
+        // storage for a user (e.g. /storage/emulated/10) is the last entry of the list
+        // because the new storage is appended to the existing volume list of MountService
+        // after the new user is created.
+        StorageVolume[] mVolumes = storageManager.getVolumeList();
+        mExternalStoragePaths = new String[mVolumes.length];
+        int i = 0;
+        for (StorageVolume volume : mVolumes) {
+                if (volume.isPrimary()) {
+                        mExternalStoragePaths[i++] = volume.getPath();
+                }
+        }
+        if (i == 0)
+                Log.w(TAG, "No primary storage");
+
+        for (StorageVolume volume : mVolumes) {
+                if (!volume.isPrimary()) {
+                        mExternalStoragePaths[i++] = volume.getPath();
+                }
+        }
 
         // open external database if external storage is mounted
         String state = Environment.getExternalStorageState();
