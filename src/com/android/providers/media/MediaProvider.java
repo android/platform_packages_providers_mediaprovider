@@ -1751,6 +1751,14 @@ public class MediaProvider extends ContentProvider {
             updateBucketNames(db);
         }
 
+        if (fromVersion < 512) {
+            // remove primary key constraint because column time is not necessarily unique
+            db.execSQL("CREATE TABLE IF NOT EXISTS log_tmp (time DATETIME, message TEXT);");
+            db.execSQL("INSERT INTO log_tmp SELECT time, message FROM log;");
+            db.execSQL("DROP TABLE log;");
+            db.execSQL("ALTER TABLE log_tmp RENAME TO log;");
+        }
+
         sanityCheck(db, fromVersion);
         long elapsedSeconds = (SystemClock.currentTimeMicro() - startTime) / 1000000;
         logToDb(db, "Database upgraded from version " + fromVersion + " to " + toVersion
