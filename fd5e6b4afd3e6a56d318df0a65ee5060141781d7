@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "QX8zd4y8",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-02-28T15:43:28Z",
+      "side": 1,
+      "message": "if log_tmp existed already, it should be emptied first, so please insert a \"DELETE FROM log_tmp\" statement just to be on the safe side",
+      "revId": "fd5e6b4afd3e6a56d318df0a65ee5060141781d7",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "QXyyqt38",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1776,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-02-28T15:43:28Z",
+      "side": 1,
+      "message": "you made a convincing argument about the system clock changing, so this should be changed to \"order by rowid\"",
+      "revId": "fd5e6b4afd3e6a56d318df0a65ee5060141781d7",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "QXwyv.48",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 5367,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-02-28T15:43:28Z",
+      "side": 1,
+      "message": "that last \"time\" should also be \"rowid\" to account for system time changes",
+      "revId": "fd5e6b4afd3e6a56d318df0a65ee5060141781d7",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
