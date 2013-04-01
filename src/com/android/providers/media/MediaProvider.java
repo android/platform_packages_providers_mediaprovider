@@ -5009,10 +5009,14 @@ public class MediaProvider extends ContentProvider {
                                 if (recentDbFile == null) {
                                     recentDbFile = file;
                                 } else if (file.lastModified() > recentDbFile.lastModified()) {
-                                    recentDbFile.delete();
+                                    if(recentDbFile.getName().endsWith(".db")) {
+                                        context.deleteDatabase(recentDbFile.getName());
+                                    }
                                     recentDbFile = file;
                                 } else {
-                                    file.delete();
+                                    if(file.getName().endsWith(".db")) {
+                                        context.deleteDatabase(file.getName());
+                                    }
                                 }
                             }
                         }
