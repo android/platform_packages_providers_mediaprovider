@@ -442,7 +442,9 @@ public class MediaProvider extends ContentProvider {
                     long time = other.lastModified();
                     if (time < twoMonthsAgo) {
                         if (LOCAL_LOGV) Log.v(TAG, "Deleting old database " + databases[i]);
-                        mContext.deleteDatabase(databases[i]);
+                        if(databases[i].endsWith(".db")) {
+                            mContext.deleteDatabase(databases[i]);
+                        }
                         databases[i] = null;
                         count--;
                     }
@@ -468,7 +470,9 @@ public class MediaProvider extends ContentProvider {
                 // delete least recently used database
                 if (lruIndex != -1) {
                     if (LOCAL_LOGV) Log.v(TAG, "Deleting old database " + databases[lruIndex]);
-                    mContext.deleteDatabase(databases[lruIndex]);
+                    if(databases[lruIndex].endsWith(".db")) {
+                        mContext.deleteDatabase(databases[lruIndex]);
+                    }
                     databases[lruIndex] = null;
                     count--;
                 }
