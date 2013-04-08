@@ -51,6 +51,7 @@ public final class RingtonePickerActivity extends AlertActivity implements
     private static final String SAVE_CLICKED_POS = "clicked_pos";
 
     private RingtoneManager mRingtoneManager;
+    private int mType;
 
     private Cursor mCursor;
     private Handler mHandler;
@@ -138,9 +139,9 @@ public final class RingtonePickerActivity extends AlertActivity implements
         mRingtoneManager.setIncludeDrm(includeDrm);
 
         // Get the types of ringtones to show
-        int types = intent.getIntExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, -1);
-        if (types != -1) {
-            mRingtoneManager.setType(types);
+        mType = intent.getIntExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, -1);
+        if (mType != -1) {
+            mRingtoneManager.setType(mType);
         }
 
         mCursor = mRingtoneManager.getCursor();
@@ -223,6 +224,16 @@ public final class RingtonePickerActivity extends AlertActivity implements
     }
 
     private int addDefaultRingtoneItem(ListView listView) {
+        if (mType != -1) {
+            switch (mType) {
+                case RingtoneManager.TYPE_NOTIFICATION:
+                    return addStaticItem(listView, com.android.internal.R.string.notification_sound_default);
+
+                default:
+                    break;
+            }
+        }
+       
         return addStaticItem(listView, com.android.internal.R.string.ringtone_default);
     }
 
