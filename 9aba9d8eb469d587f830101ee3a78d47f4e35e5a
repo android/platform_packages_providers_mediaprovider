@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "TRZ0ug5Y",
+        "filename": "src/com/android/providers/media/RingtonePickerActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-04-10T14:51:01Z",
+      "side": 1,
+      "message": "I don\u0027t think having 2-item switch inside of an if() actually adds anything in terms of efficiency or readability, so can you replace this with  something like\n\n  if (mType \u003d\u003d RingtoneManager.TYPE_NOTIFICATION) {\n  } else if (mType \u003d\u003d RingtoneManager.TYPE_ALARM) {\n  } else {\n  }",
+      "revId": "9aba9d8eb469d587f830101ee3a78d47f4e35e5a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "TRT0.T8s",
+        "filename": "src/com/android/providers/media/RingtonePickerActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-04-10T14:51:01Z",
+      "side": 1,
+      "message": "line too long",
+      "revId": "9aba9d8eb469d587f830101ee3a78d47f4e35e5a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "TRX1I13E",
+        "filename": "src/com/android/providers/media/RingtonePickerActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-04-10T14:51:01Z",
+      "side": 1,
+      "message": "line too long.",
+      "revId": "9aba9d8eb469d587f830101ee3a78d47f4e35e5a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
