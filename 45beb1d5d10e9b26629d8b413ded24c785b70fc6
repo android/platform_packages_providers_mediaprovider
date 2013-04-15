@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "TTHwPMTs",
+        "filename": "src/com/android/providers/media/RingtonePickerActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-04-15T15:47:16Z",
+      "side": 1,
+      "message": "this outer if() isn\u0027t necessary",
+      "revId": "45beb1d5d10e9b26629d8b413ded24c785b70fc6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
