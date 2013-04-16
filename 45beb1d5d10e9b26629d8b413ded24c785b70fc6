@@ -16,6 +16,24 @@
       "revId": "45beb1d5d10e9b26629d8b413ded24c785b70fc6",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "TbbWzgCU",
+        "filename": "src/com/android/providers/media/RingtonePickerActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1019634
+      },
+      "writtenOn": "2013-04-16T04:20:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "TTHwPMTs",
+      "revId": "45beb1d5d10e9b26629d8b413ded24c785b70fc6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
