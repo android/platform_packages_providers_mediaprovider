@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "TeO0JoeE",
+        "filename": "AndroidManifest.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-04-17T14:31:40Z",
+      "side": 1,
+      "message": "please use spaces instead of tabs",
+      "revId": "2e715433e44e0bc176c024b183d5477e5eaf39cd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
