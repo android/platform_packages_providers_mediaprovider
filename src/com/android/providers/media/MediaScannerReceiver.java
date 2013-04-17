@@ -37,6 +37,8 @@ public class MediaScannerReceiver extends BroadcastReceiver {
             scan(context, MediaProvider.INTERNAL_VOLUME);
             scan(context, MediaProvider.EXTERNAL_VOLUME);
 
+        } else if (action.equals(Intent.ACTION_MEDIA_EJECT)) {
+            scan(context, MediaProvider.EXTERNAL_VOLUME);
         } else {
             if (uri.getScheme().equals("file")) {
                 // handle intents related to external storage
