@@ -1,0 +1,7 @@
+Code-Review+2: Marco Nelissen <marcone@google.com>
+Verified+1: Deckard Autoverifier <deckard@android.com>
+Submitted-by: Marco Nelissen <marcone@google.com>
+Submitted-at: Tue, 04 Jun 2013 14:40:55 +0000
+Reviewed-on: https://android-review.googlesource.com/59950
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
