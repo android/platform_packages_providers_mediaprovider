@@ -105,6 +105,8 @@ import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 
+import android.app.ActivityManager;
+
 /**
  * Media content provider. See {@link android.provider.MediaStore} for details.
  * Separate databases are kept for each external storage card we see (using the
@@ -116,6 +118,8 @@ public class MediaProvider extends ContentProvider {
     private static final Uri ALBUMART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final int ALBUM_THUMB = 1;
     private static final int IMAGE_THUMB = 2;
+
+    private static int sMaxHeapSize;
 
     private static final HashMap<String, String> sArtistAlbumsMap = new HashMap<String, String>();
     private static final HashMap<String, String> sFolderArtMap = new HashMap<String, String>();
@@ -556,6 +560,10 @@ public class MediaProvider extends ContentProvider {
                 MediaStore.Audio.Albums.NUMBER_OF_SONGS);
         sArtistAlbumsMap.put(MediaStore.Audio.Albums.ALBUM_ART, "album_art._data AS " +
                 MediaStore.Audio.Albums.ALBUM_ART);
+
+        ActivityManager am = (ActivityManager)
+            context.getSystemService(Context.ACTIVITY_SERVICE);
+        sMaxHeapSize = am.getMemoryClass() * 1024 * 1024;
 
         mSearchColsBasic[SEARCH_COLUMN_BASIC_TEXT2] =
                 mSearchColsBasic[SEARCH_COLUMN_BASIC_TEXT2].replaceAll(
@@ -4588,6 +4596,19 @@ public class MediaProvider extends ContentProvider {
                                     matchlevel = 4;
                                 }
                             }
+
+                            //If the size of image file bigger than maximal heap size.
+                            //We reset bestmatch to null to avoid error
+                            if (bestmatch != null) {
+                                 File file = new File(artPath, bestmatch);
+                                 if (file.exists()) {
+                                     int fileSize = (int)file.length();
+                                     if (fileSize > sMaxHeapSize) {
+                                         bestmatch = null;
+                                     }
+                                 }
+                            }
+
                             // note that this may insert null if no album art was found
                             sFolderArtMap.put(artPath, bestmatch);
                         }
