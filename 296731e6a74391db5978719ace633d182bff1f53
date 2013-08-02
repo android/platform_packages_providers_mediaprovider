@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b804e402_9c9485cb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000882
+      },
+      "writtenOn": "2013-08-02T03:43:02Z",
+      "side": 1,
+      "message": "I think this sentence is incorrect. Any file, whether it is AlbumArt.jpg or SomeOtherImage.png, that is too large will cause the OutOfMemoryError.\n\nI would just cut the whole part that talks about the various types of album art files it looks for (because it\u0027s irrelevant for this change, and because it\u0027s explained in the code) and just talk about catching the OutOfMemoryError that can result from allocating the byte[] to hold the data.",
+      "revId": "296731e6a74391db5978719ace633d182bff1f53",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
