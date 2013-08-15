@@ -2981,15 +2981,22 @@ public class MediaProvider extends ContentProvider {
     }
 
     private int getStorageId(String path) {
-        for (int i = 0; i < mExternalStoragePaths.length; i++) {
-            String test = mExternalStoragePaths[i];
-            if (path.startsWith(test)) {
-                int length = test.length();
-                if (path.length() == length || path.charAt(length) == '/') {
-                    return MtpStorage.getStorageId(i);
+        final Context context = getContext();
+        StorageManager storageManager = (StorageManager)context.getSystemService(Context.STORAGE_SERVICE);
+        StorageVolume[] volumes = storageManager.getVolumeList();
+        if (volumes != null) {
+            for (int i = 0; i < volumes.length; i++) {
+                String test = volumes[i].getPath();
+                if (path.startsWith(test)) {
+                    int length = test.length();
+                    if (path.length() == length || path.charAt(length) == '/') {
+                        if (LOCAL_LOGV) Log.v(TAG, "StorageId is " + volumes[i].getStorageId() + " for " + path);
+                        return volumes[i].getStorageId();
+                    }
                 }
             }
         }
+
         // default to primary storage
         return MtpStorage.getStorageId(0);
     }
