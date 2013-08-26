@@ -1762,7 +1762,9 @@ public class MediaProvider extends ContentProvider {
             // Views don't need to be recreated.
 
             db.execSQL("CREATE TABLE files2 (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "_data TEXT UNIQUE" +
+                    "_data TEXT" +
+                    // have unique for internal only
+                    (internal ? "UNIQUE," : ",") +
                     // the internal filesystem is case-sensitive
                     (internal ? "," : " COLLATE NOCASE,") +
                     "_size INTEGER,format INTEGER,parent INTEGER,date_added INTEGER," +
