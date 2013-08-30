@@ -100,6 +100,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
@@ -242,7 +243,9 @@ public class MediaProvider extends ContentProvider {
                 } else {
                     // If secondary external storage is ejected, then we delete all database
                     // entries for that storage from the files table.
-                    synchronized (mDatabases) {
+                    try {
+                        mDatabasesLock.readLock().lock();
+
                         DatabaseHelper database = mDatabases.get(EXTERNAL_VOLUME);
                         Uri uri = Uri.parse("file://" + storage.getPath());
                         if (database != null) {
@@ -287,6 +290,8 @@ public class MediaProvider extends ContentProvider {
                                 mDisableMtpObjectCallbacks = false;
                             }
                         }
+                    } finally {
+                        mDatabasesLock.readLock().unlock();
                     }
                 }
             }
@@ -4958,10 +4963,14 @@ public class MediaProvider extends ContentProvider {
      * @returns the database for the given URI
      */
     private DatabaseHelper getDatabaseForUri(Uri uri) {
-        synchronized (mDatabases) {
+        try {
+            mDatabasesLock.readLock().lock();
+
             if (uri.getPathSegments().size() >= 1) {
                 return mDatabases.get(uri.getPathSegments().get(0));
             }
+        } finally {
+            mDatabasesLock.readLock().unlock();
         }
         return null;
     }
@@ -5000,7 +5009,9 @@ public class MediaProvider extends ContentProvider {
                     "Opening and closing databases not allowed.");
         }
 
-        synchronized (mDatabases) {
+        try {
+            mDatabasesLock.writeLock().lock();
+
             if (mDatabases.get(volume) != null) {  // Already attached
                 return Uri.parse("content://media/" + volume);
             }
@@ -5119,6 +5130,8 @@ public class MediaProvider extends ContentProvider {
                     new File(filename).delete();
                 }
             }
+        } finally {
+            mDatabasesLock.writeLock().unlock();
         }
 
         if (LOCAL_LOGV) Log.v(TAG, "Attached volume: " + volume);
@@ -5147,7 +5160,9 @@ public class MediaProvider extends ContentProvider {
                     "There is no volume named " + volume);
         }
 
-        synchronized (mDatabases) {
+        try {
+            mDatabasesLock.writeLock().lock();
+
             DatabaseHelper database = mDatabases.get(volume);
             if (database == null) return;
 
@@ -5161,6 +5176,8 @@ public class MediaProvider extends ContentProvider {
 
             mDatabases.remove(volume);
             database.close();
+        } finally {
+            mDatabasesLock.writeLock().unlock();
         }
 
         getContext().getContentResolver().notifyChange(uri, null);
@@ -5181,6 +5198,7 @@ public class MediaProvider extends ContentProvider {
     private static final long OBSOLETE_DATABASE_DB = 5184000000L;
 
     private HashMap<String, DatabaseHelper> mDatabases;
+    private ReentrantReadWriteLock mDatabasesLock = new ReentrantReadWriteLock();
 
     private Handler mThumbHandler;
 
