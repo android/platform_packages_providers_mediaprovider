@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7299ad82_1b0d474c",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2013-09-03T14:53:36Z",
+      "side": 1,
+      "message": "can you add a small comment here saying this synchronized block is limited to avoid a potential deadlock?",
+      "revId": "e94887c811462b83dbdc94917fa03df6e4141678",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
