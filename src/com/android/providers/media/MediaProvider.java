@@ -5608,9 +5608,11 @@ public class MediaProvider extends ContentProvider {
 
     @Override
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-        Collection<DatabaseHelper> foo = mDatabases.values();
-        for (DatabaseHelper dbh: foo) {
-            writer.println(dump(dbh, true));
+        synchronized (mDatabases) {
+            Collection<DatabaseHelper> foo = mDatabases.values();
+            for (DatabaseHelper dbh: foo) {
+                writer.println(dump(dbh, true));
+            }
         }
         writer.flush();
     }
