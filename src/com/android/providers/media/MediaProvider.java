@@ -4643,15 +4643,15 @@ public class MediaProvider extends ContentProvider {
                 c.enforceCallingOrSelfPermission(
                         ACCESS_CACHE_FILESYSTEM, "Cache path: " + path);
             }
-        } else if (isWrite) {
-            // don't write to non-cache, non-sdcard files.
-            throw new FileNotFoundException("Can't access " + file);
         } else if (isSecondaryExternalPath(path)) {
             // read access is OK with the appropriate permission
             if (!readGranted) {
                 c.enforceCallingOrSelfPermission(
                         READ_EXTERNAL_STORAGE, "External path: " + path);
             }
+        } else if (isWrite) {
+            // don't write to non-cache, non-sdcard files.
+            throw new FileNotFoundException("Can't access " + file);
         } else {
             checkWorldReadAccess(path);
         }
