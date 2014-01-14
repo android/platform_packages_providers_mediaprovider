@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d8b9570_f03f80eb",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 4652,
+      "author": {
+        "id": 1004248
+      },
+      "writtenOn": "2014-01-14T10:43:16Z",
+      "side": 1,
+      "message": "https://android-review.googlesource.com/#/c/74061/\nhas same thing. So I think we need to merge the above.",
+      "revId": "3e72558af8821e026969396ebf69d0d2ee799252",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
