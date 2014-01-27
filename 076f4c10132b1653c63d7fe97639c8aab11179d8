@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2fa0681_c61306e7",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 4651,
+      "author": {
+        "id": 1006166
+      },
+      "writtenOn": "2014-01-27T23:30:15Z",
+      "side": 1,
+      "message": "right, slight adjustment needed here; the caller needs to hold either READ_EXTERNAL_STORAGE *or* WRITE_MEDIA_STORAGE.",
+      "revId": "076f4c10132b1653c63d7fe97639c8aab11179d8",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
