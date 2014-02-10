@@ -1,0 +1,7 @@
+Code-Review+2: Jeff Sharkey <jsharkey@android.com>
+Verified+1: Deckard Autoverifier <deckard@android.com>
+Submitted-by: Jeff Sharkey <jsharkey@android.com>
+Submitted-at: Mon, 10 Feb 2014 18:26:53 +0000
+Reviewed-on: https://android-review.googlesource.com/74061
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
