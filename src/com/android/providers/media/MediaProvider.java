@@ -4377,6 +4377,18 @@ public class MediaProvider extends ContentProvider {
                     }
                     break;
 
+                case AUDIO_PLAYLISTS:
+                    ContentValues values = new ContentValues(initialValues);
+                    if (initialValues.containsKey(Audio.Playlists.NAME)) {
+                        String path = mExternalStoragePaths[0]
+                            + "/Playlists/" + values.getAsString(Audio.Playlists.NAME);
+                        values.put(MediaStore.MediaColumns.DATA, path);
+                    }
+                    helper.mNumUpdates++;
+                    count = db.update(sGetTableAndWhereParam.table, values,
+                            sGetTableAndWhereParam.where, whereArgs);
+                    break;
+
                 case AUDIO_PLAYLISTS_ID_MEMBERS_ID:
                     String moveit = uri.getQueryParameter("move");
                     if (moveit != null) {
