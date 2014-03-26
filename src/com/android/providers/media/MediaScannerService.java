@@ -176,14 +176,17 @@ public class MediaScannerService extends Service implements Runnable
 
     public void run()
     {
-        // reduce priority below other background threads to avoid interfering
-        // with other services at boot time.
-        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND +
-                Process.THREAD_PRIORITY_LESS_FAVORABLE);
+        // Create Looper & Handler first, since main thread is waiting for mServiceHandler
+
         Looper.prepare();
 
         mServiceLooper = Looper.myLooper();
         mServiceHandler = new ServiceHandler();
+
+        // reduce priority below other background threads to avoid interfering
+        // with other services at boot time.
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND +
+                Process.THREAD_PRIORITY_LESS_FAVORABLE);
 
         Looper.loop();
     }
