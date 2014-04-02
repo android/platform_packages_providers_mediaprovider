@@ -3007,8 +3007,13 @@ public class MediaProvider extends ContentProvider {
                 long artistRowId;
                 HashMap<String, Long> artistCache = helper.mArtistCache;
                 String path = values.getAsString(MediaStore.MediaColumns.DATA);
-                synchronized(artistCache) {
-                    Long temp = artistCache.get(s);
+
+                {
+                    Long temp = null;
+                    synchronized(artistCache) {
+                        temp = artistCache.get(s);
+                    }
+
                     if (temp == null) {
                         artistRowId = getKeyIdForName(helper, db,
                                 "artists", "artist_key", "artist",
@@ -3025,7 +3030,7 @@ public class MediaProvider extends ContentProvider {
                 values.remove("album");
                 long albumRowId;
                 HashMap<String, Long> albumCache = helper.mAlbumCache;
-                synchronized(albumCache) {
+                {
                     int albumhash = 0;
                     if (albumartist != null) {
                         albumhash = albumartist.hashCode();
@@ -3035,7 +3040,11 @@ public class MediaProvider extends ContentProvider {
                         albumhash = path.substring(0, path.lastIndexOf('/')).hashCode();
                     }
                     String cacheName = s + albumhash;
-                    Long temp = albumCache.get(cacheName);
+
+                    Long temp = null;
+                    synchronized(albumCache) {
+                        temp = albumCache.get(cacheName);
+                    }
                     if (temp == null) {
                         albumRowId = getKeyIdForName(helper, db,
                                 "albums", "album_key", "album",
@@ -4272,8 +4281,11 @@ public class MediaProvider extends ContentProvider {
                         if (artist != null) {
                             long artistRowId;
                             HashMap<String, Long> artistCache = helper.mArtistCache;
-                            synchronized(artistCache) {
-                                Long temp = artistCache.get(artist);
+                            {
+                                Long temp = null;
+                                synchronized(artistCache) {
+                                    temp = artistCache.get(artist);
+                                }
                                 if (temp == null) {
                                     artistRowId = getKeyIdForName(helper, db,
                                             "artists", "artist_key", "artist",
@@ -4328,9 +4340,13 @@ public class MediaProvider extends ContentProvider {
                             String s = so.toString();
                             long albumRowId;
                             HashMap<String, Long> albumCache = helper.mAlbumCache;
-                            synchronized(albumCache) {
+
+                            {
+                                Long temp = null;
                                 String cacheName = s + albumHash;
-                                Long temp = albumCache.get(cacheName);
+                                synchronized(albumCache) {
+                                    temp = albumCache.get(cacheName);
+                                }
                                 if (temp == null) {
                                     albumRowId = getKeyIdForName(helper, db,
                                             "albums", "album_key", "album",
@@ -5231,7 +5247,9 @@ public class MediaProvider extends ContentProvider {
         }
 
         if (cache != null && ! isUnknown) {
-            cache.put(cacheName, rowId);
+            synchronized (cache) {
+                cache.put(cacheName, rowId);
+            }
         }
         return rowId;
     }
