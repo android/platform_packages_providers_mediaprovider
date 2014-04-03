@@ -814,7 +814,13 @@ public class MediaDocumentsProvider extends DocumentsProvider {
             long id, CancellationSignal signal) throws FileNotFoundException {
         final ContentResolver resolver = getContext().getContentResolver();
 
-        ParcelFileDescriptor pfd = openImageThumbnailCleared(id, signal);
+        ParcelFileDescriptor pfd = null;
+        try {
+            pfd = openImageThumbnailCleared(id, signal);
+        } catch (FileNotFoundException e) {
+
+        }
+
         if (pfd == null) {
             // No thumbnail yet, so generate. This is messy, since we drop the
             // Bitmap on the floor, but its the least-complicated way.
@@ -902,7 +908,13 @@ public class MediaDocumentsProvider extends DocumentsProvider {
             long id, CancellationSignal signal) throws FileNotFoundException {
         final ContentResolver resolver = getContext().getContentResolver();
 
-        AssetFileDescriptor afd = openVideoThumbnailCleared(id, signal);
+        AssetFileDescriptor afd = null;
+        try {
+            afd = openVideoThumbnailCleared(id, signal);
+        } catch (FileNotFoundException e) {
+
+        }
+
         if (afd == null) {
             // No thumbnail yet, so generate. This is messy, since we drop the
             // Bitmap on the floor, but its the least-complicated way.
