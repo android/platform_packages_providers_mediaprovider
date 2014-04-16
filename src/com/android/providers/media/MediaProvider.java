@@ -3141,6 +3141,13 @@ public class MediaProvider extends ContentProvider {
         }
         values.put(FileColumns.MEDIA_TYPE, mediaType);
 
+        if (mMtpService != null && path != null) {
+            if ((mediaType == FileColumns.MEDIA_TYPE_IMAGE)
+                || (mediaType == FileColumns.MEDIA_TYPE_NONE &&
+                        MediaFile.isImageFileType(MediaFile.getFileTypeForMimeType(mimeType))))
+            makeThumbInInsertImage(helper, path);
+        }
+
         if (rowId == 0) {
             if (mediaType == FileColumns.MEDIA_TYPE_PLAYLIST) {
                 String name = values.getAsString(Audio.Playlists.NAME);
@@ -5853,6 +5860,75 @@ public class MediaProvider extends ContentProvider {
             }
         }
 
+    }
+
+    private void makeThumbInInsertImage(DatabaseHelper helper, String data) {
+        Cursor cur = null;
+
+        // Check if there is Album in the same folder. if it's not, exit.
+        try {
+            File f = new File(data);
+            if (f == null) {
+                Log.w(TAG, "[makeThumbInInsertImage] can't find image");
+                return;
+            }
+
+            String parent = f.getParent();
+            synchronized (sFolderArtMap) {
+                if (sFolderArtMap.containsKey(parent)) {
+                    String match = sFolderArtMap.get(parent);
+                    if (match != null)
+                        return;
+
+                    Log.d(TAG, "[makeThumbInInsertImage] remove art parent: " + parent);
+                    sFolderArtMap.remove(parent);
+                } // End of if (sFolderArtMap.containsKey(parent))
+            } // End of synchronized (sFolderArtMap)
+
+            // get the same folder's song.
+            SQLiteDatabase db = helper.getWritableDatabase();
+            if (db == null) {
+                Log.w(TAG, "[makeThumbInInsertImage] can't get related db");
+                return;
+            }
+
+            String[] selectionArgs = new String[] { parent + "%" };
+            cur = db.rawQuery("SELECT album_id FROM audio where _data like ?", selectionArgs);
+
+            HashSet hashAlbumId = new HashSet();
+            int id = 0;
+
+            while (cur != null && cur.moveToNext()) {
+                id = cur.getInt(0);
+                if (hashAlbumId.contains(id))
+                    continue;
+                else
+                    hashAlbumId.add(id);
+
+                Cursor cAlbumInfo = null;
+                try {
+                    cAlbumInfo = db.rawQuery("SELECT album_art, album FROM album_info where _id =" + id , null);
+
+                    String album_art = null, album = null;
+                    while (cAlbumInfo != null && cAlbumInfo.moveToNext()) {
+                        album_art = cAlbumInfo.getString(0);
+                        album = cAlbumInfo.getString(1);
+
+                        // there is no Album art, make it and update cursor.
+                        if (album_art == null && !MediaStore.UNKNOWN_STRING.equals(album)) {
+                            Log.d(TAG, "[makeThumbInInsertImage] make thumb for " + album);
+                            makeThumbAsync(helper, db, data, id);
+                        }
+                    } // End of while (cAlbumInfo.moveToNext())
+                } finally {
+                    IoUtils.closeQuietly(cAlbumInfo);
+                }
+            } // End of while (cur.moveToNext())
+        } catch (Exception e) {
+            Log.e(TAG, "[makeThumbInInsertImage] exception:" + e);
+        } finally {
+            IoUtils.closeQuietly(cur);
+        }
     }
 
 }
