@@ -1,0 +1,8 @@
+Code-Review+1: Pengfei Han <pengfeix.han@intel.com>
+Code-Review+2: Marco Nelissen <marcone@google.com>
+Verified+1: Marco Nelissen <marcone@google.com>
+Submitted-by: Marco Nelissen <marcone@google.com>
+Submitted-at: Fri, 25 Apr 2014 20:52:39 +0000
+Reviewed-on: https://android-review.googlesource.com/90681
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
