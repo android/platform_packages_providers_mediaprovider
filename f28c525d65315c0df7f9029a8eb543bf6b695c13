@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "653733c4_e997552f",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2856,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2014-04-30T14:42:10Z",
+      "side": 1,
+      "message": "At the very least this should use startsWith() instead of contains(), and have a \"/\" at the end of the Uri.\nIt \u0027s probably more efficient to use the mInternal member of the DatabaseHelper created above though.",
+      "revId": "f28c525d65315c0df7f9029a8eb543bf6b695c13",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
