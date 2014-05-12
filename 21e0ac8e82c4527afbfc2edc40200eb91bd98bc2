@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa4d7811_24d85825",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1883,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2014-05-12T16:03:38Z",
+      "side": 1,
+      "message": "should this (or both) queries be inside the try {}, so that if the 2nd query throws an exception for some reason, the first cursor still gets closed?",
+      "revId": "21e0ac8e82c4527afbfc2edc40200eb91bd98bc2",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
