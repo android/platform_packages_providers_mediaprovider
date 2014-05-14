@@ -16,6 +16,24 @@
       "revId": "21e0ac8e82c4527afbfc2edc40200eb91bd98bc2",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a07c8cc_b7ce883c",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1883,
+      "author": {
+        "id": 1004424
+      },
+      "writtenOn": "2014-05-14T11:07:56Z",
+      "side": 1,
+      "message": "yea that is probably a good idea, ill move both because it looks better.",
+      "parentUuid": "aa4d7811_24d85825",
+      "revId": "21e0ac8e82c4527afbfc2edc40200eb91bd98bc2",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
