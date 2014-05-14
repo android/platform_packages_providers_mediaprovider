@@ -4034,6 +4034,7 @@ public class MediaProvider extends ContentProvider {
                                         FileColumns.MEDIA_TYPE_VIDEO, id);
 
                             } else if (mediaType == FileColumns.MEDIA_TYPE_AUDIO) {
+                                deleteIfAllowed(uri, data);
                                 if (!database.mInternal) {
                                     MediaDocumentsProvider.onMediaStoreDelete(getContext(),
                                             volumeName, FileColumns.MEDIA_TYPE_AUDIO, id);
