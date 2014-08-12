@@ -76,6 +76,14 @@ public class MediaScannerService extends Service implements Runnable {
 
             try {
                 if (volumeName.equals(MediaProvider.EXTERNAL_VOLUME)) {
+                    // Create the .nomedia file for app data files in case it has been deleted
+                    for (String path : directories) {
+                        try {
+                            new File(path + "/Android/data/.nomedia").createNewFile();
+                            new File(path + "/Android/obb/.nomedia").createNewFile();
+                        } catch (Exception e) {
+                        }
+                    }
                     openDatabase(volumeName);
                 }
 
