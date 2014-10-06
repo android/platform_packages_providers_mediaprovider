@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10116099_89cf5d36",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2014-10-06T17:58:39Z",
+      "side": 1,
+      "message": "I assume you meant to use SYSTEM_BOOTCOMPLETED here?",
+      "revId": "d21692cabbc118d4c9de018caef12eab44c4acab",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
