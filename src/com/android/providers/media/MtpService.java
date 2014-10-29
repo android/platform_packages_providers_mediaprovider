@@ -28,7 +28,12 @@ import android.mtp.MtpDatabase;
 import android.mtp.MtpServer;
 import android.mtp.MtpStorage;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Process;
 import android.os.UserHandle;
 import android.os.storage.StorageEventListener;
 import android.os.storage.StorageManager;
@@ -41,6 +46,8 @@ import java.util.HashMap;
 public class MtpService extends Service {
     private static final String TAG = "MtpService";
     private static final boolean LOGD = true;
+    private static final int MSG_STORAGE_INFO_CHANGED = 0;
+    private static final int UPDATE_DELAY = 500;
 
     // We restrict PTP to these subdirectories
     private static final String[] PTP_DIRECTORIES = new String[] {
@@ -88,6 +95,11 @@ public class MtpService extends Service {
                             }
                         }
                     }}, "addStorageDevices").start();
+            } else if (Intent.ACTION_USER_REMOVED.equals(action)) {
+                if (null != mHandler) {
+                    Log.v(TAG, "Receive ACTION_USER_REMOVED");
+                    mHandler.updateMtpStorageInfo();
+                }
             }
         }
     };
@@ -119,9 +131,44 @@ public class MtpService extends Service {
     private final HashMap<String, MtpStorage> mStorageMap = new HashMap<String, MtpStorage>();
     private StorageVolume[] mVolumes;
 
+    private MtpStorageInfoHandler mHandler;
+    private HandlerThread mThread;
+
+    private final class MtpStorageInfoHandler extends Handler {
+
+        public MtpStorageInfoHandler(Looper looper) {
+            super(looper);
+        }
+
+        public void updateMtpStorageInfo() {
+            removeMessages(MSG_STORAGE_INFO_CHANGED);
+            Message msg = Message.obtain(this, MSG_STORAGE_INFO_CHANGED);
+            sendMessageDelayed(msg, UPDATE_DELAY);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch(msg.what) {
+                case MSG_STORAGE_INFO_CHANGED:
+                    final StorageVolume primary = StorageManager.getPrimaryVolume(mVolumes);
+                    synchronized (mBinder) {
+                        if (primary != null) {
+                            changeStorageInfo(primary);
+                        }
+                    }
+                    break;
+                default:
+                    Log.e(TAG, "handleMessage is " + msg.what);
+                    break;
+            }
+        }
+    }
     @Override
     public void onCreate() {
-        registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        intentFilter.addAction(Intent.ACTION_USER_REMOVED);
+        registerReceiver(mReceiver, intentFilter);
 
         mStorageManager = StorageManager.from(this);
         synchronized (mBinder) {
@@ -137,6 +184,12 @@ public class MtpService extends Service {
                 }
             }
         }
+        // create a thread for our handler
+        mThread = new HandlerThread("MtpStorageInfo",
+            Process.THREAD_PRIORITY_BACKGROUND);
+
+        mThread.start();
+        mHandler = new MtpStorageInfoHandler(mThread.getLooper());
     }
 
     @Override
@@ -210,6 +263,10 @@ public class MtpService extends Service {
         if (mDatabase != null) {
             mDatabase.setServer(null);
         }
+
+        if (mThread != null) {
+            mThread.quit();
+        }
     }
 
     private final IMtpService.Stub mBinder =
@@ -279,6 +336,20 @@ public class MtpService extends Service {
         }
         if (mServer != null) {
             mServer.removeStorage(storage);
+        }
+    }
+
+    private void changeStorageInfo(StorageVolume volume) {
+        MtpStorage storage = mStorageMap.get(volume.getPath());
+        if (storage == null) {
+            Log.e(TAG, "no MtpStorage for " + volume.getPath());
+            return;
+        }
+
+        Log.d(TAG, "changeStorageinfo " + storage.getStorageId() + " " + storage.getPath());
+
+        if (mServer != null) {
+            mServer.changeStorageInfo(storage);
         }
     }
 }
