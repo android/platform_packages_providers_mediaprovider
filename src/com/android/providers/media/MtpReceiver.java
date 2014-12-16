@@ -27,7 +27,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.UserHandle;
 import android.util.Log;
+import android.app.ActivityManager;
+import android.database.Cursor;
+import android.provider.MediaStore;
+import libcore.io.IoUtils;
 
 public class MtpReceiver extends BroadcastReceiver {
     private static final String TAG = MtpReceiver.class.getSimpleName();
@@ -119,6 +124,14 @@ public class MtpReceiver extends BroadcastReceiver {
             // tell MediaProvider MTP is connected so it can bind to the service
             context.getContentResolver().insert(Uri.parse(
                     "content://media/none/mtp_connected"), null);
+
+            Bundle args = new Bundle();
+            args.putString("volume", MediaProvider.EXTERNAL_VOLUME);
+            context.startService(
+                    new Intent(context, MediaScannerService.class).putExtras(args));
+
+            scanExternalVolumeIfNeed(context);
+
         } else {
             boolean status = context.stopService(new Intent(context, MtpService.class));
             if (DEBUG) { Log.d(TAG, "handleUsbState stopService status=" + status); }
@@ -130,4 +143,50 @@ public class MtpReceiver extends BroadcastReceiver {
         Log.d(TAG, "[MTP][handleUsbState]-");
 
     }
+
+    private void scanExternalVolumeIfNeed(Context context) {
+        if (context == null || context.getContentResolver() == null) {
+            Log.w(TAG, "[MTP][scanExternalVolumeIfNeed] should not be here, skip scan");
+            return;
+        }
+
+        final boolean isCurrentUser = UserHandle.myUserId() == ActivityManager.getCurrentUser();
+        if (!isCurrentUser) {
+            Log.d(TAG, "[MTP][scanExternalVolumeIfNeed] isn't current user, skip scan external volume");
+            return;
+        }
+
+        boolean isExternalScanning = false;
+
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(MediaStore.getMediaScannerUri(),
+                                                        new String[] { MediaStore.MEDIA_SCANNER_VOLUME }, null, null, null);
+
+            if (cursor != null && cursor.getCount() > 0) {
+                final int columnIndex = cursor.getColumnIndex(MediaStore.MEDIA_SCANNER_VOLUME);
+                cursor.moveToFirst();
+                String volume = cursor.getString(columnIndex);
+                if (MediaProvider.EXTERNAL_VOLUME.equals(volume)) {
+                    Log.d(TAG, "[MTP][scanExternalVolumeIfNeed] is scanning, skip scan");
+                    isExternalScanning = true;
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "[MTP][scanExternalVolumeIfNeed] got exception, skip scan external volume: " + e);
+            // don't trigger full scan since get exception when query scanning status
+            isExternalScanning = true;
+        } finally {
+            IoUtils.closeQuietly(cursor);
+        }
+
+        if (!isExternalScanning) {
+            Log.d(TAG,"[MTP][scanExternalVolumeIfNeed] scan external volume");
+            Bundle args = new Bundle();
+            args.putString("volume", MediaProvider.EXTERNAL_VOLUME);
+            context.startService(
+                    new Intent(context, MediaScannerService.class).putExtras(args));
+        }
+    }
+
 }
