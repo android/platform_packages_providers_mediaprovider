@@ -88,6 +88,17 @@ public class MtpService extends Service {
                             }
                         }
                     }}, "addStorageDevices").start();
+            } else if (Intent.ACTION_MEDIA_SCANNER_FINISHED.equals(action)) {
+                synchronized (mBinder) {
+                    for (int i = 0; i < mVolumes.length; i++) {
+                        final String path = mVolumes[i].getPath();
+                        final String state = mStorageManager.getVolumeState(path);
+                        if (mVolumeMap.containsKey(path) || !(Environment.MEDIA_MOUNTED.equals(state))) {
+                            continue;
+                        }
+                        volumeMountedLocked(path);
+                    }
+                }
             }
         }
     };
@@ -97,9 +108,7 @@ public class MtpService extends Service {
         public void onStorageStateChanged(String path, String oldState, String newState) {
             synchronized (mBinder) {
                 Log.d(TAG, "onStorageStateChanged " + path + " " + oldState + " -> " + newState);
-                if (Environment.MEDIA_MOUNTED.equals(newState)) {
-                    volumeMountedLocked(path);
-                } else if (Environment.MEDIA_MOUNTED.equals(oldState)) {
+                if (Environment.MEDIA_MOUNTED.equals(oldState)) {
                     StorageVolume volume = mVolumeMap.remove(path);
                     if (volume != null) {
                         removeStorageLocked(volume);
@@ -122,6 +131,9 @@ public class MtpService extends Service {
     @Override
     public void onCreate() {
         registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MEDIA_SCANNER_FINISHED);
+        intentFilter.addDataScheme("file");
+        registerReceiver(mReceiver, intentFilter);
 
         mStorageManager = StorageManager.from(this);
         synchronized (mBinder) {
