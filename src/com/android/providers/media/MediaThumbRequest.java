@@ -142,6 +142,21 @@ class MediaThumbRequest {
     void execute() throws IOException {
         MiniThumbFile miniThumbFile = MiniThumbFile.instance(mUri);
         long magic = mMagic;
+
+        Cursor cc = null;
+        try {
+            cc = mCr.query(mUri, new String[] { ImageColumns.MINI_THUMB_MAGIC }, null, null, null);
+
+            if ((cc != null) && (cc.moveToFirst())) {
+                magic = cc.getLong(0);
+            }
+        } finally {
+            if (cc != null) {
+                cc.close();
+                cc = null;
+            }
+        }
+
         if (magic != 0) {
             long fileMagic = miniThumbFile.getMagic(mOrigId);
             if (fileMagic == magic) {
