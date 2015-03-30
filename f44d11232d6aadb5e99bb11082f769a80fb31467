@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c3c55625_f4a6108a",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1012414
+      },
+      "writtenOn": "2015-03-30T03:20:25Z",
+      "side": 1,
+      "message": "Getting USER_REMOVED intent doesn\u0027t mean all of user data is cleaned completely. Without delay, PC maybe get intermediate result.",
+      "parentUuid": "63a3ca80_29176980",
+      "range": {
+        "startLine": 147,
+        "startChar": 36,
+        "endLine": 147,
+        "endChar": 48
+      },
+      "revId": "f44d11232d6aadb5e99bb11082f769a80fb31467",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63758ab8_d2fd2536",
         "filename": "src/com/android/providers/media/MtpService.java",
         "patchSetId": 1
@@ -48,6 +72,29 @@
     },
     {
       "key": {
+        "uuid": "83cfde46_b2a658b7",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1012414
+      },
+      "writtenOn": "2015-03-30T03:20:25Z",
+      "side": 1,
+      "message": "Sure, I will update it based on your comment.",
+      "range": {
+        "startLine": 170,
+        "startChar": 61,
+        "endLine": 170,
+        "endChar": 79
+      },
+      "revId": "f44d11232d6aadb5e99bb11082f769a80fb31467",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63a3ca80_495e6556",
         "filename": "src/com/android/providers/media/MtpService.java",
         "patchSetId": 1
@@ -59,6 +106,30 @@
       "writtenOn": "2015-03-27T15:25:19Z",
       "side": 1,
       "message": "would these ever NOT be null?\nAlso, mThreadLooper can be a local variable, it doesn\u0027t need to be a member variable.",
+      "range": {
+        "startLine": 187,
+        "startChar": 34,
+        "endLine": 187,
+        "endChar": 36
+      },
+      "revId": "f44d11232d6aadb5e99bb11082f769a80fb31467",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3c55625_94b30ccb",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1012414
+      },
+      "writtenOn": "2015-03-30T03:20:25Z",
+      "side": 1,
+      "message": "agreed. I will update it.\nIn order to avoid internal warning,  just add some unused.",
+      "parentUuid": "63a3ca80_495e6556",
       "range": {
         "startLine": 187,
         "startChar": 34,
