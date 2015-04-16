@@ -115,6 +115,7 @@ public class MtpService extends Service {
     /** Flag indicating if MTP is disabled due to keyguard */
     private boolean mMtpDisabled;
     private boolean mPtpMode;
+    private boolean mMtpStorageUpdated;
     private final HashMap<String, StorageVolume> mVolumeMap = new HashMap<String, StorageVolume>();
     private final HashMap<String, MtpStorage> mStorageMap = new HashMap<String, MtpStorage>();
     private StorageVolume[] mVolumes;
@@ -192,8 +193,15 @@ public class MtpService extends Service {
             mDatabase.setServer(mServer);
             if (!mMtpDisabled) {
                 addStorageDevicesLocked();
+                mMtpStorageUpdated = true;
             }
             mServer.start();
+        } else if ( mServer != null && isCurrentUser && mMtpStorageUpdated == false) {
+           Log.d(TAG, "update storage after start MTP Server");
+           if (!mMtpDisabled) {
+                addStorageDevicesLocked();
+                mMtpStorageUpdated = true;
+           }
         } else if (mServer != null && !isCurrentUser) {
             Log.d(TAG, "no longer current user; shutting down MTP server");
             // Internally, kernel will close our FD, and server thread will
