@@ -5415,29 +5415,7 @@ public class MediaProvider extends ContentProvider {
             mDatabases.put(volume, helper);
 
             if (!helper.mInternal) {
-                // clean up stray album art files: delete every file not in the database
-                File[] files = new File(mExternalStoragePaths[0], ALBUM_THUMB_FOLDER).listFiles();
-                HashSet<String> fileSet = new HashSet();
-                for (int i = 0; files != null && i < files.length; i++) {
-                    fileSet.add(files[i].getPath());
-                }
-
-                Cursor cursor = query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                        new String[] { MediaStore.Audio.Albums.ALBUM_ART }, null, null, null);
-                try {
-                    while (cursor != null && cursor.moveToNext()) {
-                        fileSet.remove(cursor.getString(0));
-                    }
-                } finally {
-                    IoUtils.closeQuietly(cursor);
-                }
-
-                Iterator<String> iterator = fileSet.iterator();
-                while (iterator.hasNext()) {
-                    String filename = iterator.next();
-                    if (LOCAL_LOGV) Log.v(TAG, "deleting obsolete album art " + filename);
-                    new File(filename).delete();
-                }
+                new cleanupThread(helper).start();
             }
         }
 
@@ -5792,6 +5770,51 @@ public class MediaProvider extends ContentProvider {
         }
         return s.toString();
     }
+
+    /* >> cleanup in subthread to prevent db operation block main thread */
+    private class cleanupThread extends Thread{
+        private DatabaseHelper db;
+
+        public cleanupThread(DatabaseHelper db){
+            this.db = db;
+        }
+
+        public void run() {
+
+            // clean up stray album art files: delete every file not in the database
+            File[] files = new File(mExternalStoragePaths[0], ALBUM_THUMB_FOLDER).listFiles();
+            Log.v(TAG, "test album art path: " + new File(mExternalStoragePaths[0], ALBUM_THUMB_FOLDER).getPath());
+            HashSet<String> fileSet = new HashSet();
+            for (int i = 0; files != null && i < files.length; i++) {
+                fileSet.add(files[i].getPath());
+            }
+
+            Cursor cursor = null;
+
+            try {
+                cursor = query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                        new String[] { MediaStore.Audio.Albums.ALBUM_ART }, null, null, null);
+
+                while (cursor != null && cursor.moveToNext()) {
+                    fileSet.remove(cursor.getString(0));
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "[createDefaultFolderThread] exception:" + e);
+            } finally {
+                IoUtils.closeQuietly(cursor);
+            }
+
+            Iterator<String> iterator = fileSet.iterator();
+            while (iterator.hasNext()) {
+                String filename = iterator.next();
+                Log.v(TAG, "deleting obsolete album art " + filename);
+                new File(filename).delete();
+            }
+        }
+    }
+    /* << cleanup in subthread to prevent db operation block main thread */
+
 
     private void sendStorageDataEject(Context context, String path, int storageId, String desc) {
 
