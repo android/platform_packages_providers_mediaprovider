@@ -23,11 +23,64 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 public class MtpReceiver extends BroadcastReceiver {
     private static final String TAG = MtpReceiver.class.getSimpleName();
     private static final boolean DEBUG = false;
+
+/* >> Create Message Looper to avoid receiver encoutner ANR.
+    (database opertion-insert/delete is I/O)
+    (And MediaProvider has global lock for "delete" to ensure data correctness)
+*/
+
+    private HandlerThread mHandlerThread;
+    private ReceiveHandler mRecvHandler;
+
+    public MtpReceiver() {
+        super();
+
+        mHandlerThread = new HandlerThread("MtpReceiverThread");
+        mHandlerThread.start();
+        mRecvHandler = new ReceiveHandler(mHandlerThread.getLooper());
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (mHandlerThread != null)
+            mHandlerThread.quitSafely();
+        //quitSafely has not been tested, the purpose is to prevent receiver drop USB event -> MTP can't exit.
+
+        super.finalize();
+    }
+
+    private final class ReceiveHandler extends Handler {
+        public ReceiveHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            handleUsbState(msg);
+            Log.d(TAG, "[MTP][handleMessage]-");
+        }
+    }
+
+    private void handleUsbStateAsync(Context context, Intent intent) {
+        Log.d(TAG, "[MTP][handleUsbStateAsync]+");
+        Bundle extras = intent.getExtras();
+        Message msg = mRecvHandler.obtainMessage();
+        msg.setData(extras);
+        msg.obj = context;
+        mRecvHandler.sendMessage(msg);
+        Log.d(TAG, "[MTP][handleUsbStateAsync]-");
+    }
+
+/* << - Create Message Looper */
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -36,22 +89,27 @@ public class MtpReceiver extends BroadcastReceiver {
             final Intent usbState = context.registerReceiver(
                     null, new IntentFilter(UsbManager.ACTION_USB_STATE));
             if (usbState != null) {
-                handleUsbState(context, usbState);
+                handleUsbStateAsync(context, usbState);
             }
         } else if (UsbManager.ACTION_USB_STATE.equals(action)) {
-            handleUsbState(context, intent);
+            handleUsbStateAsync(context, intent);
         }
     }
 
-    private void handleUsbState(Context context, Intent intent) {
-        Bundle extras = intent.getExtras();
+    private void handleUsbState(Message msg) {
+        Log.d(TAG, "[MTP][handleUsbState]+");
+        Context context = (Context) msg.obj;
+        Bundle extras = msg.getData();
         boolean connected = extras.getBoolean(UsbManager.USB_CONFIGURED);
         boolean mtpEnabled = extras.getBoolean(UsbManager.USB_FUNCTION_MTP);
         boolean ptpEnabled = extras.getBoolean(UsbManager.USB_FUNCTION_PTP);
         boolean unlocked = extras.getBoolean(UsbManager.USB_DATA_UNLOCKED);
+
+        Log.d(TAG, "connected = " + connected + ", mtpEnabled = " + mtpEnabled + ", ptpEnabled = " + ptpEnabled + ", unlocked = " + unlocked);
+
         // Start MTP service if USB is connected and either the MTP or PTP function is enabled
         if (connected && (mtpEnabled || ptpEnabled)) {
-            intent = new Intent(context, MtpService.class);
+             Intent intent = new Intent(context, MtpService.class);
             intent.putExtra(UsbManager.USB_DATA_UNLOCKED, unlocked);
             if (ptpEnabled) {
                 intent.putExtra(UsbManager.USB_FUNCTION_PTP, true);
@@ -68,5 +126,8 @@ public class MtpReceiver extends BroadcastReceiver {
             context.getContentResolver().delete(Uri.parse(
                     "content://media/none/mtp_connected"), null, null);
         }
+
+        Log.d(TAG, "[MTP][handleUsbState]-");
+
     }
 }
