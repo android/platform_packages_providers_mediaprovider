@@ -23,6 +23,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemProperties;
 
 public class MtpReceiver extends BroadcastReceiver {
     private final static String TAG = "UsbReceiver";
@@ -37,7 +38,9 @@ public class MtpReceiver extends BroadcastReceiver {
                 handleUsbState(context, usbState);
             }
         } else if (UsbManager.ACTION_USB_STATE.equals(action)) {
-            handleUsbState(context, intent);
+            if ("1".equals(SystemProperties.get("sys.boot_completed"))) {
+                handleUsbState(context, intent);
+            }
         }
     }
 
