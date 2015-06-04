@@ -142,6 +142,10 @@ public class MtpService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         synchronized (mBinder) {
+            final boolean isCurrentUser = UserHandle.myUserId() == ActivityManager.getCurrentUser();
+                if (mServer != null && isCurrentUser) {
+                    return START_STICKY;
+                }
             updateDisabledStateLocked();
             mPtpMode = (intent == null ? false
                     : intent.getBooleanExtra(UsbManager.USB_FUNCTION_PTP, false));
