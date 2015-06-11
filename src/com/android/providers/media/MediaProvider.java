@@ -5413,12 +5413,17 @@ public class MediaProvider extends ContentProvider {
                     fileSet.add(files[i].getPath());
                 }
 
-                Cursor cursor = query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                        new String[] { MediaStore.Audio.Albums.ALBUM_ART }, null, null, null);
+                Cursor cursor = null;
                 try {
+                    cursor = query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                        new String[] { MediaStore.Audio.Albums.ALBUM_ART }, null, null, null);
+
                     while (cursor != null && cursor.moveToNext()) {
                         fileSet.remove(cursor.getString(0));
                     }
+                } catch (Exception e) {
+                    fileSet.clear();
+                    Log.e(TAG, "Failed in attach volume, " + e);
                 } finally {
                     IoUtils.closeQuietly(cursor);
                 }
