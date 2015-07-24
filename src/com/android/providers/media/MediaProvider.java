@@ -1885,35 +1885,38 @@ public class MediaProvider extends ContentProvider {
      * @param tableName
      */
     private static void updateBucketNames(SQLiteDatabase db) {
-        // Rebuild the bucket_display_name column using the natural case rather than lower case.
-        db.beginTransaction();
-        try {
-            String[] columns = {BaseColumns._ID, MediaColumns.DATA};
-            // update only images and videos
-            Cursor cursor = db.query("files", columns, "media_type=1 OR media_type=3",
-                    null, null, null, null);
-            try {
-                final int idColumnIndex = cursor.getColumnIndex(BaseColumns._ID);
-                final int dataColumnIndex = cursor.getColumnIndex(MediaColumns.DATA);
-                String [] rowId = new String[1];
-                ContentValues values = new ContentValues();
-                while (cursor.moveToNext()) {
-                    String data = cursor.getString(dataColumnIndex);
-                    rowId[0] = cursor.getString(idColumnIndex);
-                    if (data != null) {
-                        values.clear();
-                        computeBucketValues(data, values);
-                        db.update("files", values, "_id=?", rowId);
-                    } else {
-                        Log.w(TAG, "null data at id " + rowId);
-                    }
-                }
-            } finally {
-                IoUtils.closeQuietly(cursor);
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
+
+        synchronized (sGetTableAndWhereParam) {
+          // Rebuild the bucket_display_name column using the natural case rather than lower case.
+          db.beginTransaction();
+          try {
+              String[] columns = {BaseColumns._ID, MediaColumns.DATA};
+              // update only images and videos
+              Cursor cursor = db.query("files", columns, "media_type=1 OR media_type=3",
+                      null, null, null, null);
+              try {
+                  final int idColumnIndex = cursor.getColumnIndex(BaseColumns._ID);
+                  final int dataColumnIndex = cursor.getColumnIndex(MediaColumns.DATA);
+                  String [] rowId = new String[1];
+                  ContentValues values = new ContentValues();
+                  while (cursor.moveToNext()) {
+                      String data = cursor.getString(dataColumnIndex);
+                      rowId[0] = cursor.getString(idColumnIndex);
+                      if (data != null) {
+                          values.clear();
+                          computeBucketValues(data, values);
+                          db.update("files", values, "_id=?", rowId);
+                      } else {
+                          Log.w(TAG, "null data at id " + rowId);
+                      }
+                  }
+              } finally {
+                  IoUtils.closeQuietly(cursor);
+              }
+              db.setTransactionSuccessful();
+          } finally {
+              db.endTransaction();
+          }
         }
     }
 
@@ -1924,32 +1927,35 @@ public class MediaProvider extends ContentProvider {
      * @param tableName
      */
     private static void updateDisplayName(SQLiteDatabase db, String tableName) {
-        // Fill in default values for null displayName values
-        db.beginTransaction();
-        try {
-            String[] columns = {BaseColumns._ID, MediaColumns.DATA, MediaColumns.DISPLAY_NAME};
-            Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
-            try {
-                final int idColumnIndex = cursor.getColumnIndex(BaseColumns._ID);
-                final int dataColumnIndex = cursor.getColumnIndex(MediaColumns.DATA);
-                final int displayNameIndex = cursor.getColumnIndex(MediaColumns.DISPLAY_NAME);
-                ContentValues values = new ContentValues();
-                while (cursor.moveToNext()) {
-                    String displayName = cursor.getString(displayNameIndex);
-                    if (displayName == null) {
-                        String data = cursor.getString(dataColumnIndex);
-                        values.clear();
-                        computeDisplayName(data, values);
-                        int rowId = cursor.getInt(idColumnIndex);
-                        db.update(tableName, values, "_id=" + rowId, null);
-                    }
-                }
-            } finally {
-                IoUtils.closeQuietly(cursor);
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
+
+        synchronized (sGetTableAndWhereParam) {
+          // Fill in default values for null displayName values
+          db.beginTransaction();
+          try {
+              String[] columns = {BaseColumns._ID, MediaColumns.DATA, MediaColumns.DISPLAY_NAME};
+              Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
+              try {
+                  final int idColumnIndex = cursor.getColumnIndex(BaseColumns._ID);
+                  final int dataColumnIndex = cursor.getColumnIndex(MediaColumns.DATA);
+                  final int displayNameIndex = cursor.getColumnIndex(MediaColumns.DISPLAY_NAME);
+                  ContentValues values = new ContentValues();
+                  while (cursor.moveToNext()) {
+                      String displayName = cursor.getString(displayNameIndex);
+                      if (displayName == null) {
+                          String data = cursor.getString(dataColumnIndex);
+                          values.clear();
+                          computeDisplayName(data, values);
+                          int rowId = cursor.getInt(idColumnIndex);
+                          db.update(tableName, values, "_id=" + rowId, null);
+                      }
+                  }
+              } finally {
+                  IoUtils.closeQuietly(cursor);
+              }
+              db.setTransactionSuccessful();
+          } finally {
+              db.endTransaction();
+          }
         }
     }
 
@@ -3729,29 +3735,32 @@ public class MediaProvider extends ContentProvider {
         // on, so begin a transaction for ALL of the databases.
         DatabaseHelper ihelper = getDatabaseForUri(MediaStore.Audio.Media.INTERNAL_CONTENT_URI);
         DatabaseHelper ehelper = getDatabaseForUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-        SQLiteDatabase idb = ihelper.getWritableDatabase();
-        idb.beginTransaction();
-        SQLiteDatabase edb = null;
-        if (ehelper != null) {
-            edb = ehelper.getWritableDatabase();
-            edb.beginTransaction();
-        }
-        try {
-            ContentProviderResult[] result = super.applyBatch(operations);
-            idb.setTransactionSuccessful();
-            if (edb != null) {
-                edb.setTransactionSuccessful();
+
+        synchronized (sGetTableAndWhereParam) {
+            SQLiteDatabase idb = ihelper.getWritableDatabase();
+            idb.beginTransaction();
+            SQLiteDatabase edb = null;
+            if (ehelper != null) {
+                edb = ehelper.getWritableDatabase();
+                if (edb != null) edb.beginTransaction();
             }
-            // Rather than sending targeted change notifications for every Uri
-            // affected by the batch operation, just invalidate the entire internal
-            // and external name space.
-            ContentResolver res = getContext().getContentResolver();
-            res.notifyChange(Uri.parse("content://media/"), null);
-            return result;
-        } finally {
-            idb.endTransaction();
-            if (edb != null) {
-                edb.endTransaction();
+            try {
+                ContentProviderResult[] result = super.applyBatch(operations);
+                idb.setTransactionSuccessful();
+                if (edb != null) {
+                    edb.setTransactionSuccessful();
+                }
+                // Rather than sending targeted change notifications for every Uri
+                // affected by the batch operation, just invalidate the entire internal
+                // and external name space.
+                ContentResolver res = getContext().getContentResolver();
+                res.notifyChange(Uri.parse("content://media/"), null);
+                return result;
+            } finally {
+                idb.endTransaction();
+                if (edb != null) {
+                    edb.endTransaction();
+                }
             }
         }
     }
@@ -4466,49 +4475,53 @@ public class MediaProvider extends ContentProvider {
         if (from == to) {
             return 0;
         }
-        db.beginTransaction();
+
         int numlines = 0;
-        Cursor c = null;
-        try {
-            helper.mNumUpdates += 3;
-            c = db.query("audio_playlists_map",
-                    new String [] {"play_order" },
-                    "playlist_id=?", new String[] {"" + playlist}, null, null, "play_order",
-                    from + ",1");
-            c.moveToFirst();
-            int from_play_order = c.getInt(0);
-            IoUtils.closeQuietly(c);
-            c = db.query("audio_playlists_map",
-                    new String [] {"play_order" },
-                    "playlist_id=?", new String[] {"" + playlist}, null, null, "play_order",
-                    to + ",1");
-            c.moveToFirst();
-            int to_play_order = c.getInt(0);
-            db.execSQL("UPDATE audio_playlists_map SET play_order=-1" +
-                    " WHERE play_order=" + from_play_order +
-                    " AND playlist_id=" + playlist);
-            // We could just run both of the next two statements, but only one of
-            // of them will actually do anything, so might as well skip the compile
-            // and execute steps.
-            if (from  < to) {
-                db.execSQL("UPDATE audio_playlists_map SET play_order=play_order-1" +
-                        " WHERE play_order<=" + to_play_order +
-                        " AND play_order>" + from_play_order +
-                        " AND playlist_id=" + playlist);
-                numlines = to - from + 1;
-            } else {
-                db.execSQL("UPDATE audio_playlists_map SET play_order=play_order+1" +
-                        " WHERE play_order>=" + to_play_order +
-                        " AND play_order<" + from_play_order +
-                        " AND playlist_id=" + playlist);
-                numlines = from - to + 1;
-            }
-            db.execSQL("UPDATE audio_playlists_map SET play_order=" + to_play_order +
-                    " WHERE play_order=-1 AND playlist_id=" + playlist);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-            IoUtils.closeQuietly(c);
+
+        synchronized (sGetTableAndWhereParam) {
+          db.beginTransaction();
+          Cursor c = null;
+          try {
+              helper.mNumUpdates += 3;
+              c = db.query("audio_playlists_map",
+                      new String [] {"play_order" },
+                      "playlist_id=?", new String[] {"" + playlist}, null, null, "play_order",
+                      from + ",1");
+              c.moveToFirst();
+              int from_play_order = c.getInt(0);
+              IoUtils.closeQuietly(c);
+              c = db.query("audio_playlists_map",
+                      new String [] {"play_order" },
+                      "playlist_id=?", new String[] {"" + playlist}, null, null, "play_order",
+                      to + ",1");
+              c.moveToFirst();
+              int to_play_order = c.getInt(0);
+              db.execSQL("UPDATE audio_playlists_map SET play_order=-1" +
+                      " WHERE play_order=" + from_play_order +
+                      " AND playlist_id=" + playlist);
+              // We could just run both of the next two statements, but only one of
+              // of them will actually do anything, so might as well skip the compile
+              // and execute steps.
+              if (from  < to) {
+                  db.execSQL("UPDATE audio_playlists_map SET play_order=play_order-1" +
+                          " WHERE play_order<=" + to_play_order +
+                          " AND play_order>" + from_play_order +
+                          " AND playlist_id=" + playlist);
+                  numlines = to - from + 1;
+              } else {
+                  db.execSQL("UPDATE audio_playlists_map SET play_order=play_order+1" +
+                          " WHERE play_order>=" + to_play_order +
+                          " AND play_order<" + from_play_order +
+                          " AND playlist_id=" + playlist);
+                  numlines = from - to + 1;
+              }
+              db.execSQL("UPDATE audio_playlists_map SET play_order=" + to_play_order +
+                      " WHERE play_order=-1 AND playlist_id=" + playlist);
+              db.setTransactionSuccessful();
+          } finally {
+              db.endTransaction();
+              IoUtils.closeQuietly(c);
+          }
         }
 
         Uri uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI
