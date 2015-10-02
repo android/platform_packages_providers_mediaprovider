@@ -23,10 +23,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.storage.StorageVolume;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MediaScannerReceiver extends BroadcastReceiver {
     private final static String TAG = "MediaScannerReceiver";
@@ -35,7 +37,10 @@ public class MediaScannerReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
         final Uri uri = intent.getData();
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+        if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
+            startEject(context, intent);
+        }
+        else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             // Scan both internal and external storage
             scan(context, MediaProvider.INTERNAL_VOLUME);
             scan(context, MediaProvider.EXTERNAL_VOLUME);
@@ -67,6 +72,24 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                 }
             }
         }
+    }
+
+    public void startEject(Context context, Intent intent) {
+        Bundle args = new Bundle();
+        args.putString("path", "");
+
+        StorageVolume storage = (StorageVolume) intent.getParcelableExtra(
+                StorageVolume.EXTRA_STORAGE_VOLUME);
+        args.putString("volume", storage.getPath());
+        args.putString("description", storage.toString());
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        list.add(storage.getStorageId());
+        args.putIntegerArrayList("storageId", list);
+        args.putString("action", Intent.ACTION_MEDIA_EJECT);
+
+        context.startService(
+                new Intent(context, MediaScannerService.class).putExtras(args));
+
     }
 
     private void scan(Context context, String volume) {

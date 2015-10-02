@@ -248,81 +248,6 @@ public class MediaProvider extends ContentProvider {
 
     private static final String CANONICAL = "canonical";
 
-    private BroadcastReceiver mUnmountReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_MEDIA_EJECT.equals(intent.getAction())) {
-                StorageVolume storage = (StorageVolume)intent.getParcelableExtra(
-                        StorageVolume.EXTRA_STORAGE_VOLUME);
-                // If primary external storage is ejected, then remove the external volume
-                // notify all cursors backed by data on that volume.
-                if (storage.getPath().equals(mExternalStoragePaths[0])) {
-                    detachVolume(Uri.parse("content://media/external"));
-                    sFolderArtMap.clear();
-                    MiniThumbFile.reset();
-                } else {
-                    // If secondary external storage is ejected, then we delete all database
-                    // entries for that storage from the files table.
-                    DatabaseHelper database;
-                    synchronized (mDatabases) {
-                        // This synchronized block is limited to avoid a potential deadlock
-                        // with bulkInsert() method.
-                        database = mDatabases.get(EXTERNAL_VOLUME);
-                    }
-                    Uri uri = Uri.parse("file://" + storage.getPath());
-                    if (database != null) {
-                        try {
-                            // Send media scanner started and stopped broadcasts for apps that rely
-                            // on these Intents for coarse grained media database notifications.
-                            context.sendBroadcast(
-                                    new Intent(Intent.ACTION_MEDIA_SCANNER_STARTED, uri));
-
-                            // don't send objectRemoved events - MTP be sending StorageRemoved anyway
-                            mDisableMtpObjectCallbacks = true;
-                            Log.d(TAG, "deleting all entries for storage " + storage);
-                            SQLiteDatabase db = database.getWritableDatabase();
-                            // First clear the file path to disable the _DELETE_FILE database hook.
-                            // We do this to avoid deleting files if the volume is remounted while
-                            // we are still processing the unmount event.
-                            ContentValues values = new ContentValues();
-                            values.putNull(Files.FileColumns.DATA);
-                            String where = FileColumns.STORAGE_ID + "=?";
-                            String[] whereArgs = new String[] { Integer.toString(storage.getStorageId()) };
-                            database.mNumUpdates++;
-                            db.beginTransaction();
-                            try {
-                                db.update("files", values, where, whereArgs);
-                                // now delete the records
-                                database.mNumDeletes++;
-                                int numpurged = db.delete("files", where, whereArgs);
-                                logToDb(db, "removed " + numpurged +
-                                        " rows for ejected filesystem " + storage.getPath());
-                                db.setTransactionSuccessful();
-                            } finally {
-                                db.endTransaction();
-                            }
-                            // notify on media Uris as well as the files Uri
-                            context.getContentResolver().notifyChange(
-                                    Audio.Media.getContentUri(EXTERNAL_VOLUME), null);
-                            context.getContentResolver().notifyChange(
-                                    Images.Media.getContentUri(EXTERNAL_VOLUME), null);
-                            context.getContentResolver().notifyChange(
-                                    Video.Media.getContentUri(EXTERNAL_VOLUME), null);
-                            context.getContentResolver().notifyChange(
-                                    Files.getContentUri(EXTERNAL_VOLUME), null);
-                        } catch (Exception e) {
-                            Log.e(TAG, "exception deleting storage entries", e);
-                        } finally {
-                            context.sendBroadcast(
-                                    new Intent(Intent.ACTION_MEDIA_SCANNER_FINISHED, uri));
-                            mDisableMtpObjectCallbacks = false;
-                        }
-                    }
-                }
-            }
-        }
-    };
-
     // set to disable sending events when the operation originates from MTP
     private boolean mDisableMtpObjectCallbacks;
 
@@ -615,7 +540,6 @@ public class MediaProvider extends ContentProvider {
 
         IntentFilter iFilter = new IntentFilter(Intent.ACTION_MEDIA_EJECT);
         iFilter.addDataScheme("file");
-        context.registerReceiver(mUnmountReceiver, iFilter);
 
         // open external database if external storage is mounted
         String state = Environment.getExternalStorageState();
@@ -3888,6 +3812,9 @@ public class MediaProvider extends ContentProvider {
             GetTableAndWhereOutParameter out) {
         String where = null;
         switch (match) {
+            case STORAGE_DATA_EJECT:
+                break;
+
             case IMAGES_MEDIA:
                 out.table = "files";
                 where = FileColumns.MEDIA_TYPE + "=" + FileColumns.MEDIA_TYPE_IMAGE;
@@ -4219,7 +4146,7 @@ public class MediaProvider extends ContentProvider {
     public int update(Uri uri, ContentValues initialValues, String userWhere,
             String[] whereArgs) {
         uri = safeUncanonicalize(uri);
-        int count;
+        int count = 0;
         // Log.v(TAG, "update for uri="+uri+", initValues="+initialValues);
         int match = URI_MATCHER.match(uri);
         DatabaseHelper helper = getDatabaseForUri(uri);
@@ -4302,6 +4229,21 @@ public class MediaProvider extends ContentProvider {
             }
 
             switch (match) {
+                case STORAGE_DATA_EJECT:
+                    {
+                        if (Binder.getCallingPid() != Process.myPid()) {
+                            Log.w(TAG, "[update] should not be here!, match:" + STORAGE_DATA_EJECT);
+                            break;
+                        }
+
+                        String path = initialValues.getAsString("storagePath");
+                        String desc = initialValues.getAsString("description");
+                        int storageId = initialValues.getAsInteger("storageId");
+
+                        sendStorageDataEject(getContext(), path, storageId, desc);
+                    }
+                    break;
+
                 case AUDIO_MEDIA:
                 case AUDIO_MEDIA_ID:
                     {
@@ -5570,6 +5512,7 @@ public class MediaProvider extends ContentProvider {
     static final String INTERNAL_VOLUME = "internal";
     static final String EXTERNAL_VOLUME = "external";
     static final String ALBUM_THUMB_FOLDER = "Android/data/com.android.providers.media/albumthumbs";
+    static final String STORAGE_DATA_EJECT_URI = "content://media/external/storage_data_eject";
 
     // path for writing contents of in memory temp database
     private String mTempDatabasePath;
@@ -5632,6 +5575,8 @@ public class MediaProvider extends ContentProvider {
     // UsbReceiver calls insert() and delete() with this URI to tell us
     // when MTP is connected and disconnected
     private static final int MTP_CONNECTED = 705;
+
+    private static final int STORAGE_DATA_EJECT = 800;
 
     private static final UriMatcher URI_MATCHER =
             new UriMatcher(UriMatcher.NO_MATCH);
@@ -5730,6 +5675,9 @@ public class MediaProvider extends ContentProvider {
         // used by the music app's search activity
         URI_MATCHER.addURI("media", "*/audio/search/fancy", AUDIO_SEARCH_FANCY);
         URI_MATCHER.addURI("media", "*/audio/search/fancy/*", AUDIO_SEARCH_FANCY);
+
+        URI_MATCHER.addURI("media", "*/storage_data_eject", STORAGE_DATA_EJECT);
+
     }
 
     private static String getVolumeName(Uri uri) {
@@ -5837,4 +5785,74 @@ public class MediaProvider extends ContentProvider {
         }
         return s.toString();
     }
+
+    private void sendStorageDataEject(Context context, String path, int storageId, String desc) {
+
+        if (path == null) {
+            Log.w(TAG, "[sendStorageDataEject] path = null ");
+            return;
+        }
+
+        // If primary external storage is ejected, then remove the external volume
+        // notify all cursors backed by data on that volume.
+        if (path.equals(mExternalStoragePaths[0])) {
+            detachVolume(Uri.parse("content://media/external"));
+            sFolderArtMap.clear();
+            MiniThumbFile.reset();
+        } else {
+            // If secondary external storage is ejected, then we delete all database
+            // entries for that storage from the files table.
+            DatabaseHelper database;
+            synchronized (mDatabases) {
+                // This synchronized block is limited to avoid a potential deadlock
+                // with bulkInsert() method.
+                database = mDatabases.get(EXTERNAL_VOLUME);
+            }
+            Uri uri = Uri.parse("file://" + path);
+            if (database != null) {
+                try {
+                    // Send media scanner started and stopped broadcasts for apps that rely
+                    // on these Intents for coarse grained media database notifications.
+                    context.sendBroadcast(
+                          new Intent(Intent.ACTION_MEDIA_SCANNER_STARTED, uri));
+
+                    // don't send objectRemoved events - MTP be sending StorageRemoved anyway
+                    mDisableMtpObjectCallbacks = true;
+                    Log.d(TAG, "deleting all entries for storage " + desc);
+                    SQLiteDatabase db = database.getWritableDatabase();
+                    // First clear the file path to disable the _DELETE_FILE database hook.
+                    // We do this to avoid deleting files if the volume is remounted while
+                    // we are still processing the unmount event.
+                    ContentValues values = new ContentValues();
+                    values.putNull(Files.FileColumns.DATA);
+                    String where = FileColumns.STORAGE_ID + "=?";
+                    String[] whereArgs = new String[] { Integer.toString(storageId) };
+                    database.mNumUpdates++;
+                    db.update("files", values, where, whereArgs);
+                    // now delete the records
+                    database.mNumDeletes++;
+                    int numpurged = db.delete("files", where, whereArgs);
+                    logToDb(db, "removed " + numpurged +
+                          " rows for ejected filesystem " + path);
+                    // notify on media Uris as well as the files Uri
+                    context.getContentResolver().notifyChange(
+                            Audio.Media.getContentUri(EXTERNAL_VOLUME), null);
+                    context.getContentResolver().notifyChange(
+                            Images.Media.getContentUri(EXTERNAL_VOLUME), null);
+                    context.getContentResolver().notifyChange(
+                            Video.Media.getContentUri(EXTERNAL_VOLUME), null);
+                    context.getContentResolver().notifyChange(
+                            Files.getContentUri(EXTERNAL_VOLUME), null);
+                } catch (Exception e) {
+                    Log.e(TAG, "exception deleting storage entries", e);
+                } finally {
+                    context.sendBroadcast(
+                          new Intent(Intent.ACTION_MEDIA_SCANNER_FINISHED, uri));
+                    mDisableMtpObjectCallbacks = false;
+                }
+            }
+        }
+
+    }
+
 }

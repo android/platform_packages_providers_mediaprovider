@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.media.IMediaScannerListener;
 import android.media.IMediaScannerService;
 import android.media.MediaScanner;
@@ -44,6 +45,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class MediaScannerService extends Service implements Runnable
@@ -252,8 +254,25 @@ public class MediaScannerService extends Service implements Runnable
                     }
                 } else {
                     String volume = arguments.getString("volume");
+                    String action = arguments.getString("action");
                     String[] directories = null;
                     
+                    if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
+                        try {
+                            Uri uri = Uri.parse(MediaProvider.STORAGE_DATA_EJECT_URI);
+                            ArrayList<Integer> list = arguments.getIntegerArrayList("storageId");
+                            String desc = arguments.getString("description");
+                            ContentValues values = new ContentValues();
+                            values.put("storagePath", volume);
+                            values.put("storageId", list.get(0));
+                            values.put("description", desc);
+                            getContentResolver().update(uri, values, null, null);
+                        } catch (SQLiteConstraintException e) {
+                            Log.w(TAG, "[storage data eject] ConstraintException, " + e);
+                        }
+                        return;
+                    }
+
                     if (MediaProvider.INTERNAL_VOLUME.equals(volume)) {
                         // scan internal media storage
                         directories = new String[] {
