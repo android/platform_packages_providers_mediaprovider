@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a901bcb_c71c54fe",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2016-01-11T16:26:33Z",
+      "side": 1,
+      "message": "the old code ensured that the directory exists, the new code doesn\u0027t. What happens when the directory doesn\u0027t exist on one or any of the volumes?",
+      "revId": "a86c4d612198b67a2a48d9920655070bb8523ba4",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
