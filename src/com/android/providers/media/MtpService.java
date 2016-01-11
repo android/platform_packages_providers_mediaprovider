@@ -32,6 +32,7 @@ import android.os.storage.StorageVolume;
 import android.util.Log;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MtpService extends Service {
@@ -45,20 +46,8 @@ public class MtpService extends Service {
     };
 
     private void addStorageDevicesLocked() {
-        if (mPtpMode) {
-            // In PTP mode we support only primary storage
-            final StorageVolume primary = StorageManager.getPrimaryVolume(mVolumes);
-            final String path = primary.getPath();
-            if (path != null) {
-                String state = mStorageManager.getVolumeState(path);
-                if (Environment.MEDIA_MOUNTED.equals(state)) {
-                    addStorageLocked(mVolumeMap.get(path));
-                }
-            }
-        } else {
-            for (StorageVolume volume : mVolumeMap.values()) {
-                addStorageLocked(volume);
-            }
+        for (StorageVolume volume : mVolumeMap.values()) {
+            addStorageLocked(volume);
         }
     }
 
@@ -119,14 +108,14 @@ public class MtpService extends Service {
             String[] subdirs = null;
             if (mPtpMode) {
                 int count = PTP_DIRECTORIES.length;
-                subdirs = new String[count];
-                for (int i = 0; i < count; i++) {
-                    File file =
-                            Environment.getExternalStoragePublicDirectory(PTP_DIRECTORIES[i]);
-                    // make sure this directory exists
-                    file.mkdirs();
-                    subdirs[i] = file.getPath();
+                ArrayList<String> subdirList = new ArrayList<String>();
+                for (int v = 0; v < mVolumes.length; v++) {
+                    for (int i = 0; i < count; i++) {
+                        File file = new File(mVolumes[v].getPath(), PTP_DIRECTORIES[i]);
+                        subdirList.add(file.getPath());
+                    }
                 }
+                subdirs = subdirList.toArray(new String[subdirList.size()]);
             }
             final StorageVolume primary = StorageManager.getPrimaryVolume(mVolumes);
             if (mDatabase != null) {
@@ -209,10 +198,7 @@ public class MtpService extends Service {
             if (volume.getPath().equals(path)) {
                 mVolumeMap.put(path, volume);
                 if (!mMtpDisabled) {
-                    // In PTP mode we support only primary storage
-                    if (volume.isPrimary() || !mPtpMode) {
-                        addStorageLocked(volume);
-                    }
+                    addStorageLocked(volume);
                 }
                 break;
             }
