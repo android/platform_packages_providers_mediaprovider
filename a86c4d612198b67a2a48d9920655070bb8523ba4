@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "67fcd62b_3eaa0941",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1006166
+      },
+      "writtenOn": "2016-01-11T17:26:41Z",
+      "side": 1,
+      "message": "Do we want to check for the MEDIA_MOUNTED state?  (Looks like that wasn\u0027t being done for MTP mode, which feels like a bug.)",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 37
+      },
+      "revId": "a86c4d612198b67a2a48d9920655070bb8523ba4",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a901bcb_c71c54fe",
         "filename": "src/com/android/providers/media/MtpService.java",
         "patchSetId": 1
