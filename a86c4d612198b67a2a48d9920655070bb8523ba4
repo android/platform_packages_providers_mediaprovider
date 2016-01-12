@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e727e6f2_ead08724",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1055704
+      },
+      "writtenOn": "2016-01-12T09:06:12Z",
+      "side": 1,
+      "message": "I just tested with MEDIA_MOUNTED state check, and I don\u0027t see any differences in behavior, but it does seem correct to have it. Standby.",
+      "parentUuid": "67fcd62b_3eaa0941",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 37
+      },
+      "revId": "a86c4d612198b67a2a48d9920655070bb8523ba4",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a901bcb_c71c54fe",
         "filename": "src/com/android/providers/media/MtpService.java",
         "patchSetId": 1
