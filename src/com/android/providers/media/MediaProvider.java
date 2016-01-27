@@ -4092,8 +4092,22 @@ public class MediaProvider extends ContentProvider {
                                     MediaDocumentsProvider.onMediaStoreDelete(getContext(),
                                             volumeName, FileColumns.MEDIA_TYPE_VIDEO, id);
 
+                                    idvalue[0] = String.valueOf(id);
+                                    database.mNumQueries++;
+                                    Cursor cc = db.query("videothumbnails", sDataOnlyColumn,
+                                                "video_id=?", idvalue, null, null, null);
+                                    try {
+                                        while (cc.moveToNext()) {
+                                            deleteIfAllowed(uri, cc.getString(0));
+                                        }
+                                        database.mNumDeletes++;
+                                        db.delete("videothumbnails", "video_id=?", idvalue);
+                                    } finally {
+                                        IoUtils.closeQuietly(cc);
+                                    }
                                 } else if (mediaType == FileColumns.MEDIA_TYPE_AUDIO) {
                                     if (!database.mInternal) {
+                                        deleteIfAllowed(uri, data);
                                         MediaDocumentsProvider.onMediaStoreDelete(getContext(),
                                                 volumeName, FileColumns.MEDIA_TYPE_AUDIO, id);
 
