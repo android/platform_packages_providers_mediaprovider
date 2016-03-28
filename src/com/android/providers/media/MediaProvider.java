@@ -3742,20 +3742,36 @@ public class MediaProvider extends ContentProvider {
 
         @Override
         public void onMediaScannerConnected() {
-            Cursor c = mDb.query("files", openFileColumns,
+            
+            Cursor c = null;
+            Cursor maxC = mDb.query("files", openFileColumns,
                     "_data >= ? AND _data < ?",
                     new String[] { mPath + "/", mPath + "0"},
                     null, null, null);
+
+            int pages = maxC.getCount()/1000;
             try  {
-                while (c.moveToNext()) {
-                    String d = c.getString(0);
-                    File f = new File(d);
-                    if (f.isFile()) {
-                        mScannerConnection.scanFile(d, null);
+                for (int i = 0; i < pages + 1; i++) {
+
+                    c = mDb.query("files", openFileColumns,
+                            "_data >= ? AND _data < ?",
+                            new String[] { mPath + "/", mPath + "0"},
+                            null, null, null, "" + i * 1000 + ",1000");
+                    
+                    Log.d(TAG, "c.getCount() = " + c.getCount());
+                    Log.d(TAG, "mPath = " + mPath);
+
+                    while (c.moveToNext()) {
+                        String d = c.getString(0);
+                        File f = new File(d);
+                        if (f.isFile()) {
+                            mScannerConnection.scanFile(d, null);
+                        }
                     }
                 }
-                mScannerConnection.disconnect();
             } finally {
+                mScannerConnection.disconnect();
+                IoUtils.closeQuietly(maxC);
                 IoUtils.closeQuietly(c);
             }
         }
