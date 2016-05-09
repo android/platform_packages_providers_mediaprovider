@@ -204,12 +204,13 @@ public class MtpService extends Service {
     }
 
     private void volumeMountedLocked(String path) {
+        mVolumes = mStorageManager.getVolumeList();
         for (int i = 0; i < mVolumes.length; i++) {
             StorageVolume volume = mVolumes[i];
             if (volume.getPath().equals(path)) {
                 mVolumeMap.put(path, volume);
                 if (!mMtpDisabled) {
-                    // In PTP mode we support only primary storage
+                    // In PTP mode we support only primary storage..
                     if (volume.isPrimary() || !mPtpMode) {
                         addStorageLocked(volume);
                     }
