@@ -1,0 +1,8 @@
+Code-Review+2: Chris Tate <ctate@android.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Verified+1: Marco Nelissen <marcone@google.com>
+Submitted-by: Marco Nelissen <marcone@google.com>
+Submitted-at: Thu, 11 Aug 2016 20:06:31 +0000
+Reviewed-on: https://android-review.googlesource.com/249750
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
