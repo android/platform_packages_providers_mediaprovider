@@ -168,6 +168,8 @@ public class MtpService extends Service {
             // handle cleanup.
             mServer = null;
             mDatabase.setServer(null);
+        } else if (mServer != null && isCurrentUser) {
+            Log.e(TAG, "Could not start MtpServer, previous server still exists");
         }
     }
 
