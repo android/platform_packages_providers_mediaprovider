@@ -24,6 +24,7 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.mtp.MtpServer;
 
 public class MtpReceiver extends BroadcastReceiver {
     private static final String TAG = MtpReceiver.class.getSimpleName();
@@ -45,10 +46,16 @@ public class MtpReceiver extends BroadcastReceiver {
 
     private void handleUsbState(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
-        boolean connected = extras.getBoolean(UsbManager.USB_CONFIGURED);
+        boolean connected = extras.getBoolean(UsbManager.USB_CONNECTED);
         boolean mtpEnabled = extras.getBoolean(UsbManager.USB_FUNCTION_MTP);
         boolean ptpEnabled = extras.getBoolean(UsbManager.USB_FUNCTION_PTP);
         boolean unlocked = extras.getBoolean(UsbManager.USB_DATA_UNLOCKED);
+        boolean configChanged = extras.getBoolean(UsbManager.USB_CONFIG_CHANGED);
+
+        // Send configuration information to the driver
+        if ((mtpEnabled || ptpEnabled) && configChanged)
+            MtpServer.configure(ptpEnabled);
+
         // Start MTP service if USB is connected and either the MTP or PTP function is enabled
         if (connected && (mtpEnabled || ptpEnabled)) {
             intent = new Intent(context, MtpService.class);
