@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adafbff4_72b6d8bc",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1091002
+      },
+      "writtenOn": "2016-12-07T01:09:57Z",
+      "side": 1,
+      "message": "Could you test with having multiple users?\nI just noticed that only current user should call configure.\nhttps://cs.corp.google.com/android/packages/providers/MediaProvider/src/com/android/providers/media/MtpService.java?rcl\u003ded9ec79b7f8e8001042ebb5678f8e88de3ad986a\u0026l\u003d172",
+      "revId": "44fa9f9c758a104653a226ca7144cbfa4cbdd53d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
