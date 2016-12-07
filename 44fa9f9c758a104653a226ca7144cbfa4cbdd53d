@@ -16,6 +16,24 @@
       "revId": "44fa9f9c758a104653a226ca7144cbfa4cbdd53d",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d14e7d4_0d90d79c",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-07T22:00:52Z",
+      "side": 1,
+      "message": "Under what conditions would the receiver not run as the foreground user? Would a user switch have to happen in between the sending and receiving of the intent? I\u0027ll try returning if it is not the current user.",
+      "parentUuid": "adafbff4_72b6d8bc",
+      "revId": "44fa9f9c758a104653a226ca7144cbfa4cbdd53d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
