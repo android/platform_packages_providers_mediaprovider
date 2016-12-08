@@ -34,6 +34,24 @@
       "revId": "44fa9f9c758a104653a226ca7144cbfa4cbdd53d",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adafbff4_f5c11222",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1091002
+      },
+      "writtenOn": "2016-12-08T01:24:12Z",
+      "side": 1,
+      "message": "I think MtpReceiver process will launch for each user. If we don\u0027t add the condition, background user\u0027s receiver may start configuring.",
+      "parentUuid": "6d14e7d4_0d90d79c",
+      "revId": "44fa9f9c758a104653a226ca7144cbfa4cbdd53d",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
