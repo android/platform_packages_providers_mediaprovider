@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d5ce705_d8650d5a",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1091002
+      },
+      "writtenOn": "2016-12-09T00:13:16Z",
+      "side": 1,
+      "message": "I think we still need to run lines between 74 and 78 even if isCurrentUser \u003d\u003d false. After a user is switched, old MTP server for previous user needs to be stopped.",
+      "revId": "2497338d49fe22ce5cc5050c1a3f946417bd6528",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
