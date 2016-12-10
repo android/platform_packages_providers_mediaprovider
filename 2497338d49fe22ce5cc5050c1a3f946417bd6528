@@ -16,6 +16,24 @@
       "revId": "2497338d49fe22ce5cc5050c1a3f946417bd6528",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_a9f5a8ab",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-10T00:47:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d5ce705_d8650d5a",
+      "revId": "2497338d49fe22ce5cc5050c1a3f946417bd6528",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
