@@ -13,3 +13,5 @@ LOCAL_CERTIFICATE := media
 LOCAL_PRIVILEGED_MODULE := true
 
 include $(BUILD_PACKAGE)
+
+include $(call all-makefiles-under,$(LOCAL_PATH))
