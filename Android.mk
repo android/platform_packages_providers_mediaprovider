@@ -7,9 +7,12 @@ LOCAL_SRC_FILES := $(call all-subdir-java-files) \
 	src/com/android/providers/media/IMtpService.aidl
 
 LOCAL_JAVA_LIBRARIES := 
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-test
 
 LOCAL_PACKAGE_NAME := MediaProvider
 LOCAL_CERTIFICATE := media
 LOCAL_PRIVILEGED_MODULE := true
 
 include $(BUILD_PACKAGE)
+
+include $(call all-makefiles-under,$(LOCAL_PATH))
