@@ -58,7 +58,7 @@ public class MtpReceiver extends BroadcastReceiver {
         if (configChanged && (mtpEnabled || ptpEnabled)) {
             if (!isCurrentUser)
                 return;
-            MtpServer.configure(ptpEnabled);
+            MtpServer.configure();
             // tell MediaProvider MTP is configured so it can bind to the service
             context.getContentResolver().insert(Uri.parse(
                     "content://media/none/mtp_connected"), null);
