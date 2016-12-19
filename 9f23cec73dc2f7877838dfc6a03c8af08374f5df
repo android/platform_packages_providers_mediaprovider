@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da6cabba_f9639d55",
+        "filename": "Android.mk",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_e02ce260",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a83bf87_0032a6b7",
         "filename": "tests/AndroidManifest.xml",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da6cabba_19693937",
+        "filename": "tests/AndroidManifest.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_0032a6b7",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a83bf87_4014ae04",
         "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-19T01:39:44Z",
       "side": 1,
       "message": "Please add annotation for test size as well. One of @SmallTest, @MediumTest, or @LargeTest. go/android-test-sizes",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6cabba_6e6505c7",
+        "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_4014ae04",
       "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "da6cabba_8e6261be",
+        "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_2017aa0b",
+      "range": {
+        "startLine": 41,
+        "startChar": 50,
+        "endLine": 41,
+        "endChar": 65
+      },
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a83bf87_6021b261",
         "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
         "patchSetId": 6
@@ -87,6 +165,24 @@
       "writtenOn": "2016-12-19T01:39:44Z",
       "side": 1,
       "message": "nit: Need @Before for JUnit4.",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6cabba_ae6f1da6",
+        "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_6021b261",
       "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "da6cabba_ae21dd63",
+        "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_c04efe3b",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a83bf87_403bce8a",
         "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
         "patchSetId": 6
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "da6cabba_2e44ed18",
+        "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_403bce8a",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a83bf87_6038d28d",
         "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
         "patchSetId": 6
@@ -138,6 +270,24 @@
       "writtenOn": "2016-12-19T01:39:44Z",
       "side": 1,
       "message": "assertTrue(dev_mtp.exists() || ffs_mtp.exists()) ?",
+      "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6cabba_6e3ee57c",
+        "filename": "tests/src/com/android/providers/media/tests/MediaProviderPermissionsTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2016-12-19T20:25:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a83bf87_6038d28d",
       "revId": "9f23cec73dc2f7877838dfc6a03c8af08374f5df",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": false
