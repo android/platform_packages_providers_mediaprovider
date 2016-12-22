@@ -1,0 +1,8 @@
+Presubmit-Verified-1: Treehugger Robot <treehugger-gerrit@google.com>
+Code-Review+2: Marco Nelissen <marcone@google.com>
+Verified+1: Alex Klyubin <klyubin@google.com>
+Submitted-by: Alex Klyubin <klyubin@google.com>
+Submitted-at: Thu, 22 Dec 2016 17:06:06 +0000
+Reviewed-on: https://android-review.googlesource.com/317035
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
