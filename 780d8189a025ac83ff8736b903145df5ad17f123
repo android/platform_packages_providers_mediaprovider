@@ -46,6 +46,30 @@
       "revId": "780d8189a025ac83ff8736b903145df5ad17f123",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "408e0336_e9c0d6d1",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1091002
+      },
+      "writtenOn": "2017-03-08T00:43:31Z",
+      "side": 1,
+      "message": "Thank you for the explanation! Could you add the comment to the source code to prevent another developer from removing the condition accidentally?",
+      "parentUuid": "142709ee_4d673f23",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 29
+      },
+      "revId": "780d8189a025ac83ff8736b903145df5ad17f123",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
     }
   ]
 }
