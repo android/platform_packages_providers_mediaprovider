@@ -22,6 +22,30 @@
       "revId": "780d8189a025ac83ff8736b903145df5ad17f123",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "142709ee_4d673f23",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1113594
+      },
+      "writtenOn": "2017-03-08T00:10:08Z",
+      "side": 1,
+      "message": "yeah theres an intermediate step where connected is true but configured is not. this triggered the else block and prematurely unbound the service.",
+      "parentUuid": "334c2ba1_582f8a4e",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 29
+      },
+      "revId": "780d8189a025ac83ff8736b903145df5ad17f123",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
     }
   ]
 }
