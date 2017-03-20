@@ -1,0 +1,9 @@
+Verified+1: Jeff Sharkey <jsharkey@android.com>
+Code-Review+2: Jeff Sharkey <jsharkey@android.com>
+Autosubmit+1: Jeff Sharkey <jsharkey@android.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Mon, 20 Mar 2017 21:19:51 +0000
+Reviewed-on: https://android-review.googlesource.com/349200
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
