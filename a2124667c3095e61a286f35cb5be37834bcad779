@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8814e130_e2d50ba0",
+        "filename": "OWNERS",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2017-06-15T16:16:09Z",
+      "side": 1,
+      "message": "This person is no longer at Google.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "a2124667c3095e61a286f35cb5be37834bcad779",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4933f782_0a3eb48f",
+        "filename": "OWNERS",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2017-06-15T16:16:09Z",
+      "side": 1,
+      "message": "I\u0027m not an OWNER.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 20
+      },
+      "revId": "a2124667c3095e61a286f35cb5be37834bcad779",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
