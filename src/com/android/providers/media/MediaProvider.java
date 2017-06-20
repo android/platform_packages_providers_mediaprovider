@@ -4256,6 +4256,11 @@ public class MediaProvider extends ContentProvider {
                                 "(" + sGetTableAndWhereParam.where + ")" +
                                         " AND (_id NOT IN (SELECT parent FROM files" +
                                         " WHERE NOT (" + sGetTableAndWhereParam.where + ")))";
+                        String[] whereArgsNew = new String[whereArgs.length * 2];
+                        for (int i = 0; i < whereArgs.length; i++) {
+                            whereArgsNew[whereArgs.length + i] = whereArgs[i];
+                        }
+                        whereArgs = whereArgsNew;
                     } else {
                         sGetTableAndWhereParam.where = ID_NOT_PARENT_CLAUSE;
                     }
