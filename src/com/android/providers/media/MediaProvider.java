@@ -251,10 +251,10 @@ public class MediaProvider extends ContentProvider {
     };
 
     private static final String ID_NOT_PARENT_CLAUSE =
-            "_id NOT IN (SELECT parent FROM files)";
+            "_id NOT IN (SELECT parent FROM files WHERE NOT (parent = 'NULL')";
 
     private static final String PARENT_NOT_PRESENT_CLAUSE =
-            "parent != 0 AND parent NOT IN (SELECT _id FROM files)";
+            "parent IS NULL OR (parent != 0 AND parent NOT IN (SELECT _id FROM files))";
 
     private static final Uri sAlbumArtBaseUri =
             Uri.parse("content://media/external/audio/albumart");
@@ -3399,10 +3399,10 @@ public class MediaProvider extends ContentProvider {
                     if (!TextUtils.isEmpty(tableAndWhere.where)) {
                         tableAndWhere.where =
                                 "(" + tableAndWhere.where + ")" +
-                                        " AND (_id NOT IN (SELECT parent FROM files" +
-                                        " WHERE NOT (" + tableAndWhere.where + ")))";
+                                        " AND (" + ID_NOT_PARENT_CLAUSE +
+                                        " AND NOT (" + tableAndWhere.where + ")))";
                     } else {
-                        tableAndWhere.where = ID_NOT_PARENT_CLAUSE;
+                        tableAndWhere.where = ID_NOT_PARENT_CLAUSE + ")";
                     }
                 }
             }
