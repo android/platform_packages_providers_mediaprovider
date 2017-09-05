@@ -242,7 +242,16 @@ public class MediaScannerService extends Service implements Runnable {
                                     mExternalStoragePaths,
                                     Environment.getDataPreloadsMediaDirectory().getAbsolutePath());
                         } else {
-                            directories = mExternalStoragePaths;
+                            String volumePath = arguments.getString("path");
+                            if (volumePath != null
+                                    && ArrayUtils.contains(mExternalStoragePaths, volumePath))
+                                directories = new String[] { volumePath };
+                            else {
+                                Log.e(TAG, "Unknown path " + volumePath + ", legal paths are "
+                                        + Arrays.toString(mExternalStoragePaths));
+                                // Weird, but let's use mExternalStoragePaths as last resort.
+                                directories = mExternalStoragePaths;
+                            }
                         }
                     }
 
