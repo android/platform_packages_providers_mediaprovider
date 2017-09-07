@@ -60,7 +60,7 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                     // scan whenever any volume is mounted
                     scan(context, MediaProvider.EXTERNAL_VOLUME, path);
                 } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action) &&
-                        path != null && path.startsWith(externalStoragePath + "/")) {
+                        path != null) {
                     scanFile(context, path);
                 }
             }
