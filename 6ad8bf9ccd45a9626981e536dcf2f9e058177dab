@@ -1,0 +1,9 @@
+Verified+1: Jerry Zhang <zhangjerry@google.com>
+Code-Review+2: Marco Nelissen <marcone@google.com>
+Autosubmit+1: Jerry Zhang <zhangjerry@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Wed, 01 Nov 2017 21:15:37 +0000
+Reviewed-on: https://android-review.googlesource.com/525176
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
