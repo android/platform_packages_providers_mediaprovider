@@ -3383,6 +3383,14 @@ public class MediaProvider extends ContentProvider {
                             } else if (mediaType == FileColumns.MEDIA_TYPE_PLAYLIST) {
                                 // TODO, maybe: remove the audio_playlists_cleanup trigger and
                                 // implement functionality here (clean up the playlist map)
+                            } else {
+                                if (data.toLowerCase(Locale.US).endsWith("/.nomedia")) {
+                                    File nomediaFile = new File(data);
+                                    if (!nomediaFile.exists()) {
+                                        String parent = nomediaFile.getParent();
+                                        processRemovedNoMediaPath(parent);
+                                    }
+                                }
                             }
                         }
                     } finally {
