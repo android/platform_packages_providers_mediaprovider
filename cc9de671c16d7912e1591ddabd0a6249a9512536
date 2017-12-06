@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ac9dc31_65d7db6f",
+        "filename": "src/com/android/providers/media/MediaScannerService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2017-12-06T16:20:44Z",
+      "side": 1,
+      "message": "lines are too long",
+      "range": {
+        "startLine": 246,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 137
+      },
+      "revId": "cc9de671c16d7912e1591ddabd0a6249a9512536",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
