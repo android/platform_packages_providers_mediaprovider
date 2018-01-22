@@ -123,8 +123,8 @@ public class MtpService extends Service {
         synchronized (this) {
             mVolumeMap = new HashMap<>();
             mStorageMap = new HashMap<>();
-            mStorageManager.registerListener(mStorageEventListener);
             mVolumes = StorageManager.getVolumeList(user.getIdentifier(), 0);
+            mStorageManager.registerListener(mStorageEventListener);
             for (StorageVolume volume : mVolumes) {
                 if (Environment.MEDIA_MOUNTED.equals(volume.getState())) {
                     volumeMountedLocked(volume.getPath());
