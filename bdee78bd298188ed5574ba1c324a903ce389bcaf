@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec1c1b3e_bfe25fe6",
+        "filename": "Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1014443
+      },
+      "writtenOn": "2018-02-23T16:19:14Z",
+      "side": 1,
+      "message": "(don\u0027t see the point of this, but this is a topic for a separate change)",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 24
+      },
+      "revId": "bdee78bd298188ed5574ba1c324a903ce389bcaf",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
