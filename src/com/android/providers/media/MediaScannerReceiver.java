@@ -37,6 +37,7 @@ public class MediaScannerReceiver extends BroadcastReceiver {
         final String action = intent.getAction();
         final Uri uri = intent.getData();
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            initResourceRingtones(context);
             // Scan internal only.
             scan(context, MediaProvider.INTERNAL_VOLUME);
         } else if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
@@ -68,6 +69,11 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                 }
             }
         }
+    }
+
+    private void initResourceRingtones(Context context) {
+        context.startService(
+                new Intent(context, OverlayReceiverService.class));
     }
 
     private void scan(Context context, String volume) {
