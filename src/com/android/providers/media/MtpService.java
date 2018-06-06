@@ -25,7 +25,12 @@ import android.hardware.usb.UsbManager;
 import android.mtp.MtpDatabase;
 import android.mtp.MtpServer;
 import android.mtp.MtpStorage;
+import android.net.Uri;
+import android.os.Looper;
+import android.os.Handler;
 import android.os.Build;
+import android.os.Process;
+import android.os.Message;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.UserHandle;
@@ -40,9 +45,11 @@ import com.android.internal.util.Preconditions;
 import java.io.File;
 import java.util.HashMap;
 
-public class MtpService extends Service {
+public class MtpService extends Service implements Runnable{
     private static final String TAG = "MtpService";
     private static final boolean LOGD = false;
+    private volatile Looper mServiceLooper;
+    private volatile MtpServiceHandler mMtpServiceHandler;
 
     // We restrict PTP to these subdirectories
     private static final String[] PTP_DIRECTORIES = new String[] {
@@ -108,17 +115,61 @@ public class MtpService extends Service {
     private StorageVolume[] mVolumes;
 
     @Override
+    public void run() {
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND +
+                Process.THREAD_PRIORITY_LESS_FAVORABLE);
+        Looper.prepare();
+
+        mServiceLooper = Looper.myLooper();
+        mMtpServiceHandler = new MtpServiceHandler();
+
+        Looper.loop();
+    }
+
+
+    @Override
     public void onCreate() {
         mStorageManager = this.getSystemService(StorageManager.class);
+        // Start up the thread running the service.  Note that we create a
+        // separate thread because the service normally runs in the process's
+        // main thread, which we don't want to block.
+        Thread thr = new Thread(null, this, "MtpService");
+        thr.start();
     }
 
     @Override
     public void onDestroy() {
         mStorageManager.unregisterListener(mStorageEventListener);
+        // Make sure thread has started before telling it to quit.
+        while (mServiceLooper == null) {
+            synchronized (this) {
+                try {
+                    wait(100);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+        mServiceLooper.quit();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        if (intent != null && intent.getBooleanExtra("mtp_connected",false)){
+            while (mMtpServiceHandler == null) {
+                synchronized (this) {
+                    try {
+                        wait(100);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+            Message msg = mMtpServiceHandler.obtainMessage();
+            msg.arg1 = startId;
+            mMtpServiceHandler.sendMessage(msg);
+            return Service.START_REDELIVER_INTENT;
+        }
+
         UserHandle user = new UserHandle(ActivityManager.getCurrentUser());
         synchronized (this) {
             mVolumeMap = new HashMap<>();
@@ -325,6 +376,14 @@ public class MtpService extends Service {
                 sServerHolder.close();
                 sServerHolder = null;
             }
+        }
+    }
+    private final class MtpServiceHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            // tell MediaProvider MTP is configured so it can bind to the service
+            getContentResolver().insert(Uri.parse("content://media/none/mtp_connected"), null);
         }
     }
 }

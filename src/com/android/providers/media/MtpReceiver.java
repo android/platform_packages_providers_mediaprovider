@@ -61,9 +61,11 @@ public class MtpReceiver extends BroadcastReceiver {
 
         if ((configChanged || (connected && !configured)) && (mtpEnabled || ptpEnabled)) {
             MtpServer.configure(ptpEnabled);
-            // tell MediaProvider MTP is configured so it can bind to the service
-            context.getContentResolver().insert(Uri.parse(
-                    "content://media/none/mtp_connected"), null);
+            // the call of MediaProvider insert may operate sqlite database which consume time
+            // As a result, ANR may occur here, tell MediaProvide in MTPService may avoid it
+            intent = new Intent(context, MtpService.class);
+            intent.putExtra("mtp_connected", true);
+            context.startService(intent);
         } else if (configured && (mtpEnabled || ptpEnabled)) {
             intent = new Intent(context, MtpService.class);
             intent.putExtra(UsbManager.USB_DATA_UNLOCKED, unlocked);
