@@ -86,6 +86,8 @@
 
         <service android:name="MtpService" />
 
+        <service android:name="OverlayReceiverService" />
+
         <activity android:name="RingtonePickerActivity"
                 android:theme="@style/PickerDialogTheme"
                 android:enabled="@*android:bool/config_defaultRingtonePickerEnabled"
