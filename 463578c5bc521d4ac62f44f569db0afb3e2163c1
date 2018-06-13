@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ef60bb4_61ca9da8",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-06-13T04:19:30Z",
+      "side": 1,
+      "message": "does these have to be volatile, can\u0027t they be initialized at the beginning? eg. in onCreate.",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "463578c5bc521d4ac62f44f569db0afb3e2163c1",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93cfc4b8_5165a278",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-06-13T04:19:30Z",
+      "side": 1,
+      "message": "when is this run? Can these be done at beginning in onCreate?",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 22
+      },
+      "revId": "463578c5bc521d4ac62f44f569db0afb3e2163c1",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79fe0549_06bc8a12",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-06-13T04:19:30Z",
+      "side": 1,
+      "message": "can you please try to remove these? It\u0027s normally not needed if the handler is created upfront.",
+      "range": {
+        "startLine": 159,
+        "startChar": 1,
+        "endLine": 166,
+        "endChar": 13
+      },
+      "revId": "463578c5bc521d4ac62f44f569db0afb3e2163c1",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
