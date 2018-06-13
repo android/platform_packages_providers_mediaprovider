@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2b99274f_a85337c0",
+        "filename": "src/com/android/providers/media/MtpReceiver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-06-13T04:26:42Z",
+      "side": 1,
+      "message": "I\u0027m also wondering why do you need to start a new service just to do this.\nIf the ANR is caused by long run task on main thread, you could just start a thread and handler here and post to the thread to do it.  But now you\u0027re starting anothe MtpService to do the insert.",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 41
+      },
+      "revId": "463578c5bc521d4ac62f44f569db0afb3e2163c1",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ef60bb4_61ca9da8",
         "filename": "src/com/android/providers/media/MtpService.java",
         "patchSetId": 1
