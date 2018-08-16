@@ -269,7 +269,7 @@ public class MediaProvider extends ContentProvider {
                         StorageVolume.EXTRA_STORAGE_VOLUME);
                 // If primary external storage is ejected, then remove the external volume
                 // notify all cursors backed by data on that volume.
-                if (storage.getPath().equals(mExternalStoragePaths[0])) {
+                if (storage.isPrimary()) {
                     detachVolume(Uri.parse("content://media/external"));
                     sFolderArtMap.clear();
                     MiniThumbFile.reset();
@@ -285,11 +285,6 @@ public class MediaProvider extends ContentProvider {
                     Uri uri = Uri.parse("file://" + storage.getPath());
                     if (database != null) {
                         try {
-                            // Send media scanner started and stopped broadcasts for apps that rely
-                            // on these Intents for coarse grained media database notifications.
-                            context.sendBroadcast(
-                                    new Intent(Intent.ACTION_MEDIA_SCANNER_STARTED, uri));
-
                             Log.d(TAG, "deleting all entries for storage " + storage);
                             Uri.Builder builder =
                                     Files.getMtpObjectsUri(EXTERNAL_VOLUME).buildUpon();
@@ -301,20 +296,10 @@ public class MediaProvider extends ContentProvider {
                                     new String[]{storage.getPath() + "/%",
                                             Integer.toString(storage.getPath().length() + 1),
                                             storage.getPath() + "/"});
-                            // notify on media Uris as well as the files Uri
                             context.getContentResolver().notifyChange(
-                                    Audio.Media.getContentUri(EXTERNAL_VOLUME), null);
-                            context.getContentResolver().notifyChange(
-                                    Images.Media.getContentUri(EXTERNAL_VOLUME), null);
-                            context.getContentResolver().notifyChange(
-                                    Video.Media.getContentUri(EXTERNAL_VOLUME), null);
-                            context.getContentResolver().notifyChange(
-                                    Files.getContentUri(EXTERNAL_VOLUME), null);
+                                    Uri.parse("content://media/external"), null);
                         } catch (Exception e) {
                             Log.e(TAG, "exception deleting storage entries", e);
-                        } finally {
-                            context.sendBroadcast(
-                                    new Intent(Intent.ACTION_MEDIA_SCANNER_FINISHED, uri));
                         }
                     }
                 }
@@ -601,10 +586,6 @@ public class MediaProvider extends ContentProvider {
                         "%1", context.getString(R.string.artist_label));
         mDatabases = new HashMap<String, DatabaseHelper>();
         attachVolume(INTERNAL_VOLUME);
-
-        IntentFilter iFilter = new IntentFilter(Intent.ACTION_MEDIA_EJECT);
-        iFilter.addDataScheme("file");
-        context.registerReceiver(mUnmountReceiver, iFilter);
 
         // open external database if external storage is mounted
         String state = Environment.getExternalStorageState();
@@ -3449,6 +3430,9 @@ public class MediaProvider extends ContentProvider {
 
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
+        if (Binder.getCallingPid() != Process.myPid()) {
+            throw new UnsupportedOperationException("Unsupported call from other process");
+        }
         if (MediaStore.UNHIDE_CALL.equals(method)) {
             processRemovedNoMediaPath(arg);
             return null;
@@ -3457,9 +3441,29 @@ public class MediaProvider extends ContentProvider {
             localizeTitles();
             return null;
         }
+        if (method.equals("mount")) {
+            if (Intent.ACTION_MEDIA_EJECT.equals(arg)
+                    || Intent.ACTION_MEDIA_MOUNTED.equals(arg)) {
+                String key = StorageVolume.EXTRA_STORAGE_VOLUME;
+                StorageVolume storage = (StorageVolume)extras.getParcelable(key);
+                processMountEvents(arg, storage);
+            }
+            return null;
+        }
         throw new UnsupportedOperationException("Unsupported call: " + method);
     }
 
+    private void processMountEvents(String action, StorageVolume storage) {
+        // Update paths to reflect currently mounted volumes
+        updateStoragePaths();
+
+        if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
+            Intent intent = new Intent(action);
+            String key = StorageVolume.EXTRA_STORAGE_VOLUME;
+            intent.putExtra(key, storage);
+            mUnmountReceiver.onReceive(getContext(), intent);
+        }
+    }
 
     /*
      * Clean up all thumbnail files for which the source image or video no longer exists.

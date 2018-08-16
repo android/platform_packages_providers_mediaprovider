@@ -38,6 +38,7 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.UserManager;
 import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -45,6 +46,8 @@ import com.android.internal.util.ArrayUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MediaScannerService extends Service implements Runnable {
     private static final String TAG = "MediaScannerService";
@@ -53,7 +56,25 @@ public class MediaScannerService extends Service implements Runnable {
     private volatile ServiceHandler mServiceHandler;
     private PowerManager.WakeLock mWakeLock;
     private String[] mExternalStoragePaths;
-    
+    private List<StorageVolume> mExternalStorageVolumes = new ArrayList<StorageVolume>();
+
+    private void updateExternalStorageVolumes() {
+        mExternalStorageVolumes.clear();
+        StorageManager sm = (StorageManager)getSystemService(STORAGE_SERVICE);
+        List<StorageVolume> vols = sm.getStorageVolumes();
+        for (StorageVolume vol : vols) {
+            if (Environment.MEDIA_MOUNTED.equals(vol.getState()) ||
+                    Environment.MEDIA_MOUNTED_READ_ONLY.equals(vol.getState())) {
+                if (vol.getPath().startsWith("/storage/")) {
+                    mExternalStorageVolumes.add(vol);
+                }
+            }
+        }
+        for (StorageVolume vol : mExternalStorageVolumes) {
+            Log.i(TAG, "updateExternalStorageVolumes: " + vol.getPath());
+        }
+    }
+
     private void openDatabase(String volumeName) {
         try {
             ContentValues values = new ContentValues();
@@ -105,8 +126,6 @@ public class MediaScannerService extends Service implements Runnable {
     public void onCreate() {
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        StorageManager storageManager = (StorageManager)getSystemService(Context.STORAGE_SERVICE);
-        mExternalStoragePaths = storageManager.getVolumePaths();
 
         // Start up the thread running the service.  Note that we create a
         // separate thread because the service normally runs in the process's
@@ -217,8 +236,11 @@ public class MediaScannerService extends Service implements Runnable {
                 return;
             }
             String filePath = arguments.getString("filepath");
-
+            String volume = arguments.getString("volume");
+            StorageVolume storage = (StorageVolume)arguments.getParcelable("storage");
+            String action = arguments.getString("action");
             try {
+                updateExternalStorageVolumes();
                 if (filePath != null) {
                     IBinder binder = arguments.getIBinder("listener");
                     IMediaScannerListener listener =
@@ -236,8 +258,18 @@ public class MediaScannerService extends Service implements Runnable {
                     ContentProviderClient mediaProvider = getBaseContext().getContentResolver()
                         .acquireContentProviderClient(MediaStore.AUTHORITY);
                     mediaProvider.call(MediaStore.RETRANSLATE_CALL, null, null);
-                } else {
-                    String volume = arguments.getString("volume");
+                } else if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
+                    ContentProviderClient mediaProvider = getBaseContext().getContentResolver()
+                        .acquireContentProviderClient(MediaStore.AUTHORITY);
+                    if (MediaProvider.EXTERNAL_VOLUME.equals(volume)) {
+                        // notify mount event
+                        Bundle extras = new Bundle();
+                        extras.putParcelable(StorageVolume.EXTRA_STORAGE_VOLUME, storage);
+                        mediaProvider.call("mount", action, extras);
+                    }
+                } else if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
+                    ContentProviderClient mediaProvider = getBaseContext().getContentResolver()
+                        .acquireContentProviderClient(MediaStore.AUTHORITY);
                     String[] directories = null;
 
                     if (MediaProvider.INTERNAL_VOLUME.equals(volume)) {
@@ -258,8 +290,22 @@ public class MediaScannerService extends Service implements Runnable {
                             directories = null;
                         }
                     }
-                    else if (MediaProvider.EXTERNAL_VOLUME.equals(volume)) {
+                    if (MediaProvider.EXTERNAL_VOLUME.equals(volume)) {
+                        // notify mount event
+                        Bundle extras = new Bundle();
+                        extras.putParcelable(StorageVolume.EXTRA_STORAGE_VOLUME, storage);
+                        mediaProvider.call("mount", action, extras);
+
                         // scan external storage volumes
+                        List<String> list = new ArrayList<String>();
+                        for (StorageVolume vol : mExternalStorageVolumes) {
+                            list.add(vol.getPath());
+                        }
+                        if (list.size() > 0) {
+                            mExternalStoragePaths = (String[])list.toArray(new String[]{});
+                        } else {
+                            mExternalStoragePaths = null;
+                        }
                         if (getSystemService(UserManager.class).isDemoUser()) {
                             directories = ArrayUtils.appendElement(String.class,
                                     mExternalStoragePaths,
