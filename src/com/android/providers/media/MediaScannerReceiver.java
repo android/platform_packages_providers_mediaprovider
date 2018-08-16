@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.storage.StorageVolume;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -38,7 +39,7 @@ public class MediaScannerReceiver extends BroadcastReceiver {
         final Uri uri = intent.getData();
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             // Scan internal only.
-            scan(context, MediaProvider.INTERNAL_VOLUME);
+            scan(context, MediaProvider.INTERNAL_VOLUME, null, Intent.ACTION_MEDIA_MOUNTED);
         } else if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             scanTranslatable(context);
         } else {
@@ -61,9 +62,15 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                 Log.d(TAG, "action: " + action + " path: " + path);
                 if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
                     // Scan internal before external
-                    scan(context, MediaProvider.INTERNAL_VOLUME);
+                    scan(context, MediaProvider.INTERNAL_VOLUME, null, Intent.ACTION_MEDIA_MOUNTED);
                     // scan whenever any volume is mounted
-                    scan(context, MediaProvider.EXTERNAL_VOLUME);
+                    StorageVolume storage = (StorageVolume)intent.getParcelableExtra(
+                            StorageVolume.EXTRA_STORAGE_VOLUME);
+                    scan(context, MediaProvider.EXTERNAL_VOLUME, storage, action);
+                } else if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
+                    StorageVolume storage = (StorageVolume)intent.getParcelableExtra(
+                            StorageVolume.EXTRA_STORAGE_VOLUME);
+                    scan(context, MediaProvider.EXTERNAL_VOLUME, storage, action);
                 } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action) &&
                         path != null && path.startsWith(externalStoragePath + "/")) {
                     scanFile(context, path);
@@ -72,9 +79,15 @@ public class MediaScannerReceiver extends BroadcastReceiver {
         }
     }
 
-    private void scan(Context context, String volume) {
+    private void scan(Context context, String volume, StorageVolume storage, String action) {
+        if (MediaProvider.EXTERNAL_VOLUME.equals(volume) && storage == null) {
+            Log.e(TAG, "StorageVolume is mandatory for external storage scan");
+            return;
+        }
         Bundle args = new Bundle();
         args.putString("volume", volume);
+        args.putParcelable("storage", storage);
+        args.putString("action", action);
         context.startService(
                 new Intent(context, MediaScannerService.class).putExtras(args));
     }

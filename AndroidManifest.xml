@@ -60,7 +60,7 @@
                 <data android:scheme="file" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
+                <action android:name="android.intent.action.MEDIA_EJECT" />
                 <data android:scheme="file" />
             </intent-filter>
             <intent-filter>
