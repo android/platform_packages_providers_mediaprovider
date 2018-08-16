@@ -22,10 +22,12 @@ import android.content.ContentProviderClient;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.IMediaScannerListener;
 import android.media.IMediaScannerService;
 import android.media.MediaScanner;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -59,11 +61,10 @@ public class MediaScannerService extends Service implements Runnable {
             getContentResolver().insert(Uri.parse("content://media/"), values);
         } catch (IllegalArgumentException ex) {
             Log.w(TAG, "failed to open media database");
-        }         
+        }
     }
 
     private void scan(String[] directories, String volumeName) {
-        Uri uri = Uri.parse("file://" + directories[0]);
         // don't sleep while scanning
         mWakeLock.acquire();
 
@@ -72,7 +73,10 @@ public class MediaScannerService extends Service implements Runnable {
             values.put(MediaStore.MEDIA_SCANNER_VOLUME, volumeName);
             Uri scanUri = getContentResolver().insert(MediaStore.getMediaScannerUri(), values);
 
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_STARTED, uri));
+            for (String dir : directories) {
+                Uri uri = Uri.parse("file://" + dir);
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_STARTED, uri));
+            }
 
             try {
                 if (volumeName.equals(MediaProvider.EXTERNAL_VOLUME)) {
@@ -89,11 +93,14 @@ public class MediaScannerService extends Service implements Runnable {
             getContentResolver().delete(scanUri, null, null);
 
         } finally {
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_FINISHED, uri));
+            for (String dir : directories) {
+                Uri uri = Uri.parse("file://" + dir);
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_FINISHED, uri));
+            }
             mWakeLock.release();
         }
     }
-    
+
     @Override
     public void onCreate() {
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
@@ -179,8 +186,8 @@ public class MediaScannerService extends Service implements Runnable {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
-    
-    private final IMediaScannerService.Stub mBinder = 
+
+    private final IMediaScannerService.Stub mBinder =
             new IMediaScannerService.Stub() {
         public void requestScanFile(String path, String mimeType, IMediaScannerListener listener) {
             if (false) {
@@ -210,11 +217,11 @@ public class MediaScannerService extends Service implements Runnable {
                 return;
             }
             String filePath = arguments.getString("filepath");
-            
+
             try {
                 if (filePath != null) {
                     IBinder binder = arguments.getIBinder("listener");
-                    IMediaScannerListener listener = 
+                    IMediaScannerListener listener =
                             (binder == null ? null : IMediaScannerListener.Stub.asInterface(binder));
                     Uri uri = null;
                     try {
@@ -240,6 +247,16 @@ public class MediaScannerService extends Service implements Runnable {
                                 Environment.getOemDirectory() + "/media",
                                 Environment.getProductDirectory() + "/media",
                         };
+
+                        // scan internal only once
+                        final SharedPreferences scanSettings =
+                                getBaseContext().getSharedPreferences(
+                                MediaScanner.SCANNED_BUILD_PREFS_NAME, Context.MODE_PRIVATE);
+                        String internalScanFingerprint = scanSettings.getString(
+                                MediaScanner.LAST_INTERNAL_SCAN_FINGERPRINT, new String());
+                        if (Build.FINGERPRINT.equals(internalScanFingerprint)) {
+                            directories = null;
+                        }
                     }
                     else if (MediaProvider.EXTERNAL_VOLUME.equals(volume)) {
                         // scan external storage volumes
@@ -253,10 +270,12 @@ public class MediaScannerService extends Service implements Runnable {
                     }
 
                     if (directories != null) {
-                        if (false) Log.d(TAG, "start scanning volume " + volume + ": "
+                        Log.i(TAG, "start scanning volume " + volume + ": "
                                 + Arrays.toString(directories));
                         scan(directories, volume);
-                        if (false) Log.d(TAG, "done scanning volume " + volume);
+                        Log.i(TAG, "done scanning volume " + volume);
+                    } else {
+                        Log.w(TAG, "skipped scanning volume " + volume);
                     }
                 }
             } catch (Exception e) {
