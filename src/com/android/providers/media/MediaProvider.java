@@ -72,6 +72,7 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.storage.StorageManager;
@@ -261,51 +262,129 @@ public class MediaProvider extends ContentProvider {
 
     private static final String CANONICAL = "canonical";
 
-    private BroadcastReceiver mUnmountReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_MEDIA_EJECT.equals(intent.getAction())) {
-                StorageVolume storage = (StorageVolume)intent.getParcelableExtra(
-                        StorageVolume.EXTRA_STORAGE_VOLUME);
-                // If primary external storage is ejected, then remove the external volume
-                // notify all cursors backed by data on that volume.
-                if (storage.isPrimary()) {
-                    detachVolume(Uri.parse("content://media/external"));
-                    sFolderArtMap.clear();
-                    MiniThumbFile.reset();
-                } else {
-                    // If secondary external storage is ejected, then we delete all database
-                    // entries for that storage from the files table.
-                    DatabaseHelper database;
-                    synchronized (mDatabases) {
-                        // This synchronized block is limited to avoid a potential deadlock
-                        // with bulkInsert() method.
-                        database = mDatabases.get(EXTERNAL_VOLUME);
-                    }
-                    Uri uri = Uri.parse("file://" + storage.getPath());
-                    if (database != null) {
-                        try {
-                            Log.d(TAG, "deleting all entries for storage " + storage);
-                            Uri.Builder builder =
-                                    Files.getMtpObjectsUri(EXTERNAL_VOLUME).buildUpon();
-                            builder.appendQueryParameter(MediaStore.PARAM_DELETE_DATA, "false");
-                            delete(builder.build(),
-                                    // the 'like' makes it use the index, the 'lower()' makes it
-                                    // correct when the path contains sqlite wildcard characters
-                                    "_data LIKE ?1 AND lower(substr(_data,1,?2))=lower(?3)",
-                                    new String[]{storage.getPath() + "/%",
-                                            Integer.toString(storage.getPath().length() + 1),
-                                            storage.getPath() + "/"});
-                            context.getContentResolver().notifyChange(
-                                    Uri.parse("content://media/external"), null);
-                        } catch (Exception e) {
-                            Log.e(TAG, "exception deleting storage entries", e);
+    private static final class StorageBackup {
+        private Context mContext;
+
+        public StorageBackup(Context context) {
+            mContext = context;
+        }
+
+        private void getOldStorageIds(List<Integer> oldIds) {
+            final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+            if (pref != null) {
+                oldIds.add(pref.getInt("backup_storage_id_0", StorageVolume.STORAGE_ID_INVALID));
+                oldIds.add(pref.getInt("backup_storage_id_1", StorageVolume.STORAGE_ID_INVALID));
+                oldIds.add(pref.getInt("backup_storage_id_2", StorageVolume.STORAGE_ID_INVALID));
+            }
+        }
+
+        private void setOldStorageIds(List<Integer> oldIds) {
+            final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+            if (pref != null) {
+                final SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("backup_storage_id_0", oldIds.get(0));
+                editor.putInt("backup_storage_id_1", oldIds.get(1));
+                editor.putInt("backup_storage_id_2", oldIds.get(2));
+                editor.commit();
+            }
+        }
+
+        private void backupStorageEntries(SQLiteDatabase db, int storageId) {
+            Log.i(TAG, "backupStorageEntries: storage_id=" + storageId);
+            db.execSQL("UPDATE files SET old_id=media_type, media_type=null WHERE storage_id=" + storageId + " AND media_type IS NOT NULL");
+        }
+
+        private void restoreStorageEntries(SQLiteDatabase db, int storageId) {
+            Log.i(TAG, "restoreStorageEntries: storage_id=" + storageId);
+            List<Integer> ids = new ArrayList<Integer>();
+            getOldStorageIds(ids);
+            // 3 storage information can be saved
+            if (ids.size() > 2) {
+                if (ids.get(0) != storageId) {
+                    for (int i = 1; i < ids.size(); i++) {
+                        if (ids.get(i) == storageId) {
+                            ids.set(i, StorageVolume.STORAGE_ID_INVALID);
                         }
+                    }
+                    if (ids.get(0) != StorageVolume.STORAGE_ID_INVALID) {
+                        if (ids.get(1) != StorageVolume.STORAGE_ID_INVALID) {
+                            ids.set(2, ids.get(1));
+                            ids.set(1, ids.get(0));
+                            ids.set(0, storageId);
+                            setOldStorageIds(ids);
+                        } else {
+                            ids.set(2, StorageVolume.STORAGE_ID_INVALID);
+                            ids.set(1, ids.get(0));
+                            ids.set(0, storageId);
+                            setOldStorageIds(ids);
+                        }
+                    } else {
+                        ids.set(2, StorageVolume.STORAGE_ID_INVALID);
+                        ids.set(1, StorageVolume.STORAGE_ID_INVALID);
+                        ids.set(0, storageId);
+                        setOldStorageIds(ids);
                     }
                 }
             }
+            db.execSQL("UPDATE files SET media_type=old_id, old_id=null WHERE storage_id=" + storageId + " AND media_type IS NULL");
         }
-    };
+
+        public void onEjected(SQLiteDatabase db, int storageId) {
+            // backup stoarge entries
+            if (storageId != StorageVolume.STORAGE_ID_INVALID) {
+                backupStorageEntries(db, storageId);
+            }
+        }
+
+        public void onMounted(SQLiteDatabase db, int storageId) {
+            // storage might be replaced or ejected during power off
+            List<Integer> ids = new ArrayList<Integer>();
+            getOldStorageIds(ids);
+            if (ids.get(0) != StorageVolume.STORAGE_ID_INVALID && ids.get(0) != storageId) {
+                backupStorageEntries(db, ids.get(0));
+            }
+            // restore storage entries
+            if (storageId != StorageVolume.STORAGE_ID_INVALID) {
+                restoreStorageEntries(db, storageId);
+            }
+        }
+
+        public int getCurStorageId() {
+            List<Integer> oldIds = new ArrayList<Integer>();
+            getOldStorageIds(oldIds);
+            return oldIds.size() > 0 ? oldIds.get(0) : StorageVolume.STORAGE_ID_INVALID;
+        }
+
+        public String makePrescanSelection(boolean isMounted) {
+            String selection = null;
+            List<Integer> oldIds = new ArrayList<Integer>();
+            getOldStorageIds(oldIds);
+            if (oldIds.size() > 0) {
+                String tmp = "";
+                for (int i = (isMounted ? 1 : 0); i < oldIds.size(); i++) {
+                    if (oldIds.get(i) != StorageVolume.STORAGE_ID_INVALID) {
+                        if (tmp.isEmpty()) {
+                            tmp = "storage_id!=" + oldIds.get(i);
+                        } else {
+                            tmp += " AND storage_id!=" + oldIds.get(i);
+                        }
+                    }
+                }
+                if (!tmp.isEmpty()) {
+                    selection = "(" + tmp + ")";
+                }
+            }
+            return selection;
+        }
+
+        public boolean isEnabled() {
+            String prop = SystemProperties.get("mediaprovider.backup.disabled");
+            boolean disabled = (prop != null && prop.equals("true"));
+            return !disabled;
+        }
+    }
+
+    private StorageBackup mBackup;
 
     private final SQLiteDatabase.CustomFunction mObjectRemovedCallback =
                 new SQLiteDatabase.CustomFunction() {
@@ -594,6 +673,8 @@ public class MediaProvider extends ContentProvider {
             attachVolume(EXTERNAL_VOLUME);
         }
 
+        mBackup = new StorageBackup(context);
+
         HandlerThread ht = new HandlerThread("thumbs thread", Process.THREAD_PRIORITY_BACKGROUND);
         ht.start();
         mThumbHandler = new Handler(ht.getLooper()) {
@@ -801,7 +882,7 @@ public class MediaProvider extends ContentProvider {
                 + "is_alarm INTEGER,is_notification INTEGER,is_podcast INTEGER,album_artist TEXT,"
                 + "duration INTEGER,bookmark INTEGER,artist TEXT,album TEXT,resolution TEXT,"
                 + "tags TEXT,category TEXT,language TEXT,mini_thumb_data TEXT,name TEXT,"
-                + "media_type INTEGER,old_id INTEGER,is_drm INTEGER,"
+                + "media_type INTEGER,old_id INTEGER,storage_id INTEGER,is_drm INTEGER,"
                 + "width INTEGER, height INTEGER, title_resource_uri TEXT)");
         db.execSQL("CREATE TABLE log (time DATETIME, message TEXT)");
         if (!internal) {
@@ -946,6 +1027,9 @@ public class MediaProvider extends ContentProvider {
             updateFromKKSchema(db);
         } else if (fromVersion < 900) {
             updateFromOCSchema(db);
+        } else if (fromVersion < 1000) {
+            db.execSQL("ALTER TABLE files ADD COLUMN storage_id INTEGER;");
+            db.execSQL("UPDATE files SET media_type=0 WHERE media_type IS NULL;");
         }
 
         sanityCheck(db, fromVersion);
@@ -1634,6 +1718,36 @@ public class MediaProvider extends ContentProvider {
             case FILES:
             case MTP_OBJECTS:
                 qb.setTables("files");
+                if (mBackup.isEnabled()) {
+                    if (!helper.mInternal) {
+                        if (selection != null && selection.length() > 0) {
+                            String prescanSelect = null;
+                            String prescan = uri.getQueryParameter("prescan");
+                            if (prescan != null && prescan.equals("external")
+                                    && Binder.getCallingPid() == Process.myPid()) {
+                                boolean isMounted = false;
+                                List<StorageVolume> vols = mStorageManager.getStorageVolumes();
+                                for (StorageVolume vol : vols) {
+                                    if (Environment.MEDIA_MOUNTED.equals(vol.getState()) ||
+                                            Environment.MEDIA_MOUNTED_READ_ONLY.equals(vol.getState())) {
+                                        if (getStorageId(vol.getPath()) == mBackup.getCurStorageId()) {
+                                            isMounted = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                prescanSelect = mBackup.makePrescanSelection(isMounted);
+                            }
+                            if (prescanSelect != null) {
+                                selection = prescanSelect + " AND " + selection;
+                            } else {
+                                selection = "media_type IS NOT NULL" + " AND " + selection;
+                            }
+                        } else {
+                            selection = "media_type IS NOT NULL";
+                        }
+                    }
+                }
                 break;
 
             case MTP_OBJECT_REFERENCES:
@@ -1915,6 +2029,8 @@ public class MediaProvider extends ContentProvider {
         values.put(FileColumns.FORMAT, MtpConstants.FORMAT_ASSOCIATION);
         values.put(FileColumns.DATA, path);
         values.put(FileColumns.PARENT, getParent(helper, db, path));
+        values.put(FileColumns.STORAGE_ID, getStorageId(path));
+        values.put(FileColumns.MEDIA_TYPE, 0);
         File file = new File(path);
         if (file.exists()) {
             values.put(FileColumns.DATE_MODIFIED, file.lastModified() / 1000);
@@ -2099,6 +2215,20 @@ public class MediaProvider extends ContentProvider {
                     }
                 }
             }
+        }
+    }
+
+    private int getStorageId(String path) {
+        final StorageVolume vol = mStorageManager.getStorageVolume(new File(path));
+        if (vol != null) {
+            if (vol.isPrimary()) {
+                return StorageVolume.STORAGE_ID_PRIMARY;
+            } else {
+                return VolumeInfo.buildStableMtpStorageId(vol.getUuid());
+            }
+        } else {
+            Log.w(TAG, "Missing volume for " + path + "; assuming invalid");
+            return StorageVolume.STORAGE_ID_INVALID;
         }
     }
 
@@ -2335,6 +2465,8 @@ public class MediaProvider extends ContentProvider {
                     values.put(FileColumns.PARENT, parentId);
                 }
             }
+            int storageId = getStorageId(path);
+            values.put(FileColumns.STORAGE_ID, storageId);
 
             helper.mNumInserts++;
             rowId = db.insert("files", FileColumns.DATE_MODIFIED, values);
@@ -2749,6 +2881,20 @@ public class MediaProvider extends ContentProvider {
             processNewNoMediaPath(helper, db, path);
         }
         return newUri;
+    }
+
+    private void fixStorageIdIfNeeded() {
+        final DatabaseHelper helper = getDatabaseForUri(Uri.parse("content://media/external/file"));
+        if (helper == null) {
+            return;
+        }
+        SQLiteDatabase db = helper.getWritableDatabase();
+        for (String path : mExternalStoragePaths) {
+            ContentValues values = new ContentValues();
+            values.put(FileColumns.STORAGE_ID, getStorageId(path));
+            db.update("files", values, "(storage_id=0 OR storage_id IS NULL)"
+                    + " AND (_data >= ? AND _data < ?)", new String[] { path  + "/", path + "0" });
+        }
     }
 
     private void fixParentIdIfNeeded() {
@@ -3218,6 +3364,8 @@ public class MediaProvider extends ContentProvider {
                 editor.apply();
             }
             mMediaScannerVolume = null;
+            fixStorageIdIfNeeded();
+            fixParentIdIfNeeded();
             pruneThumbnails();
             return 1;
         }
@@ -3252,6 +3400,16 @@ public class MediaProvider extends ContentProvider {
 
             TableAndWhere tableAndWhere = getTableAndWhere(uri, match, userWhere);
             if (tableAndWhere.table.equals("files")) {
+                // exclude files entries with media_type is null
+                if (mBackup.isEnabled()) {
+                    if (!database.mInternal && Binder.getCallingPid() != Process.myPid()) {
+                        if (tableAndWhere.where != null && tableAndWhere.where.length() > 0) {
+                            tableAndWhere.where = "media_type IS NOT NULL" + " AND " + tableAndWhere.where;
+                        } else {
+                            tableAndWhere.where = "media_type IS NOT NULL";
+                        }
+                    }
+                }
                 String deleteparam = uri.getQueryParameter(MediaStore.PARAM_DELETE_DATA);
                 if (deleteparam == null || ! deleteparam.equals("false")) {
                     database.mNumQueries++;
@@ -3457,11 +3615,58 @@ public class MediaProvider extends ContentProvider {
         // Update paths to reflect currently mounted volumes
         updateStoragePaths();
 
-        if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
-            Intent intent = new Intent(action);
-            String key = StorageVolume.EXTRA_STORAGE_VOLUME;
-            intent.putExtra(key, storage);
-            mUnmountReceiver.onReceive(getContext(), intent);
+        Uri uri = Uri.parse("content://media/external");
+        if (mBackup.isEnabled()) {
+            DatabaseHelper helper = getDatabaseForUri(uri);
+            if (helper == null) {
+                return;
+            }
+            SQLiteDatabase db = helper.getWritableDatabase();
+            if (Intent.ACTION_MEDIA_EJECT.equals(action) && !storage.isPrimary()) {
+                mBackup.onEjected(db, mBackup.getCurStorageId());
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+            if (Intent.ACTION_MEDIA_MOUNTED.equals(action) && !storage.isPrimary()) {
+                mBackup.onMounted(db, getStorageId(storage.getPath()));
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+            if (Intent.ACTION_MEDIA_MOUNTED.equals(action) && storage.isPrimary()) {
+                // onMounted must be called once after boot even if secondary storage is ejected
+                List<StorageVolume> vols = mStorageManager.getStorageVolumes();
+                for (StorageVolume vol : vols) {
+                    if (Environment.MEDIA_MOUNTED.equals(vol.getState()) ||
+                            Environment.MEDIA_MOUNTED_READ_ONLY.equals(vol.getState())) {
+                        if (!vol.isPrimary() && vol.isRemovable()) {
+                            return;
+                        }
+                    }
+                }
+                mBackup.onMounted(db, StorageVolume.STORAGE_ID_INVALID);
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+        } else {
+            if (Intent.ACTION_MEDIA_EJECT.equals(action) && storage.isPrimary()) {
+                // If primary external storage is ejected, then remove the external volume
+                // notify all cursors backed by data on that volume.
+                detachVolume(uri);
+                sFolderArtMap.clear();
+                MiniThumbFile.reset();
+            }
+            if (Intent.ACTION_MEDIA_EJECT.equals(action) && !storage.isPrimary()) {
+                // If secondary external storage is ejected, then we delete all database
+                // entries for that storage from the files table.
+                Log.i(TAG, "deleting all entries for storage " + storage);
+                Uri.Builder builder = Files.getMtpObjectsUri(EXTERNAL_VOLUME).buildUpon();
+                builder.appendQueryParameter(MediaStore.PARAM_DELETE_DATA, "false");
+                delete(builder.build(),
+                        // the 'like' makes it use the index, the 'lower()' makes it
+                        // correct when the path contains sqlite wildcard characters
+                        "_data LIKE ?1 AND lower(substr(_data,1,?2))=lower(?3)",
+                        new String[]{storage.getPath() + "/%",
+                        Integer.toString(storage.getPath().length() + 1),
+                        storage.getPath() + "/"});
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
     }
 
@@ -3564,9 +3769,46 @@ public class MediaProvider extends ContentProvider {
         if (initialValues != null) {
             genre = initialValues.getAsString(Audio.AudioColumns.GENRE);
             initialValues.remove(Audio.AudioColumns.GENRE);
+
+            // guard database from abnormal update request
+            if (Binder.getCallingPid() != Process.myPid()) {
+                if (initialValues.containsKey(FileColumns.MEDIA_TYPE)) {
+                    if (initialValues.get(FileColumns.MEDIA_TYPE) == null) {
+                        throw new IllegalArgumentException(FileColumns.MEDIA_TYPE + " shouldn't be null");
+                    }
+                }
+                if (initialValues.containsKey(FileColumns.DATA)) {
+                    if (initialValues.get(FileColumns.DATA) == null) {
+                        throw new IllegalArgumentException(FileColumns.DATA + " shouldn't be null");
+                    }
+                }
+                if (initialValues.containsKey(FileColumns.PARENT)) {
+                    if (initialValues.get(FileColumns.PARENT) == null) {
+                        throw new IllegalArgumentException(FileColumns.PARENT + " shouldn't be null");
+                    }
+                }
+                if (initialValues.containsKey(FileColumns.STORAGE_ID)) {
+                    throw new IllegalArgumentException("storage_id shouldn't be updated");
+                }
+                if (initialValues.containsKey("old_id")) {
+                    throw new IllegalArgumentException("old_id shouldn't be updated");
+                }
+            }
         }
 
         TableAndWhere tableAndWhere = getTableAndWhere(uri, match, userWhere);
+        if (tableAndWhere.table.equals("files")) {
+            // exclude entries with media_type is null
+            if (mBackup.isEnabled()) {
+                if (!helper.mInternal && Binder.getCallingPid() != Process.myPid()) {
+                    if (tableAndWhere.where != null && tableAndWhere.where.length() > 0) {
+                        tableAndWhere.where = "media_type IS NOT NULL" + " AND " + tableAndWhere.where;
+                    } else {
+                        tableAndWhere.where = "media_type IS NOT NULL";
+                    }
+                }
+            }
+        }
 
         // if the media type is being changed, check if it's being changed from image or video
         // to something else
