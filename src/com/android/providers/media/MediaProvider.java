@@ -290,7 +290,7 @@ public class MediaProvider extends ContentProvider {
                             context.sendBroadcast(
                                     new Intent(Intent.ACTION_MEDIA_SCANNER_STARTED, uri));
 
-                            Log.d(TAG, "deleting all entries for storage " + storage);
+                            Log.i(TAG, "deleting all entries for storage " + storage);
                             Uri.Builder builder =
                                     Files.getMtpObjectsUri(EXTERNAL_VOLUME).buildUpon();
                             builder.appendQueryParameter(MediaStore.PARAM_DELETE_DATA, "false");
@@ -574,6 +574,7 @@ public class MediaProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        Log.i(TAG, "onCreate begin");
         final Context context = getContext();
 
         mStorageManager = context.getSystemService(StorageManager.class);
@@ -686,6 +687,7 @@ public class MediaProvider extends ContentProvider {
             }
         };
 
+        Log.i(TAG, "onCreate end");
         return true;
     }
 
@@ -1276,13 +1278,14 @@ public class MediaProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projectionIn, String selection,
             String[] selectionArgs, String sort) {
-
+        if (LOCAL_LOGV) Log.v(TAG, "query: uri=" + uri
+                + ", projectionIn=" + Arrays.toString(projectionIn) + ", selection=" + selection
+                + ", selectionArgs=" + Arrays.toString(selectionArgs) + ", sort=" + sort);
         uri = safeUncanonicalize(uri);
 
         int table = URI_MATCHER.match(uri);
         List<String> prependArgs = new ArrayList<String>();
 
-        //Log.v(TAG, "query: uri="+uri+", selection="+selection);
         // handle MEDIA_SCANNER before calling getDatabaseForUri()
         if (table == MEDIA_SCANNER) {
             if (mMediaScannerVolume == null) {
@@ -1663,8 +1666,8 @@ public class MediaProvider extends ContentProvider {
                 throw new IllegalStateException("Unknown URL: " + uri.toString());
         }
 
-        // Log.v(TAG, "query = "+ qb.buildQuery(projectionIn, selection,
-        //        combine(prependArgs, selectionArgs), groupBy, null, sort, limit));
+        if (LOCAL_LOGV) Log.v(TAG, "qb.query = "+ qb.buildQuery(projectionIn, selection,
+                combine(prependArgs, selectionArgs), groupBy, null, sort, limit));
         Cursor c = qb.query(db, projectionIn, selection,
                 combine(prependArgs, selectionArgs), groupBy, null, sort, limit);
 
@@ -1819,6 +1822,7 @@ public class MediaProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues values[]) {
+        if (LOCAL_LOGV) Log.v(TAG, "bulkInsert: uri=" + uri);
         int match = URI_MATCHER.match(uri);
         if (match == VOLUMES) {
             return super.bulkInsert(uri, values);
@@ -1866,6 +1870,7 @@ public class MediaProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
+        if (LOCAL_LOGV) Log.v(TAG, "insert: uri=" + uri + ", initialValues= " + initialValues);
         int match = URI_MATCHER.match(uri);
 
         ArrayList<Long> notifyRowIds = new ArrayList<Long>();
@@ -2832,7 +2837,7 @@ public class MediaProvider extends ContentProvider {
             }
         }
         if (numFound > 0) {
-            Log.d(TAG, "fixParentIdIfNeeded: found: " + numFound + ", fixed: " + numFixed);
+            Log.i(TAG, "fixParentIdIfNeeded: found: " + numFound + ", fixed: " + numFixed);
         }
         if (numFixed > 0) {
             ContentResolver res = getContext().getContentResolver();
@@ -2972,7 +2977,7 @@ public class MediaProvider extends ContentProvider {
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
                 throws OperationApplicationException {
-
+        if (LOCAL_LOGV) Log.v(TAG, "applyBatch: " + operations.toString());
         // batched operations are likely to need to call getParent(), which in turn may need to
         // update the database, so synchronize on mDirectoryCache to avoid deadlocks
         synchronized (mDirectoryCache) {
@@ -3218,6 +3223,8 @@ public class MediaProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String userWhere, String[] whereArgs) {
+        if (LOCAL_LOGV) Log.v(TAG, "delete: uri=" + uri + ", userWhere=" + userWhere
+                + ", whereArgs=" + Arrays.toString(whereArgs));
         uri = safeUncanonicalize(uri);
         int count;
         int match = URI_MATCHER.match(uri);
@@ -3235,6 +3242,10 @@ public class MediaProvider extends ContentProvider {
                 database.mScanStopTime = SystemClock.currentTimeMicro();
                 String msg = dump(database, false);
                 logToDb(database.getWritableDatabase(), msg);
+                database.mNumInserts = 0;
+                database.mNumUpdates = 0;
+                database.mNumDeletes = 0;
+                database.mNumQueries = 0;
             }
             if (INTERNAL_VOLUME.equals(mMediaScannerVolume)) {
                 // persist current build fingerprint as fingerprint for system (internal) sound scan
@@ -3475,7 +3486,7 @@ public class MediaProvider extends ContentProvider {
      * This is called at the end of a media scan.
      */
     private void pruneThumbnails() {
-        Log.v(TAG, "pruneThumbnails ");
+        if (LOCAL_LOGV) Log.v(TAG, "pruneThumbnails ");
 
         final Uri thumbsUri = Images.Thumbnails.getContentUri("external");
 
@@ -3518,15 +3529,14 @@ public class MediaProvider extends ContentProvider {
         }
 
         for (String fileToDelete : existingFiles) {
-            if (LOCAL_LOGV)
-                Log.v(TAG, "fileToDelete is " + fileToDelete);
+            if (LOCAL_LOGV) Log.v(TAG, "fileToDelete is " + fileToDelete);
             try {
                 (new File(fileToDelete)).delete();
             } catch (SecurityException ex) {
             }
         }
 
-        Log.v(TAG, "/pruneDeadThumbnailFiles... ");
+        if (LOCAL_LOGV) Log.v(TAG, "/pruneDeadThumbnailFiles... ");
     }
 
     private void removeThumbnailFor(Uri uri, SQLiteDatabase db, long id) {
@@ -3550,11 +3560,10 @@ public class MediaProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues initialValues, String userWhere,
             String[] whereArgs) {
+        if (LOCAL_LOGV) Log.v(TAG, "update: uri=" + uri + ", initialValues=" + initialValues
+                + ", userWhere=" + userWhere + ", whereArgs=" + Arrays.toString(whereArgs));
         uri = safeUncanonicalize(uri);
         int count;
-        //Log.v(TAG, "update for uri=" + uri + ", initValues=" + initialValues +
-        //        ", where=" + userWhere + ", args=" + Arrays.toString(whereArgs) + " caller:" +
-        //        Binder.getCallingPid());
         int match = URI_MATCHER.match(uri);
         DatabaseHelper helper = getDatabaseForUri(uri);
         if (helper == null) {
@@ -3929,7 +3938,7 @@ public class MediaProvider extends ContentProvider {
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode)
             throws FileNotFoundException {
-
+        if (LOCAL_LOGV) Log.v(TAG, "openFile: uri=" + uri + ", mode=" + mode);
         uri = safeUncanonicalize(uri);
         ParcelFileDescriptor pfd = null;
 
@@ -4065,6 +4074,7 @@ public class MediaProvider extends ContentProvider {
             file = Environment.maybeTranslateEmulatedPathToInternal(file);
         }
 
+        if (LOCAL_LOGV) Log.v(TAG, "open file : path=" + file.getPath() + ", mode=" + modeBits);
         return ParcelFileDescriptor.open(file, modeBits);
     }
 
@@ -4072,7 +4082,8 @@ public class MediaProvider extends ContentProvider {
         try {
             File file = new File(path);
             checkAccess(uri, file, ParcelFileDescriptor.MODE_WRITE_ONLY);
-            file.delete();
+            boolean result = file.delete();
+            Log.i(TAG, "delete file (result=" + result + ") : " + path);
         } catch (Exception e) {
             Log.e(TAG, "Couldn't delete " + path);
         }
@@ -4842,7 +4853,7 @@ public class MediaProvider extends ContentProvider {
                         }
                         if (recentDbFile != null) {
                             if (recentDbFile.renameTo(dbFile)) {
-                                Log.d(TAG, "renamed database " + recentDbFile.getName() +
+                                Log.i(TAG, "renamed database " + recentDbFile.getName() +
                                         " to " + EXTERNAL_DATABASE_NAME);
                             } else {
                                 Log.e(TAG, "Failed to rename database " + recentDbFile.getName() +
@@ -4943,7 +4954,7 @@ public class MediaProvider extends ContentProvider {
     }
 
     private static String TAG = "MediaProvider";
-    private static final boolean LOCAL_LOGV = false;
+    private static final boolean LOCAL_LOGV = Log.isLoggable(TAG, Log.VERBOSE);
 
     private static final String INTERNAL_DATABASE_NAME = "internal.db";
     private static final String EXTERNAL_DATABASE_NAME = "external.db";
@@ -5240,6 +5251,11 @@ public class MediaProvider extends ContentProvider {
                 } finally {
                     IoUtils.closeQuietly(c);
                 }
+            } else {
+                s.append(": pid=" + Process.myPid());
+                s.append(", os=" + Build.VERSION.RELEASE);
+                s.append(", build=" + Build.ID);
+                s.append(", paths=" + Arrays.toString(mExternalStoragePaths));
             }
         }
         return s.toString();
