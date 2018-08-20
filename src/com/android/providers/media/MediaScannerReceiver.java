@@ -71,8 +71,7 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                     StorageVolume storage = (StorageVolume)intent.getParcelableExtra(
                             StorageVolume.EXTRA_STORAGE_VOLUME);
                     scan(context, MediaProvider.EXTERNAL_VOLUME, storage, action);
-                } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action) &&
-                        path != null && path.startsWith(externalStoragePath + "/")) {
+                } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action)) {
                     scanFile(context, path);
                 }
             }
@@ -85,16 +84,18 @@ public class MediaScannerReceiver extends BroadcastReceiver {
             return;
         }
         Bundle args = new Bundle();
+        args.putString("action", action);
         args.putString("volume", volume);
         args.putParcelable("storage", storage);
-        args.putString("action", action);
         context.startService(
                 new Intent(context, MediaScannerService.class).putExtras(args));
     }
 
     private void scanFile(Context context, String path) {
         Bundle args = new Bundle();
+        args.putString("action", Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         args.putString("filepath", path);
+        args.putString("mimetype", null);
         context.startService(
                 new Intent(context, MediaScannerService.class).putExtras(args));
     }
