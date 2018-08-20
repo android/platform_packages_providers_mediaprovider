@@ -20,6 +20,7 @@ package com.android.providers.media;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScanner;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -70,6 +71,7 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                 } else if (Intent.ACTION_MEDIA_EJECT.equals(action)) {
                     StorageVolume storage = (StorageVolume)intent.getParcelableExtra(
                             StorageVolume.EXTRA_STORAGE_VOLUME);
+                    MediaScanner.abort();
                     scan(context, MediaProvider.EXTERNAL_VOLUME, storage, action);
                 } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action)) {
                     scanFile(context, path);
