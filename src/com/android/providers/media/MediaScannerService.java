@@ -46,12 +46,13 @@ import java.util.Arrays;
 
 public class MediaScannerService extends Service implements Runnable {
     private static final String TAG = "MediaScannerService";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private volatile Looper mServiceLooper;
     private volatile ServiceHandler mServiceHandler;
     private PowerManager.WakeLock mWakeLock;
     private String[] mExternalStoragePaths;
-    
+
     private void openDatabase(String volumeName) {
         try {
             ContentValues values = new ContentValues();
@@ -96,6 +97,7 @@ public class MediaScannerService extends Service implements Runnable {
     
     @Override
     public void onCreate() {
+        if (DEBUG) Log.d(TAG, "onCreate");
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         StorageManager storageManager = (StorageManager)getSystemService(Context.STORAGE_SERVICE);
@@ -110,6 +112,8 @@ public class MediaScannerService extends Service implements Runnable {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (DEBUG) Log.d(TAG, "onStartCommand: intent=" + intent
+                + ", flags=" + flags + ", startId=" + startId);
         while (mServiceHandler == null) {
             synchronized (this) {
                 try {
@@ -136,6 +140,7 @@ public class MediaScannerService extends Service implements Runnable {
 
     @Override
     public void onDestroy() {
+        if (DEBUG) Log.d(TAG, "onDestroy");
         // Make sure thread has started before telling it to quit.
         while (mServiceLooper == null) {
             synchronized (this) {
@@ -183,7 +188,7 @@ public class MediaScannerService extends Service implements Runnable {
     private final IMediaScannerService.Stub mBinder = 
             new IMediaScannerService.Stub() {
         public void requestScanFile(String path, String mimeType, IMediaScannerListener listener) {
-            if (false) {
+            if (DEBUG) {
                 Log.d(TAG, "IMediaScannerService.scanFile: " + path + " mimeType: " + mimeType);
             }
             Bundle args = new Bundle();
@@ -204,6 +209,7 @@ public class MediaScannerService extends Service implements Runnable {
     private final class ServiceHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
+            if (DEBUG) Log.d(TAG, "handleMessage begin : msg=" + msg);
             Bundle arguments = (Bundle) msg.obj;
             if (arguments == null) {
                 Log.e(TAG, "null intent, b/20953950");
@@ -263,6 +269,7 @@ public class MediaScannerService extends Service implements Runnable {
                 Log.e(TAG, "Exception in handleMessage", e);
             }
 
+            if (DEBUG) Log.d(TAG, "handleMessage end : startId=" + msg.arg1);
             stopSelf(msg.arg1);
         }
     }

@@ -30,10 +30,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class MediaScannerReceiver extends BroadcastReceiver {
-    private final static String TAG = "MediaScannerReceiver";
+    private static final String TAG = "MediaScannerReceiver";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (DEBUG) Log.d(TAG, "onReceive : " + intent);
         final String action = intent.getAction();
         final Uri uri = intent.getData();
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
@@ -58,7 +60,7 @@ public class MediaScannerReceiver extends BroadcastReceiver {
                     path = externalStoragePath + path.substring(legacyPath.length());
                 }
 
-                Log.d(TAG, "action: " + action + " path: " + path);
+                Log.i(TAG, "action: " + action + " path: " + path);
                 if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
                     // scan whenever any volume is mounted
                     scan(context, MediaProvider.EXTERNAL_VOLUME);
