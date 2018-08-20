@@ -190,10 +190,21 @@ public class MediaScannerService extends Service implements Runnable {
 
     private Uri scanFile(String path, String mimeType) {
         String volumeName = MediaProvider.EXTERNAL_VOLUME;
-
         try (MediaScanner scanner = new MediaScanner(this, volumeName)) {
             // make sure the file path is in canonical form
             String canonicalPath = new File(path).getCanonicalPath();
+            // make sure the file path is existing external storage path
+            boolean found = false;
+            for (StorageVolume vol : mExternalStorageVolumes) {
+                if (canonicalPath.startsWith(vol.getPath())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                Log.e(TAG, "bad path " + path + " in scanFile()");
+                return null;
+            }
             return scanner.scanSingleFile(canonicalPath, mimeType);
         } catch (Exception e) {
             Log.e(TAG, "bad path " + path + " in scanFile()", e);
@@ -213,6 +224,7 @@ public class MediaScannerService extends Service implements Runnable {
                 Log.d(TAG, "IMediaScannerService.scanFile: " + path + " mimeType: " + mimeType);
             }
             Bundle args = new Bundle();
+            args.putString("action", Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             args.putString("filepath", path);
             args.putString("mimetype", mimeType);
             if (listener != null) {
@@ -235,19 +247,20 @@ public class MediaScannerService extends Service implements Runnable {
                 Log.e(TAG, "null intent, b/20953950");
                 return;
             }
+            String action = arguments.getString("action");
             String filePath = arguments.getString("filepath");
+            String mimetype = arguments.getString("mimetype");
             String volume = arguments.getString("volume");
             StorageVolume storage = (StorageVolume)arguments.getParcelable("storage");
-            String action = arguments.getString("action");
             try {
                 updateExternalStorageVolumes();
-                if (filePath != null) {
+                if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action)) {
                     IBinder binder = arguments.getIBinder("listener");
                     IMediaScannerListener listener =
                             (binder == null ? null : IMediaScannerListener.Stub.asInterface(binder));
                     Uri uri = null;
                     try {
-                        uri = scanFile(filePath, arguments.getString("mimetype"));
+                        uri = scanFile(filePath, mimetype);
                     } catch (Exception e) {
                         Log.e(TAG, "Exception scanning file", e);
                     }
