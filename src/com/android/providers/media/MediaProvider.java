@@ -821,7 +821,8 @@ public class MediaProvider extends ContentProvider {
                 + "duration INTEGER,bookmark INTEGER,artist TEXT,album TEXT,resolution TEXT,"
                 + "tags TEXT,category TEXT,language TEXT,mini_thumb_data TEXT,name TEXT,"
                 + "media_type INTEGER,old_id INTEGER,is_drm INTEGER,"
-                + "width INTEGER, height INTEGER, title_resource_uri TEXT)");
+                + "width INTEGER, height INTEGER, title_resource_uri TEXT,"
+                + "color_standard INTEGER, color_transfer INTEGER, color_range INTEGER)");
         db.execSQL("CREATE TABLE log (time DATETIME, message TEXT)");
         if (!internal) {
             db.execSQL("CREATE TABLE audio_genres (_id INTEGER PRIMARY KEY,name TEXT NOT NULL)");
@@ -965,6 +966,10 @@ public class MediaProvider extends ContentProvider {
             updateFromKKSchema(db);
         } else if (fromVersion < 900) {
             updateFromOCSchema(db);
+        } else if (fromVersion < 1000) {
+            db.execSQL("ALTER TABLE files ADD COLUMN color_standard INTEGER;");
+            db.execSQL("ALTER TABLE files ADD COLUMN color_transfer INTEGER;");
+            db.execSQL("ALTER TABLE files ADD COLUMN color_range INTEGER;");
         }
 
         sanityCheck(db, fromVersion);
