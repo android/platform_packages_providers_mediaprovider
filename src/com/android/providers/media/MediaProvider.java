@@ -822,7 +822,8 @@ public class MediaProvider extends ContentProvider {
                 + "tags TEXT,category TEXT,language TEXT,mini_thumb_data TEXT,name TEXT,"
                 + "media_type INTEGER,old_id INTEGER,is_drm INTEGER,"
                 + "width INTEGER, height INTEGER, title_resource_uri TEXT,"
-                + "color_standard INTEGER, color_transfer INTEGER, color_range INTEGER)");
+                + "color_standard INTEGER, color_transfer INTEGER, color_range INTEGER,"
+                + "sample_rate INTEGER, bits_per_sample INTEGER)");
         db.execSQL("CREATE TABLE log (time DATETIME, message TEXT)");
         if (!internal) {
             db.execSQL("CREATE TABLE audio_genres (_id INTEGER PRIMARY KEY,name TEXT NOT NULL)");
@@ -865,7 +866,8 @@ public class MediaProvider extends ContentProvider {
         db.execSQL("CREATE VIEW audio_meta AS SELECT _id,_data,_display_name,_size,mime_type,"
                 + "date_added,is_drm,date_modified,title,title_key,duration,artist_id,composer,"
                 + "album_id,track,year,is_ringtone,is_music,is_alarm,is_notification,is_podcast,"
-                + "bookmark,album_artist FROM files WHERE media_type=2");
+                + "bookmark,album_artist,sample_rate,bits_per_sample"
+                + " FROM files WHERE media_type=2");
         db.execSQL("CREATE VIEW artists_albums_map AS SELECT DISTINCT artist_id, album_id"
                 + " FROM audio_meta");
         db.execSQL("CREATE VIEW audio as SELECT * FROM audio_meta LEFT OUTER JOIN artists"
@@ -943,6 +945,8 @@ public class MediaProvider extends ContentProvider {
         db.execSQL("ALTER TABLE files ADD COLUMN color_standard INTEGER;");
         db.execSQL("ALTER TABLE files ADD COLUMN color_transfer INTEGER;");
         db.execSQL("ALTER TABLE files ADD COLUMN color_range INTEGER;");
+        db.execSQL("ALTER TABLE files ADD COLUMN sample_rate INTEGER;");
+        db.execSQL("ALTER TABLE files ADD COLUMN bits_per_sample INTEGER;");
     }
 
     /**
