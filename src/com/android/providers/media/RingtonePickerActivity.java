@@ -376,7 +376,7 @@ public final class RingtonePickerActivity extends AlertActivity implements
         }
         // If external storage is available, add a button to install sounds from storage.
         if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            addNewRingtoneItem(listView);
+            addNewSoundItem(listView);
         }
 
         // Enable context menu in ringtone items
@@ -440,9 +440,20 @@ public final class RingtonePickerActivity extends AlertActivity implements
         return addStaticItem(listView, com.android.internal.R.string.ringtone_silent);
     }
 
-    private void addNewRingtoneItem(ListView listView) {
-        listView.addFooterView(getLayoutInflater().inflate(R.layout.add_ringtone_item, listView,
-                false /* attachToRoot */));
+    private void addNewSoundItem(ListView listView) {
+        if (mType == RingtoneManager.TYPE_ALARM) {
+            listView.addFooterView(getLayoutInflater().inflate(R.layout.add_alarm_item, listView,
+                    false /* attachToRoot */));
+        } else if (mType == RingtoneManager.TYPE_NOTIFICATION) {
+            listView.addFooterView(getLayoutInflater().inflate(R.layout.add_notification_item,
+                    listView, false /* attachToRoot */));
+        } else if (mType == RingtoneManager.TYPE_RINGTONE) {
+            listView.addFooterView(getLayoutInflater().inflate(R.layout.add_ringtone_item, listView,
+                    false /* attachToRoot */));
+        } else {
+            listView.addFooterView(getLayoutInflater().inflate(R.layout.add_ringtone_item, listView,
+                    false /* attachToRoot */));
+        }
     }
 
     private void initRingtoneManager() {
