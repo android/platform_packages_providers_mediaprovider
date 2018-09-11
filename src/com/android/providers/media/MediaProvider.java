@@ -4068,6 +4068,7 @@ public class MediaProvider extends ContentProvider {
         return ParcelFileDescriptor.open(file, modeBits);
     }
 
+    //This method can't work normal on android pie.
     private void deleteIfAllowed(Uri uri, String path) {
         try {
             File file = new File(path);
