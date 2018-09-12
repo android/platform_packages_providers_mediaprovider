@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c088441_fb18a269",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-09-12T00:40:25Z",
+      "side": 1,
+      "message": "can we put these into an \"updateFromXXSchema\" similar to the above?",
+      "range": {
+        "startLine": 970,
+        "startChar": 0,
+        "endLine": 973,
+        "endChar": 0
+      },
+      "revId": "26f4a8d1ba92c041bbb6674991d0edfc7c14698e",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
