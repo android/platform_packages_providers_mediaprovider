@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7076982d_b8d05c28",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2018-09-12T18:10:16Z",
+      "side": 1,
+      "message": "the other updateFrom..Schema methods also need to include this code (otherwise a device updated from O or before won\u0027t get the new columns)",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 943,
+        "endChar": 72
+      },
+      "revId": "a8cafcc31d2b87ab2460ddd78f251c8efd41bf11",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cdc98be_cb5c8945",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2018-09-12T18:10:16Z",
+      "side": 1,
+      "message": "or you could make this a regular \"if\" instead of an \"else if\"",
+      "range": {
+        "startLine": 976,
+        "startChar": 10,
+        "endLine": 976,
+        "endChar": 17
+      },
+      "revId": "a8cafcc31d2b87ab2460ddd78f251c8efd41bf11",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
