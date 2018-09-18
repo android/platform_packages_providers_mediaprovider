@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cacbd06_3c04a37c",
+        "filename": "src/com/android/providers/media/RingtonePickerActivity.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2018-09-18T16:56:41Z",
+      "side": 1,
+      "message": "these can be combined",
+      "range": {
+        "startLine": 451,
+        "startChar": 0,
+        "endLine": 455,
+        "endChar": 47
+      },
+      "revId": "017bb53f00dea4c43d78413cf8dd99f5a0dbeb35",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
