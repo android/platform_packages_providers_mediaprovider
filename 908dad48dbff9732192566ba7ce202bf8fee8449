@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1876adf_76032338",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-10-24T21:32:17Z",
+      "side": 1,
+      "message": "This is breaking some tests b/118389644, test fails because updateFromKKSchema is adding title_resource_uri column which already exists.\n\nLooks like this is problematic. If the \"if (fromVersion \u003c 700)\" already executed, the table will be already the latest, then running the \"if (fromVersion\u003c800)\" will fail with duplicate field failure.",
+      "range": {
+        "startLine": 973,
+        "startChar": 0,
+        "endLine": 981,
+        "endChar": 9
+      },
+      "revId": "908dad48dbff9732192566ba7ce202bf8fee8449",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
