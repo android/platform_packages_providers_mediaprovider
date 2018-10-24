@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bc487890_728a2e16",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 1039918
+      },
+      "writtenOn": "2018-10-24T18:02:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7076982d_b8d05c28",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 943,
+        "endChar": 72
+      },
+      "revId": "a8cafcc31d2b87ab2460ddd78f251c8efd41bf11",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4cdc98be_cb5c8945",
         "filename": "src/com/android/providers/media/MediaProvider.java",
         "patchSetId": 3
