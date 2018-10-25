@@ -22,6 +22,30 @@
       "revId": "908dad48dbff9732192566ba7ce202bf8fee8449",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "011e69d3_0d6687d4",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 1233895
+      },
+      "writtenOn": "2018-10-25T01:23:31Z",
+      "side": 1,
+      "message": "We are so sorry about this. The problem was introduced from patchset 4 based on review point in patchset 3. We modified this part from \"else if\" to \"if\". As you know, our intention is to add color aspects columns, but DB update in older updateFromXXX was not cared so much and it was our fault. Thank you for your kind handling for this issue. We will check this issue as well.",
+      "parentUuid": "d1876adf_76032338",
+      "range": {
+        "startLine": 973,
+        "startChar": 0,
+        "endLine": 981,
+        "endChar": 9
+      },
+      "revId": "908dad48dbff9732192566ba7ce202bf8fee8449",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
     }
   ]
 }
