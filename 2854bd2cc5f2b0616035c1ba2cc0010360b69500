@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22f956bb_0f3a0c51",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2018-12-05T01:37:45Z",
+      "side": 1,
+      "message": "it seems sample rate and bitspersample should also be added to this view",
+      "revId": "2854bd2cc5f2b0616035c1ba2cc0010360b69500",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
