@@ -1,0 +1,15 @@
+android_app {
+    name: "MediaProvider",
+
+    srcs: [
+        "**/*.java",
+        "src/com/android/providers/media/IMtpService.aidl",
+    ],
+
+    libs: [],
+
+    platform_apis: true,
+    certificate: "media",
+    privileged: true,
+
+}
