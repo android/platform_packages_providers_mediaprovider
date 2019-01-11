@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cca1d7ea_fb963d86",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2019-01-11T21:23:15Z",
+      "side": 1,
+      "message": "these would need to be added to the other updateFrom...Schema() methods as well.",
+      "range": {
+        "startLine": 948,
+        "startChar": 0,
+        "endLine": 949,
+        "endChar": 76
+      },
+      "revId": "4fed4c163074e6b7a3fd8350aa6b5a32ffaf4ef0",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
