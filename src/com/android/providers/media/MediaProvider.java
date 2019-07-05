@@ -351,6 +351,8 @@ public class MediaProvider extends ContentProvider {
 
     private static final String CANONICAL = "canonical";
 
+    private static final String LANG_CHANGE_KEY = "lang_change_key";
+
     private BroadcastReceiver mMediaReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1477,6 +1479,57 @@ public class MediaProvider extends ContentProvider {
 
     private static final String XATTR_UUID = "user.uuid";
 
+    private void updateLangChange(boolean changed) {
+        final SharedPreferences updateTitleKeySettings
+                = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        final SharedPreferences.Editor editor = updateTitleKeySettings.edit();
+        editor.putBoolean(LANG_CHANGE_KEY, changed);
+        editor.apply();
+    }
+
+    private void updateTitleKey(SQLiteDatabase db) {
+        try {
+            Cursor c = db.query("files",
+                    new String[] { MediaStore.MediaColumns._ID, MediaStore.Audio.Media.TITLE },
+                    MediaStore.Audio.Media.TITLE_KEY + " IS NOT NULL", null, null, null, null);
+            try {
+                String title;
+                int id;
+                if (c != null) {
+                    while (c.moveToNext()) {
+                        ContentValues values = new ContentValues();
+                        id = c.getInt(0);
+                        title = c.getString(1);
+
+                        if (title != null) {
+                            values.put(MediaStore.Audio.Media.TITLE_KEY,
+                                    MediaStore.Audio.keyFor(title));
+
+                            db.update("files", values, "_id = ?",
+                                    new String[] { Integer.toString(id) });
+                        }
+                    }
+                }
+            } finally {
+                IoUtils.closeQuietly(c);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "updateTitleKey failed", e);
+        }
+    }
+
+    private void checkLangChange(SQLiteDatabase db) {
+        final SharedPreferences updateTitleKeySettings
+                = PreferenceManager.getDefaultSharedPreferences(getContext());
+        boolean changed = updateTitleKeySettings.getBoolean(LANG_CHANGE_KEY, false);
+
+        if (changed) {
+            updateTitleKey(db);
+            updateLangChange(false);
+        }
+    }
+
     /**
      * Return a UUID for the given database. If the database is deleted or
      * otherwise corrupted, then a new UUID will automatically be generated.
@@ -2456,6 +2509,7 @@ public class MediaProvider extends ContentProvider {
     }
 
     public void onLocaleChanged() {
+        updateLangChange(true);
         localizeTitles();
     }
 
@@ -3930,6 +3984,9 @@ public class MediaProvider extends ContentProvider {
                 editor.putString(android.media.MediaScanner.LAST_INTERNAL_SCAN_FINGERPRINT,
                         Build.FINGERPRINT);
                 editor.apply();
+            }
+            if (MediaStore.VOLUME_EXTERNAL_PRIMARY.equals(mMediaScannerVolume)) {
+                    checkLangChange(helper.getWritableDatabase());
             }
             mMediaScannerVolume = null;
             return 1;
