@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b81dd13_1763d012",
+        "filename": "src/com/android/providers/media/MtpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1330244
+      },
+      "writtenOn": "2019-07-10T15:10:24Z",
+      "side": 1,
+      "message": "Have you checked only DCIM \u0026 Picture folders are seen in both Primary and Secondary Storage?",
+      "revId": "0c48254a24859daabdabf52a18f9b8a9eda63323",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
