@@ -201,7 +201,7 @@ public class MediaProvider extends ContentProvider {
      * captures both top-level paths and sandboxed paths.
      */
     private static final Pattern PATTERN_RELATIVE_PATH = Pattern.compile(
-            "(?i)^/storage/[^/]+/(?:[0-9]+/)?(Android/sandbox/([^/]+)/)?");
+            "(?i)^/storage/(?:emulated/[0-9]+/|[^/]+/)(Android/sandbox/([^/]+)/)?");
 
     /**
      * Regex that matches paths under well-known storage paths.
