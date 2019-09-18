@@ -2177,7 +2177,7 @@ public class MediaProvider extends ContentProvider {
         if (!values.containsKey(MediaColumns.DATA)) return;
         try {
             // Sanity check that the requested path actually lives on volume
-            final String volumeName = resolveVolumeName(uri);
+            final String volumeName = resolveVolumeName(uri, values.getAsString(MediaColumns.DATA));
             final Collection<File> allowed = getVolumeScanPaths(volumeName);
             final File actual = new File(values.getAsString(MediaColumns.DATA))
                     .getCanonicalFile();
@@ -2893,6 +2893,19 @@ public class MediaProvider extends ContentProvider {
         final String volumeName = getVolumeName(uri);
         if (MediaStore.VOLUME_EXTERNAL.equals(volumeName)) {
             return MediaStore.VOLUME_EXTERNAL_PRIMARY;
+        } else {
+            return volumeName;
+        }
+    }
+
+    private static @NonNull String resolveVolumeName(@NonNull Uri uri, @NonNull String path) {
+        final String volumeName = getVolumeName(uri);
+        if (MediaStore.VOLUME_EXTERNAL.equals(volumeName)) {
+            if (path != null) {
+                return getVolumeName(new File(path));
+            } else {
+                return MediaStore.VOLUME_EXTERNAL_PRIMARY;
+            }
         } else {
             return volumeName;
         }
