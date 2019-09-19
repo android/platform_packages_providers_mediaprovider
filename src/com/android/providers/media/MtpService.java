@@ -65,6 +65,8 @@ public class MtpService extends Service {
             synchronized (MtpService.this) {
                 Log.d(TAG, "onStorageStateChanged " + path + " " + oldState + " -> " + newState);
                 if (Environment.MEDIA_MOUNTED.equals(newState)) {
+                    // Updating mVolumes variable because new storage could be inserted
+                    mVolumes = StorageManager.getVolumeList(getUserId(), 0);
                     for (int i = 0; i < mVolumes.length; i++) {
                         StorageVolume volume = mVolumes[i];
                         if (volume.getPath().equals(path)) {
