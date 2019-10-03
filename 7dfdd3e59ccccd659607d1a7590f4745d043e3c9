@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf6a5819_c60424a3",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1038039
+      },
+      "writtenOn": "2019-10-03T14:13:41Z",
+      "side": 1,
+      "message": "Nit: import ordering",
+      "range": {
+        "startLine": 148,
+        "startChar": 15,
+        "endLine": 148,
+        "endChar": 22
+      },
+      "revId": "7dfdd3e59ccccd659607d1a7590f4745d043e3c9",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
