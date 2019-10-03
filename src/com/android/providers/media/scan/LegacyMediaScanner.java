@@ -21,7 +21,7 @@ import android.net.Uri;
 import android.os.Trace;
 import android.provider.MediaStore;
 
-import libcore.net.MimeMap;
+import libcore.content.type.MimeMap;
 
 import java.io.File;
 
