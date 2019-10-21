@@ -40,12 +40,14 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Pair;
 
 import com.android.providers.media.scan.MediaScanner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class MediaService extends IntentService {
@@ -173,29 +175,29 @@ public class MediaService extends IntentService {
      * Ensure that we've set ringtones at least once after initial scan.
      */
     private static void ensureDefaultRingtones(Context context) {
-        for (int type : new int[] {
-                TYPE_RINGTONE,
-                TYPE_NOTIFICATION,
-                TYPE_ALARM,
-        }) {
+        for (Pair<Integer, String> type : new ArrayList<Pair<Integer, String>>() {{
+                add(Pair.create(TYPE_RINGTONE, MediaStore.Audio.AudioColumns.IS_RINGTONE));
+                add(Pair.create(TYPE_NOTIFICATION, MediaStore.Audio.AudioColumns.IS_NOTIFICATION));
+                add(Pair.create(TYPE_ALARM, MediaStore.Audio.AudioColumns.IS_ALARM));
+        }}) {
             // Skip if we've already defined it at least once, so we don't
             // overwrite the user changing to null
-            final String setting = getDefaultRingtoneSetting(type);
+            final String setting = getDefaultRingtoneSetting(type.first);
             if (Settings.System.getInt(context.getContentResolver(), setting, 0) != 0) {
                 continue;
             }
 
             // Try finding the scanned ringtone
-            final String filename = getDefaultRingtoneFilename(type);
+            final String filename = getDefaultRingtoneFilename(type.first);
             final Uri baseUri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
             try (Cursor cursor = context.getContentResolver().query(baseUri,
                     new String[] { MediaColumns._ID },
-                    MediaColumns.DISPLAY_NAME + "=?",
+                    MediaColumns.DISPLAY_NAME + "=? AND " + type.second + "=1",
                     new String[] { filename }, null)) {
                 if (cursor.moveToFirst()) {
                     final Uri ringtoneUri = context.getContentResolver().canonicalizeOrElse(
                             ContentUris.withAppendedId(baseUri, cursor.getLong(0)));
-                    RingtoneManager.setActualDefaultRingtoneUri(context, type, ringtoneUri);
+                    RingtoneManager.setActualDefaultRingtoneUri(context, type.first, ringtoneUri);
                     Settings.System.putInt(context.getContentResolver(), setting, 1);
                 }
             }
