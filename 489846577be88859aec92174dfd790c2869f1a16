@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "420fe21b_23c27443",
+        "filename": "src/com/android/providers/media/MediaService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1081223
+      },
+      "writtenOn": "2019-10-21T12:27:47Z",
+      "side": 1,
+      "message": "Why not a map?\nEach key is unique",
+      "revId": "489846577be88859aec92174dfd790c2869f1a16",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
