@@ -999,6 +999,7 @@ public class MediaProvider extends ContentProvider {
             try (ContentProviderClient client = AppGlobals.getInitialApplication()
                     .getContentResolver().acquireContentProviderClient(
                             android.provider.Downloads.Impl.AUTHORITY)) {
+                if (client == null) return;
                 client.call(android.provider.Downloads.CALL_REVOKE_MEDIASTORE_URI_PERMS,
                         null, null);
             } catch (RemoteException e) {
