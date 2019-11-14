@@ -6066,7 +6066,7 @@ public class MediaProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         if (LOCAL_LOGV) Log.v(TAG, "Attached volume: " + volume);
         if (!MediaStore.VOLUME_INTERNAL.equals(volume)) {
-            final DatabaseHelper helper = mInternalDatabase;
+            final DatabaseHelper helper = mExternalDatabase;
             ensureDefaultFolders(volume, helper, helper.getWritableDatabase());
         }
         return uri;
