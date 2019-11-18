@@ -438,12 +438,20 @@ public class MediaProvider extends ContentProvider {
         @Override
         public void onCreate(final SQLiteDatabase db) {
             Log.v(TAG, "onCreate() for " + mName);
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt(MediaProvider.PREF_OLD_DB_VERSION, 0);
+            editor.commit();
             updateDatabase(mContext, db, mInternal, 0, mVersion);
         }
 
         @Override
         public void onUpgrade(final SQLiteDatabase db, final int oldV, final int newV) {
             Log.v(TAG, "onUpgrade() for " + mName + " from " + oldV + " to " + newV);
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt(MediaProvider.PREF_OLD_DB_VERSION, oldV);
+            editor.commit();
             updateDatabase(mContext, db, mInternal, oldV, newV);
         }
 
@@ -781,6 +789,7 @@ public class MediaProvider extends ContentProvider {
         final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         final int thumbSize = Math.min(metrics.widthPixels, metrics.heightPixels) / 2;
         mThumbSize = new Size(thumbSize, thumbSize);
+        mRecomputeDataValues = false;
 
         mInternalDatabase = new DatabaseHelper(context, INTERNAL_DATABASE_NAME, true,
                 false, mObjectRemovedCallback);
@@ -1180,9 +1189,7 @@ public class MediaProvider extends ContentProvider {
                 + " WHERE (is_alarm IS 1) OR (is_ringtone IS 1) OR (is_notification IS 1)");
     }
 
-    private static void updateAddOwnerPackageName(SQLiteDatabase db, boolean internal) {
-        db.execSQL("ALTER TABLE files ADD COLUMN owner_package_name TEXT DEFAULT NULL");
-
+    private static void updateOwnerPackageName(SQLiteDatabase db, boolean internal) {
         // Derive new column value based on well-known paths
         try (Cursor c = db.query("files", new String[] { FileColumns._ID, FileColumns.DATA },
                 FileColumns.DATA + " REGEXP '" + PATTERN_OWNED_PATH.pattern() + "'",
@@ -1322,7 +1329,6 @@ public class MediaProvider extends ContentProvider {
             // Anything older than KK is recreated from scratch
             createLatestSchema(db, internal);
         } else {
-            boolean recomputeDataValues = false;
             if (fromVersion < 800) {
                 updateCollationKeys(db);
             }
@@ -1330,7 +1336,7 @@ public class MediaProvider extends ContentProvider {
                 updateAddTitleResource(db);
             }
             if (fromVersion < 1000) {
-                updateAddOwnerPackageName(db, internal);
+                db.execSQL("ALTER TABLE files ADD COLUMN owner_package_name TEXT DEFAULT NULL");
             }
             if (fromVersion < 1003) {
                 updateAddColorSpaces(db);
@@ -1344,12 +1350,6 @@ public class MediaProvider extends ContentProvider {
             if (fromVersion < 1006) {
                 updateAddAudiobook(db, internal);
             }
-            if (fromVersion < 1007) {
-                updateClearLocation(db, internal);
-            }
-            if (fromVersion < 1008) {
-                updateSetIsDownload(db, internal);
-            }
             if (fromVersion < 1009) {
                 // This database version added "secondary_bucket_id", but that
                 // column name was refactored in version 1013 below, so this
@@ -1359,12 +1359,12 @@ public class MediaProvider extends ContentProvider {
                 updateAddExpiresAndTrashed(db, internal);
             }
             if (fromVersion < 1012) {
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1013) {
                 updateAddGroupId(db, internal);
                 updateAddDirectories(db, internal);
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1014) {
                 updateAddXmp(db, internal);
@@ -1376,35 +1376,18 @@ public class MediaProvider extends ContentProvider {
                 // Empty version bump to ensure views are recreated
             }
             if (fromVersion < 1017) {
-                updateSetIsDownload(db, internal);
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1018) {
                 updateAddPath(db, internal);
-                recomputeDataValues = true;
-            }
-            if (fromVersion < 1019) {
-                // Only trigger during "external", so that it runs only once.
-                if (!internal) {
-                    deleteLegacyThumbnailData();
-                }
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1020) {
                 updateAddVolumeName(db, internal);
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1021) {
                 // Empty version bump to ensure views are recreated
-            }
-            if (fromVersion < 1022) {
-                updateDirsMimeType(db, internal);
-            }
-            if (fromVersion < 1023) {
-                updateRelativePath(db, internal);
-            }
-
-            if (recomputeDataValues) {
-                recomputeDataValues(db, internal);
             }
         }
 
@@ -1412,14 +1395,62 @@ public class MediaProvider extends ContentProvider {
         // an easy way to ensure they're defined consistently
         createLatestViews(db, internal);
 
-        sanityCheck(db, fromVersion);
-
-        getOrCreateUuid(db);
-
         final long elapsedSeconds = (SystemClock.elapsedRealtime() - startTime)
                 / DateUtils.SECOND_IN_MILLIS;
         logToDb(db, "Database upgraded from version " + fromVersion + " to " + toVersion
                 + " in " + elapsedSeconds + " seconds");
+    }
+
+    public static void doUpgrade(SQLiteDatabase db, int fromVersion, boolean internal) {
+        if (fromVersion >= 700) {
+            if (fromVersion < 1000) {
+                updateOwnerPackageName(db, internal);
+            }
+            if (fromVersion < 1007) {
+                updateClearLocation(db, internal);
+            }
+            if (fromVersion < 1008) {
+                updateSetIsDownload(db, internal);
+            }
+            if (fromVersion < 1017) {
+                updateSetIsDownload(db, internal);
+            }
+            if (fromVersion < 1019) {
+                // Only trigger during "external", so that it runs only once.
+                if (!internal) {
+                    deleteLegacyThumbnailData();
+                }
+            }
+            if (fromVersion < 1022) {
+                updateDirsMimeType(db, internal);
+            }
+            if (fromVersion < 1023) {
+                updateRelativePath(db, internal);
+            }
+            if (mRecomputeDataValues) {
+                recomputeDataValues(db, internal);
+            }
+        }
+
+        sanityCheck(db, fromVersion);
+        getOrCreateUuid(db);
+    }
+
+    public void upgradeInService() {
+        int dbVersion = getDatabaseVersion(getContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int oldVersion = prefs.getInt(MediaProvider.PREF_OLD_DB_VERSION, 0);
+        if (oldVersion == dbVersion) {
+            return;
+        }
+        final SQLiteDatabase internalDB = mInternalDatabase.getWritableDatabase();
+        doUpgrade(internalDB, oldVersion, true);
+        final SQLiteDatabase externalDB = mExternalDatabase.getWritableDatabase();
+        doUpgrade(externalDB, oldVersion, false);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(MediaProvider.PREF_OLD_DB_VERSION, dbVersion);
+        editor.commit();
+        Log.v(TAG, "Upgrade to dbVersion: " + dbVersion);
     }
 
     private static void downgradeDatabase(Context context, SQLiteDatabase db, boolean internal,
@@ -6066,8 +6097,11 @@ public class MediaProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         if (LOCAL_LOGV) Log.v(TAG, "Attached volume: " + volume);
         if (!MediaStore.VOLUME_INTERNAL.equals(volume)) {
-            final DatabaseHelper helper = mInternalDatabase;
+            final DatabaseHelper helper = mExternalDatabase;
             ensureDefaultFolders(volume, helper, helper.getWritableDatabase());
+        } else {
+            final DatabaseHelper helper = mInternalDatabase;
+            helper.getWritableDatabase();
         }
         return uri;
     }
@@ -6116,6 +6150,8 @@ public class MediaProvider extends ContentProvider {
     private static final String INTERNAL_DATABASE_NAME = "internal.db";
     private static final String EXTERNAL_DATABASE_NAME = "external.db";
 
+    static final String PREF_OLD_DB_VERSION = "old_db_version";
+
     // maximum number of cached external databases to keep
     private static final int MAX_EXTERNAL_DATABASES = 3;
 
@@ -6131,6 +6167,7 @@ public class MediaProvider extends ContentProvider {
 
     private DatabaseHelper mInternalDatabase;
     private DatabaseHelper mExternalDatabase;
+    private static boolean mRecomputeDataValues;
 
     // name of the volume currently being scanned by the media scanner (or null)
     private String mMediaScannerVolume;
