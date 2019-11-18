@@ -83,6 +83,7 @@ public class MediaService extends IntentService {
                     break;
                 }
                 case Intent.ACTION_MEDIA_MOUNTED: {
+                    upGradeDatabase();
                     onScanVolume(this, intent.getData());
                     break;
                 }
@@ -103,6 +104,13 @@ public class MediaService extends IntentService {
             }
             Trace.traceEnd(Trace.TRACE_TAG_DATABASE);
             mWakeLock.release();
+        }
+    }
+
+    private void upGradeDatabase() {
+        try (ContentProviderClient cpc = getContentResolver()
+                .acquireContentProviderClient(MediaStore.AUTHORITY)) {
+            ((MediaProvider) cpc.getLocalContentProvider()).upgradeInService();
         }
     }
 
