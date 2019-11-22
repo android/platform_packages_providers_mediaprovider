@@ -1755,6 +1755,7 @@ public class MediaProvider extends ContentProvider {
                     key = key.replace("\\", "\\\\");
                     key = key.replace("%", "\\%");
                     key = key.replace("_", "\\_");
+                    key = key.replace("'", "''");
                     keywords[i] = key;
                 }
             }
