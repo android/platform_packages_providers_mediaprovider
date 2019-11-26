@@ -1515,7 +1515,7 @@ public class MediaProvider extends ContentProvider {
         if (TextUtils.isEmpty(data)) return;
 
         final File file = new File(data);
-        final File fileLower = new File(data.toLowerCase());
+        final File fileLower = new File(data.toLowerCase(Locale.ENGLISH));
 
         values.put(ImageColumns.VOLUME_NAME, extractVolumeName(data));
         values.put(ImageColumns.RELATIVE_PATH, extractRelativePath(data));
