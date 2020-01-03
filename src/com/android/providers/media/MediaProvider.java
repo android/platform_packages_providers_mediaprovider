@@ -1347,9 +1347,6 @@ public class MediaProvider extends ContentProvider {
             if (fromVersion < 1007) {
                 updateClearLocation(db, internal);
             }
-            if (fromVersion < 1008) {
-                updateSetIsDownload(db, internal);
-            }
             if (fromVersion < 1009) {
                 // This database version added "secondary_bucket_id", but that
                 // column name was refactored in version 1013 below, so this
