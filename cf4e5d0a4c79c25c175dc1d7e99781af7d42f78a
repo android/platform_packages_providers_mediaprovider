@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b706fbff_e5f147c1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1001525
+      },
+      "writtenOn": "2020-01-06T18:09:00Z",
+      "side": 1,
+      "message": "It will only be called twice if fromVersion \u003c 1008.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 6
+      },
+      "revId": "cf4e5d0a4c79c25c175dc1d7e99781af7d42f78a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
