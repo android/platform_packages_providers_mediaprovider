@@ -54,6 +54,14 @@ import com.android.internal.app.AlertController;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.regex.Pattern;
+//[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/27/2018,5844787
+import android.media.AudioManager;
+//[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
+//When call incoming, the background music should need to paused
+import android.telephony.TelephonyManager;
+import android.app.Service;
+import android.telephony.PhoneStateListener;
+//[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
 
 /**
  * The {@link RingtonePickerActivity} allows the user to choose one from all of the
@@ -143,6 +151,36 @@ public final class RingtonePickerActivity extends AlertActivity implements
      * can be stopped later, after the activity is recreated.
      */
     private static Ringtone sPlayingRingtone;
+
+    //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
+    //When call incoming, the background music should need to paused
+    private TelephonyManager tpm;
+    private class TctPhoneStateListener extends PhoneStateListener{
+
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            super.onCallStateChanged(state, incomingNumber);
+
+            Log.i(TAG,"onCallStateChanged state = " + state + ", incomingNumber = " + incomingNumber);
+
+            try {
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        break;
+
+                    case TelephonyManager.CALL_STATE_RINGING:
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        stopAnyPlayingRingtone();
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private TctPhoneStateListener mPhoneStateListener;
+    //[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
 
     private DialogInterface.OnClickListener mRingtoneClickListener =
             new DialogInterface.OnClickListener() {
@@ -256,6 +294,18 @@ public final class RingtonePickerActivity extends AlertActivity implements
           }
         }
 
+        //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
+        //When call incoming, the background music should need to paused
+        tpm = (TelephonyManager) getSystemService(Service.TELEPHONY_SERVICE);
+        mPhoneStateListener = new TctPhoneStateListener();
+        tpm.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        //[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
+        //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/27/2018,5844787
+        //When select the phone ringtone/notification/alarm sound, the background music should need to paused
+        ((AudioManager) getSystemService(AUDIO_SERVICE))
+                .requestAudioFocus(null, AudioManager.STREAM_RING,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        //[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),03/27/2018,5844787
         setupAlert();
     }
     @Override
@@ -284,6 +334,11 @@ public final class RingtonePickerActivity extends AlertActivity implements
                 @Override
                 protected void onPostExecute(Uri ringtoneUri) {
                     if (ringtoneUri != null) {
+                        //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),08/30/2019,8281790
+                        //[Settings][Sound]The selected ringtone is not marked when add ringtone.
+                        String itemId = ringtoneUri.getLastPathSegment();
+                        mCheckedItemId = Long.parseLong(itemId);
+                        //[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),08/30/2019,8281790
                         requeryForAdapter();
                     } else {
                         // Ringtone was not added, display error Toast
@@ -294,6 +349,15 @@ public final class RingtonePickerActivity extends AlertActivity implements
             };
             installTask.execute(data.getData());
         }
+        //[BUGFIX]-MOD-BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),07/08/2019,7974688/8180578.
+        //in this case, handle the requestCode = NOK with remark the item.
+        else if (requestCode == ADD_FILE_REQUEST_CODE && resultCode != RESULT_OK) {
+            if (getCheckedItem() >= 0) {
+                setCheckedItem(getCheckedItem());
+                setupAlert();
+            }
+        }
+        //[BUGFIX]-MOD-END by GCSSZ.(xiaoguo.xie@tcl.com),7974688/8180578.
     }
 
     // Disabled because context menus aren't Material Design :(
@@ -339,6 +403,17 @@ public final class RingtonePickerActivity extends AlertActivity implements
             mCursor = null;
         }
         super.onDestroy();
+
+        //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
+        //When call incoming, the background music should need to paused
+        tpm.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        mPhoneStateListener = null;
+        //[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),03/05/2018,5852636
+        //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),03/27/2018,5844787
+        //When select the phone ringtone/notification/alarm sound, the background music should need to paused
+        ((AudioManager) getSystemService(AUDIO_SERVICE))
+                .abandonAudioFocus(null);
+        //[Defect]-Add END by GCSSZ.(xiaoguo.xie@tcl.com),03/27/2018,5844787
     }
 
     public void onPrepareListView(ListView listView) {

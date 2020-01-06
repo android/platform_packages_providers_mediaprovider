@@ -36,7 +36,8 @@ import android.os.storage.StorageEventListener;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.util.Log;
-
+//[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),06/20/2019,7905523
+import android.os.SystemProperties;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -190,11 +191,12 @@ public class MtpService extends Service {
             } else {
                 fd = controlFd.getFileDescriptor();
             }
-
+            //[Defect]-Add BEGIN by GCSSZ.(xiaoguo.xie@tcl.com),06/20/2019,7905523
+            //Customized the mtp name show in the PC.
             final MtpServer server =
                     new MtpServer(database, fd, mPtpMode,
                             new OnServerTerminated(), Build.MANUFACTURER,
-                            Build.MODEL, "1.0");
+                            SystemProperties.get("ro.usb.product", Build.MODEL), "1.0");
             database.setServer(server);
             sServerHolder = new ServerHolder(server, database);
 
