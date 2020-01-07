@@ -1515,7 +1515,7 @@ public class MediaProvider extends ContentProvider {
         if (TextUtils.isEmpty(data)) return;
 
         final File file = new File(data);
-        final File fileLower = new File(data.toLowerCase());
+        final File fileLower = new File(data.toLowerCase(Locale.US));//[mediaprovider]modified by junliang.liu for XR8318097 at20190911
 
         values.put(ImageColumns.VOLUME_NAME, extractVolumeName(data));
         values.put(ImageColumns.RELATIVE_PATH, extractRelativePath(data));
@@ -1526,9 +1526,9 @@ public class MediaProvider extends ContentProvider {
         if (parent != null) {
             values.put(ImageColumns.BUCKET_ID, parent.hashCode());
             // The relative path for files in the top directory is "/"
-            if (!"/".equals(values.getAsString(ImageColumns.RELATIVE_PATH))) {
+            //if (!"/".equals(values.getAsString(ImageColumns.RELATIVE_PATH))) {//deleted by junliang.liu for XR8340784 on 20190916
                 values.put(ImageColumns.BUCKET_DISPLAY_NAME, file.getParentFile().getName());
-            }
+            //}//deleted by junliang.liu for XR8340784 on 20190916
         }
 
         // Groups are the first part of name
@@ -2180,14 +2180,33 @@ public class MediaProvider extends ContentProvider {
             final Collection<File> allowed = getVolumeScanPaths(volumeName);
             final File actual = new File(values.getAsString(MediaColumns.DATA))
                     .getCanonicalFile();
-            if (!FileUtils.contains(allowed, actual)) {
-                throw new VolumeArgumentException(actual, allowed);
+			//Modified by nanbing.zou for D8376969 on 2019-09-30 begin
+            //mod by junliang.liu for XR8461322 on 20191022 begin
+            if (MediaStore.VOLUME_INTERNAL.equals(volumeName)) {
+                if (!FileUtils.contains(allowed, actual)) {
+                    throw new VolumeArgumentException(actual, allowed);
+                }
+            } else {
+                if (!FileUtils.contains(allowed, actual) && !isRealExit(actual)) {
+                    throw new VolumeArgumentException(actual, allowed);
+                }
             }
+            //mod by junliang.liu for XR8461322 on 20191022 end
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
+    private static boolean isRealExit(File actual){
+        for (Collection<File> volumes : sCachedVolumeScanPaths.values()){
+            Log.d(TAG,"nbnbnb,isRealExit,volumeName:"+volumes + ",actual:"+actual);
+            if (FileUtils.contains(volumes, actual)){
+                return true;
+            }
+        }
+        return false;
+    }
+	//Modified by nanbing.zou for D8376969 on 2019-09-30 end
     @Override
     public int bulkInsert(Uri uri, ContentValues values[]) {
         final int targetSdkVersion = getCallingPackageTargetSdkVersion();

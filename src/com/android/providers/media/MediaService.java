@@ -147,6 +147,11 @@ public class MediaService extends IntentService {
             }
 
             for (File dir : resolveDirectories(volumeName)) {
+		//[TCT-ROM][Sound]Begin add by yang.sun for XR8345120 on 19-9-24		
+		if(dir.toString().equals("/system/aio_custom/resources") || dir.toString().equals("/oem/resources")){
+			continue;
+		  }
+		//[TCT-ROM][Sound]End add by yang.sun for XR8345120 on 19-9-24
                 MediaScanner.instance(context).scanDirectory(dir);
             }
 
@@ -184,6 +189,9 @@ public class MediaService extends IntentService {
             if (Settings.System.getInt(context.getContentResolver(), setting, 0) != 0) {
                 continue;
             }
+            //[TCT-ROM][Sound] Added by nanbing.zou for D8304135/D8304157 on 2019-09-03 begin
+            final String initSetting = getDefaultRingtoneSettingInit(type);
+            //[TCT-ROM][Sound] Added by nanbing.zou for D8304135/D8304157 on 2019-09-03 end
 
             // Try finding the scanned ringtone
             final String filename = getDefaultRingtoneFilename(type);
@@ -197,6 +205,10 @@ public class MediaService extends IntentService {
                             ContentUris.withAppendedId(baseUri, cursor.getLong(0)));
                     RingtoneManager.setActualDefaultRingtoneUri(context, type, ringtoneUri);
                     Settings.System.putInt(context.getContentResolver(), setting, 1);
+                    //[TCT-ROM][Sound] Added by nanbing.zou for D8304135/D8304157 on 2019-09-03 begin
+                    Settings.System.putString(context.getContentResolver(), initSetting,ringtoneUri != null ? ringtoneUri.toString():null);
+                    //[TCT-ROM][Sound] Added by nanbing.zou for D8304135/D8304157 on 2019-09-03 end
+
                 }
             }
         }
@@ -219,4 +231,16 @@ public class MediaService extends IntentService {
             default: throw new IllegalArgumentException();
         }
     }
+
+    //[TCT-ROM][Sound] Added by nanbing.zou for D8304135/D8304157 on 2019-09-03 begin
+    private static String getDefaultRingtoneSettingInit(int type) {
+        switch (type) {
+            case TYPE_RINGTONE: return Settings.System.INIT_RINGTONE;
+            //case TYPE_SIM2_RINGTONE: return Settings.System.INIT_SIM2_RINGTONE;
+            case TYPE_NOTIFICATION: return Settings.System.INIT_NOTIFICATION_SOUND;
+            case TYPE_ALARM: return Settings.System.INIT_ALARM_ALERT;
+            default: throw new IllegalArgumentException();
+        }
+    }
+    //[TCT-ROM][Sound] Added by nanbing.zou for D8304135/D8304157 on 2019-09-03 end
 }

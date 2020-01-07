@@ -55,6 +55,13 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+//[TCT-ROM][Sound]Begin added by yang.sun for XRP23276 on 18-9-7
+import android.content.pm.PackageManager;
+import java.util.List;
+import android.content.pm.ResolveInfo;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+//[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-7
 /**
  * The {@link RingtonePickerActivity} allows the user to choose one from all of the
  * available ringtones. The chosen ringtone's URI will be persisted as a string.
@@ -78,6 +85,11 @@ public final class RingtonePickerActivity extends AlertActivity implements
     private static final String SOUND_NAME_RES_PREFIX = "sound_name_";
 
     private static final int ADD_FILE_REQUEST_CODE = 300;
+/[TCT-ROM][Sound]Begin added by yang.sun for XRXRP23276 on 18-9-6
+    ///@}
+    /// M: Request codes to MusicPicker for add more ringtone
+    private static final int ADD_MORE_RINGTONES = 1;
+    //[TCT-ROM][Sound]End added by yang.sun for XRXRP23276 on 18-9-6
 
     private RingtoneManager mRingtoneManager;
     private int mType;
@@ -94,6 +106,15 @@ public final class RingtonePickerActivity extends AlertActivity implements
 
     /** The position in the list of the ringtone to sample. */
     private int mSampleRingtonePos = POS_UNKNOWN;
+//[TCT-ROM][Sound]Begin add by yang.sun for XRP23276 on 18-9-6
+    /** M: The position in the list of the 'More Ringtongs' item. */
+    private int mMoreRingtonesPos = POS_UNKNOWN;
+
+   /** M: The position in the list of the latest click.*/
+    private int mLatestClickedPos =  POS_UNKNOWN;
+    /** M: Whether this list has the 'More Ringtongs' item. */
+    private boolean mHasMoreRingtonesItem = true;
+//[TCT-ROM][Sound]End add by yang.sun for XRP23276 on 18-9-6
 
     /** Whether this list has the 'Silent' item. */
     private boolean mHasSilentItem;
@@ -151,25 +172,55 @@ public final class RingtonePickerActivity extends AlertActivity implements
          * On item clicked
          */
         public void onClick(DialogInterface dialog, int which) {
-            if (which == mCursor.getCount() + mStaticItemCount) {
-                // The "Add new ringtone" item was clicked. Start a file picker intent to select
-                // only audio files (MIME type "audio/*")
-                final Intent chooseFile = getMediaFilePickerIntent();
-                startActivityForResult(chooseFile, ADD_FILE_REQUEST_CODE);
-                return;
+            //[TCT-ROM][sound]Begin added by ronghui.yi for XR6628337 on 2018/09/05
+ if (which == mMoreRingtonesPos) {
+
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("vnd.android.cursor.dir/audio");
+                        intent.setData(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+                        PackageManager packageManager = getApplicationContext().getPackageManager();
+                        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+                        boolean isIntentSafe = activities.size() > 0;
+                        if (isIntentSafe) {
+                            startActivityForResult(intent, ADD_MORE_RINGTONES);
+                        } else {
+                            setResult(RESULT_CANCELED);
+                            finish();
+                        }
+//[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-6
+            }else {
+                if (which == mCursor.getCount() + mStaticItemCount) {
+                    // The "Add new ringtone" item was clicked. Start a file picker intent to select
+                    // only audio files (MIME type "audio/*")
+                    final Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+                    chooseFile.setType("audio/*");
+                    chooseFile.putExtra(Intent.EXTRA_MIME_TYPES,
+                            new String[]{"audio/*", "application/ogg"});
+                    chooseFile.putExtra(EXTRA_DRM_LEVEL, DRM_LEVEL_FL);
+                    startActivityForResult(chooseFile, ADD_FILE_REQUEST_CODE);
+                    return;
+                }
+
+                // Save the position of most recently clicked item
+                setCheckedItem(which);
+                //[TCT-ROM][Sound]Begin added by yang.sun for XRP23276 on 18-9-6
+                mLatestClickedPos = which;
+                //[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-6
+                // In the buttonless (watch-only) version, preemptively set our result since we won't
+                // have another chance to do so before the activity closes.
+                if (!mShowOkCancelButtons) {
+                    //[TCT ROM][build error]begin modify by shie for can not find setResultFromSelection
+                    //setResultFromSelection();
+                    setSuccessResultWithRingtone(getCurrentlySelectedRingtoneUri());
+                    //[TCT ROM][build error]begin modify by shie for can not find setResultFromSelection
+                }
+
+                // Play clip
+                playRingtone(which, 0);
             }
-
-            // Save the position of most recently clicked item
-            setCheckedItem(which);
-
-            // In the buttonless (watch-only) version, preemptively set our result since we won't
-            // have another chance to do so before the activity closes.
-            if (!mShowOkCancelButtons) {
-                setSuccessResultWithRingtone(getCurrentlySelectedRingtoneUri());
-            }
-
-            // Play clip
-            playRingtone(which, 0);
+            //[TCT-ROM][sound]End added by ronghui.yi for XR6628337 on 2018/09/05
         }
 
     };
@@ -222,6 +273,13 @@ public final class RingtonePickerActivity extends AlertActivity implements
         // Get the URI whose list item should have a checkmark
         mExistingUri = intent
                 .getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI);
+        //[TCT-ROM][Calendar] Added by nanbing.zou for P23591 on 2018-09-14 begin
+        if (mExistingUri != null) {
+            if (mExistingUri.toString().contains("android.resource://com.google.android.calendar/raw")) {
+                mExistingUri = Settings.System.DEFAULT_NOTIFICATION_URI;
+            }
+        }
+        //[TCT-ROM][Calendar] Added by nanbing.zou for P23591 on 2018-09-14 end
 
         // Create the list of ringtones and hold on to it so we can update later.
         mAdapter = new BadgedRingtoneAdapter(this, mCursor,
@@ -267,15 +325,35 @@ public final class RingtonePickerActivity extends AlertActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == ADD_FILE_REQUEST_CODE && resultCode == RESULT_OK) {
+        //[TCT-ROM][Sound]Begin added by yang.sun for XRP23276 on 18-9-6
+        if (requestCode == ADD_MORE_RINGTONES && resultCode == RESULT_OK) {
+        //[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-6
             // Add the custom ringtone in a separate thread
             final AsyncTask<Uri, Void, Uri> installTask = new AsyncTask<Uri, Void, Uri>() {
                 @Override
                 protected Uri doInBackground(Uri... params) {
+                    //[TCT-ROM][Sound]Begin added by yang.sun for XRP23276 on 18-9-6
                     try {
-                        return mRingtoneManager.addCustomExternalRingtone(params[0], mType);
-                    } catch (IOException | IllegalArgumentException e) {
+
+                        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                            throw new IOException("External storage is not mounted. Unable to install ringtones.");
+                        }
+                        Uri uri = (null == data ? null : params[0]);
+                        if (uri != null) {
+
+                            // Sanity-check: are we actually being asked to install an audio file?
+                            final String mimeType = mTargetContext.getContentResolver().getType(uri);
+                            if (mimeType == null ||
+                                    !(mimeType.startsWith("audio/") || mimeType.equals("application/ogg"))) {
+                                throw new IllegalArgumentException("Ringtone file must have MIME type \"audio/*\"."
+                                        + " Given file has MIME type \"" + mimeType + "\"");
+                            }
+                            Uri mRingtoneUri = setRingtone(mTargetContext.getContentResolver(), uri);
+
+                            return mRingtoneUri;
+                            //[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-6
+                        }
+                    } catch (IOException | UnsupportedOperationException | IllegalArgumentException e) {
                         Log.e(TAG, "Unable to add new ringtone", e);
                     }
                     return null;
@@ -283,18 +361,50 @@ public final class RingtonePickerActivity extends AlertActivity implements
 
                 @Override
                 protected void onPostExecute(Uri ringtoneUri) {
-                    if (ringtoneUri != null) {
-                        requeryForAdapter();
-                    } else {
-                        // Ringtone was not added, display error Toast
-                        Toast.makeText(RingtonePickerActivity.this, R.string.unable_to_add_ringtone,
-                                Toast.LENGTH_SHORT).show();
-                    }
+                    //[TCT-ROM][Sound]Begin add by yang.sun for XRP23276 on 18-9-6
+                            if (ringtoneUri != null ) {
+                                requeryForAdapter(ringtoneUri);
+                                Log.v(TAG, "onActivityResult: RESULT_OK,ringtoneUri so set to be ringtone! " + ringtoneUri);
+        
+                            } else {
+                                // Ringtone was not added, display error Toast
+                                Toast.makeText(RingtonePickerActivity.this, R.string.unable_to_add_ringtone,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                    //[TCT-ROM][Sound]End add by yang.sun for XRP23276 on 18-9-6
                 }
             };
             installTask.execute(data.getData());
-        }
+        //[TCT-ROM][Sound]Begin add by yang.sun for XRP23276 on 18-9-6
+                }else if (requestCode == ADD_MORE_RINGTONES && resultCode == RESULT_CANCELED) {
+                    setLatestRingtoneClickPos(); //Added by ronghui.yi for defect 6334857 on 2018/5/28
+                }
+        //[TCT-ROM][Sound]End add by yang.sun for XRP23276 on 18-9-6
     }
+   //[TCT-ROM][Sound]Begin add by yang.sun for XRP23276 on 18-9-6
+            private void setLatestRingtoneClickPos(){
+                if ((mLatestClickedPos >= mStaticItemCount || (mHasSilentItem && (mLatestClickedPos == 1
+                        || mLatestClickedPos == 2))) && (POS_UNKNOWN != mLatestClickedPos)) {
+                    //Added by nanbing.zou for D8679886 on 2019-12-12 begin
+                    //just call mRingtoneManager.getRingtonePosition for call cursor.requery, do nothing
+                    if (mExistingUri != null)
+                        getListPosition(mRingtoneManager.getRingtonePosition(mExistingUri));
+                    //Added by nanbing.zou for D8679886 on 2019-12-12 end
+                    setCheckedItem(mLatestClickedPos);
+                } else if (mLatestClickedPos == POS_UNKNOWN) {
+                    //[TCT-ROM][Sound]Begin modified by nanbing.zou for D8312660 on 2019-09-05
+                    if (mExistingUri != null && !RingtoneManager.isDefault(mExistingUri)) {
+                        //[TCT-ROM][Sound]End modified by nanbing.zou for D8312660 on 2019-09-05
+                        mLatestClickedPos = getListPosition(mRingtoneManager.getRingtonePosition(mExistingUri));
+                        setCheckedItem(mLatestClickedPos);
+                    } else if (mExistingUri == null || mExistingUri.toString().equals("") ) {
+                        mLatestClickedPos = mSilentPos;
+                        setCheckedItem(mLatestClickedPos);
+                    }
+                }
+                setupAlert();
+            }
+   //[TCT-ROM][Sound]End add by yang.sun for XRP23276 on 18-9-6
 
     // Disabled because context menus aren't Material Design :(
     /*
@@ -344,6 +454,12 @@ public final class RingtonePickerActivity extends AlertActivity implements
     public void onPrepareListView(ListView listView) {
         // Reset the static item count, as this method can be called multiple times
         mStaticItemCount = 0;
+    
+      //[TCT-ROM][Sound]Begin added by yang.sun for XRP23276 on 18-9-6
+        if (mHasMoreRingtonesItem && mType != -1) {//[TCT-ROM][Sound]modified by junliang.liu for XR8120098 on 20190809
+            mMoreRingtonesPos = addMoreRingtonesItem(listView);
+        }
+      //[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-6
 
         if (mHasDefaultItem) {
             mDefaultRingtonePos = addDefaultRingtoneItem(listView);
@@ -372,10 +488,11 @@ public final class RingtonePickerActivity extends AlertActivity implements
             setSuccessResultWithRingtone(getCurrentlySelectedRingtoneUri());
         }
         // If external storage is available, add a button to install sounds from storage.
-        if(resolvesMediaFilePicker()
-                && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            addNewSoundItem(listView);
-        }
+        //[TCT-ROM][Sound]Begin deleted by yang.sun for XRP23276 on 18-9-7
+        /*if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            addNewRingtoneItem(listView);
+        }*/
+        //[TCT-ROM][Sound]End deleted by yang.sun for XRP23276 on 18-9-7
 
         // Enable context menu in ringtone items
         registerForContextMenu(listView);
@@ -387,25 +504,59 @@ public final class RingtonePickerActivity extends AlertActivity implements
      *
      * This should only need to happen after adding or removing a ringtone.
      */
-    private void requeryForAdapter() {
+   //[TCT-ROM][Sound]Begin modified by yang.sun for XRP23276 on 18-9-6
+    private void requeryForAdapter(Uri ringtoneUri) {
         // Refresh and set a new cursor, closing the old one.
         initRingtoneManager();
         mAdapter.changeCursor(mCursor);
 
         // Update checked item location.
         int checkedPosition = POS_UNKNOWN;
-        for (int i = 0; i < mAdapter.getCount(); i++) {
+       /* for (int i = 0; i < mAdapter.getCount(); i++) {
             if (mAdapter.getItemId(i) == mCheckedItemId) {
                 checkedPosition = getListPosition(i);
                 break;
             }
-        }
+        }*/
+        checkedPosition = getListPosition(mRingtoneManager.getRingtonePosition(ringtoneUri));
         if (mHasSilentItem && checkedPosition == POS_UNKNOWN) {
             checkedPosition = mSilentPos;
         }
         setCheckedItem(checkedPosition);
         setupAlert();
     }
+      /**
+       * M: Set the given uri to be ringtone
+       *
+       * @param resolver content resolver
+       * @param uri the given uri to set to be ringtones
+       */
+      private Uri setRingtone(ContentResolver resolver, Uri uri) {
+          /// Set the flag in the database to mark this as a ringtone
+          try {
+              ContentValues values = new ContentValues(1);
+              if (RingtoneManager.TYPE_RINGTONE == mType) {
+                  values.put(MediaStore.Audio.Media.IS_RINGTONE, "1");
+              } else if (RingtoneManager.TYPE_ALARM == mType) {
+                  values.put(MediaStore.Audio.Media.IS_ALARM, "1");
+              } else if (RingtoneManager.TYPE_NOTIFICATION == mType) {
+                  values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
+              } else if (RingtoneManager.TYPE_SIM2_RINGTONE == mType) {
+                  values.put(MediaStore.Audio.Media.IS_RINGTONE, "1");
+              } else {
+                  Log.e(TAG, "Unsupport ringtone type =  " + mType);
+                  return null;
+              }
+              Log.d(TAG, "setRingtone() uri = " + uri);
+              resolver.update(uri, values, null, null);
+          } catch (UnsupportedOperationException ex) {
+              /// most likely the card just got unmounted
+              Log.e(TAG, "couldn't set ringtone flag for uri " + uri);
+
+          }
+          return uri;
+      }
+   //[TCT-ROM][Sound]End modified by yang.sun for XRP23276 on 18-9-6
 
     /**
      * Adds a static item to the top of the list. A static item is one that is not from the
@@ -438,25 +589,35 @@ public final class RingtonePickerActivity extends AlertActivity implements
         return addStaticItem(listView, com.android.internal.R.string.ringtone_silent);
     }
 
-    private void addNewSoundItem(ListView listView) {
-        View view = getLayoutInflater().inflate(R.layout.add_new_sound_item, listView,
-                false /* attachToRoot */);
-        TextView text = (TextView)view.findViewById(R.id.add_new_sound_text);
-
-        if (mType == RingtoneManager.TYPE_ALARM) {
-            text.setText(R.string.add_alarm_text);
-        } else if (mType == RingtoneManager.TYPE_NOTIFICATION) {
-            text.setText(R.string.add_notification_text);
-        } else {
-            text.setText(R.string.add_ringtone_text);
-        }
-        listView.addFooterView(view);
+    private void addNewRingtoneItem(ListView listView) {
+        listView.addFooterView(getLayoutInflater().inflate(R.layout.add_ringtone_item, listView,
+                false /* attachToRoot */));
     }
 
+
+    /**
+     * M: Add more ringtone item to given listview and return it's position.
+     *
+     * @param listView The listview which need to add more ringtone item.
+     * @return The position of more ringtone item in listview
+     * */
+   //[TCT-ROM][Sound]Begin added by yang.sun for XRP23276 on 18-9-6
+   private int addMoreRingtonesItem(ListView listView) {
+       //Modified by nanbing.zou for P23885 at 2018-09-20 begin
+       View add_ringtone_view = getLayoutInflater().inflate(R.layout.add_ringtone_item, listView,
+               false /* attachToRoot */);
+        TextView textView = add_ringtone_view.findViewById(R.id.add_ringtone_text);
+        textView.setText(R.string.add_ringtone_text);
+        listView.addHeaderView(add_ringtone_view);
+       //Modified by nanbing.zou for P23885 at 2018-09-20 end
+        mStaticItemCount++;
+        return listView.getHeaderViewsCount() - 1;
+        }
+   //[TCT-ROM][Sound]End added by yang.sun for XRP23276 on 18-9-6
     private void initRingtoneManager() {
         // Reinstantiate the RingtoneManager. Cursor.requery() was deprecated and calling it
         // causes unexpected behavior.
-        mRingtoneManager = new RingtoneManager(mTargetContext, /* includeParentRingtones */ true);
+        mRingtoneManager = new RingtoneManager(this, /* includeParentRingtones */ true);
         if (mType != -1) {
             mRingtoneManager.setType(mType);
         }
@@ -592,7 +753,12 @@ public final class RingtonePickerActivity extends AlertActivity implements
         // Use a null Uri for the 'Silent' item.
         return null;
       } else {
-        return mRingtoneManager.getRingtoneUri(getRingtoneManagerPosition(getCheckedItem()));
+        Uri uri = mRingtoneManager.getRingtoneUri(getRingtoneManagerPosition(getCheckedItem()));
+            if ("1".equals(uri.getQueryParameter(CANONICAL))) {
+                return mTargetContext.getContentResolver().uncanonicalize(uri);
+            } else {
+                return uri;
+            }
       }
     }
 

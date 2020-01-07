@@ -281,8 +281,9 @@ public class ModernMediaScanner implements MediaScanner {
             // remains stable if we need to paginate across multiple windows.
             mSignal.throwIfCanceled();
             Trace.traceBegin(Trace.TRACE_TAG_DATABASE, "reconcile");
+            //Modified by nanbing.zou for D8338263 on 2019-09-18 begin
             try (Cursor c = mResolver.query(mFilesUri,
-                    new String[]{FileColumns._ID},
+                    new String[]{FileColumns._ID,FileColumns.DATA},
                     FileColumns.FORMAT + "!=? AND " + FileColumns.DATA + " LIKE ? ESCAPE '\\'",
                     new String[]{
                             // Ignore abstract playlists which don't have files on disk
@@ -292,9 +293,19 @@ public class ModernMediaScanner implements MediaScanner {
                     FileColumns._ID + " DESC", mSignal)) {
                 while (c.moveToNext()) {
                     final long id = c.getLong(0);
-                    if (Arrays.binarySearch(scannedIds, id) < 0) {
+                    boolean shouldDelete = true;
+                    if (!mRoot.exists()){
+                        String path = c.getString(c.getColumnIndex(FileColumns.DATA));
+                        Log.d(TAG,"reconcileAndClean, check the file is exit: "+path);
+                        File file = new File(path);
+                        if (file.exists()){
+                            shouldDelete = false;
+                        }
+                    }
+                    if (Arrays.binarySearch(scannedIds, id) < 0 && shouldDelete) {
                         mUnknownIds.add(id);
                     }
+                    //Modified by nanbing.zou for D8338263 on 2019-09-18 end
                 }
             } finally {
                 Trace.traceEnd(Trace.TRACE_TAG_DATABASE);
