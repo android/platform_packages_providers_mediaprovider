@@ -294,6 +294,9 @@ public final class RingtonePickerActivity extends AlertActivity implements
             };
             installTask.execute(data.getData());
         }
+       else {
+         setupAlert();
+       }
     }
 
     // Disabled because context menus aren't Material Design :(
