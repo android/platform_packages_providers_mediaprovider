@@ -2914,7 +2914,7 @@ public class MediaProvider extends ContentProvider {
         final int targetSdkVersion = getCallingPackageTargetSdkVersion();
         final String originalVolumeName = getVolumeName(uri);
         final String resolvedVolumeName = resolveVolumeName(uri);
-
+        boolean triggerScan = false;
         // handle MEDIA_SCANNER before calling getDatabaseForUri()
         if (match == MEDIA_SCANNER) {
             mMediaScannerVolume = initialValues.getAsString(MediaStore.MEDIA_SCANNER_VOLUME);
@@ -2963,6 +2963,20 @@ public class MediaProvider extends ContentProvider {
                 }
             }
 
+            if(!isCallingPackageSystem()){
+                Log.w(TAG, "Ignoring mutation of from "
+                        + getCallingPackageOrSelf());
+                switch (match) {
+                    case IMAGES_MEDIA:
+                    case VIDEO_MEDIA:
+                        triggerScan = true;
+                        break;
+                    // If entry is a playlist, do not re-scan to match previous behavior
+                    // and allow persistence of database-only edits until real re-scan
+                    default:
+                        break;
+                }
+            }
             genre = initialValues.getAsString(Audio.AudioColumns.GENRE);
             initialValues.remove(Audio.AudioColumns.GENRE);
             path = initialValues.getAsString(MediaStore.MediaColumns.DATA);
@@ -3277,6 +3291,12 @@ public class MediaProvider extends ContentProvider {
 
         if (newUri != null) {
             acceptWithExpansion(helper::notifyChange, newUri);
+            if (!TextUtils.isEmpty(path) && triggerScan) {
+                final File file = new File(path);
+                BackgroundThread.getExecutor().execute(() -> {
+                    MediaScanner.instance(getContext()).scanFile(file);
+                });
+            }
         }
         return newUri;
     }
