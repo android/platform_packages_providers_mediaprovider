@@ -334,6 +334,7 @@ public final class RingtonePickerActivity extends AlertActivity implements
 
     @Override
     public void onDestroy() {
+        mHandler.removeCallbacksAndMessages(null);
         if (mCursor != null) {
             mCursor.close();
             mCursor = null;
