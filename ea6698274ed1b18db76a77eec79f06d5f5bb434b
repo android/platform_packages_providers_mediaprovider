@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d543d4f6_4de5d30b",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1939,
+      "author": {
+        "id": 1006497
+      },
+      "writtenOn": "2020-07-31T13:23:23Z",
+      "side": 1,
+      "message": "nit: into a consistent condition",
+      "revId": "ea6698274ed1b18db76a77eec79f06d5f5bb434b",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04899e8b_543c60a6",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2044,
+      "author": {
+        "id": 1006497
+      },
+      "writtenOn": "2020-07-31T13:23:23Z",
+      "side": 1,
+      "message": "nit: \"reasonable\" makes more sense than \"consistent\" here",
+      "range": {
+        "startLine": 2044,
+        "startChar": 26,
+        "endLine": 2044,
+        "endChar": 36
+      },
+      "revId": "ea6698274ed1b18db76a77eec79f06d5f5bb434b",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": true
+    }
+  ]
+}
