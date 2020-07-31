@@ -878,7 +878,7 @@ public class MediaProvider extends ContentProvider {
             onPackageOrphaned(packageName);
         }
 
-        // Delete any expired content; we're paranoid about wildly changing
+        // Delete any expired content; we're cautious about wildly changing
         // clocks, so only delete items within the last week
         final long from = ((System.currentTimeMillis() - DateUtils.WEEK_IN_MILLIS) / 1000);
         final long to = (System.currentTimeMillis() / 1000);
@@ -1412,7 +1412,7 @@ public class MediaProvider extends ContentProvider {
         // an easy way to ensure they're defined consistently
         createLatestViews(db, internal);
 
-        sanityCheck(db, fromVersion);
+        consistencyCheck(db, fromVersion);
 
         getOrCreateUuid(db);
 
@@ -1448,10 +1448,10 @@ public class MediaProvider extends ContentProvider {
     }
 
     /**
-     * Perform a simple sanity check on the database. Currently this tests
+     * Perform a simple consistency check on the database. Currently this tests
      * whether all the _data entries in audio_meta are unique
      */
-    private static void sanityCheck(SQLiteDatabase db, int fromVersion) {
+    private static void consistencyCheck(SQLiteDatabase db, int fromVersion) {
         Cursor c1 = null;
         Cursor c2 = null;
         try {
@@ -1936,7 +1936,7 @@ public class MediaProvider extends ContentProvider {
 
     /**
      * Get the various file-related {@link MediaColumns} in the given
-     * {@link ContentValues} into sane condition. Also validates that defined
+     * {@link ContentValues} into consistent condition. Also validates that defined
      * columns are valid for the given {@link Uri}, such as ensuring that only
      * {@code image/*} can be inserted into
      * {@link android.provider.MediaStore.Images}.
@@ -2041,7 +2041,7 @@ public class MediaProvider extends ContentProvider {
             }
         }
 
-        // Give ourselves sane defaults when missing
+        // Give ourselves consistent defaults when missing
         if (TextUtils.isEmpty(values.getAsString(MediaColumns.DISPLAY_NAME))) {
             values.put(MediaColumns.DISPLAY_NAME,
                     String.valueOf(System.currentTimeMillis()));
@@ -2054,7 +2054,7 @@ public class MediaProvider extends ContentProvider {
             values.put(MediaColumns.MIME_TYPE, defaultMimeType);
         }
 
-        // Sanity check MIME type against table
+        // Quick check MIME type against table
         final String mimeType = values.getAsString(MediaColumns.MIME_TYPE);
         if (mimeType != null && !defaultMimeType.equals(ContentResolver.MIME_TYPE_DEFAULT)) {
             final String[] split = defaultMimeType.split("/");
@@ -2127,7 +2127,7 @@ public class MediaProvider extends ContentProvider {
             }
             values.put(MediaColumns.DATA, res.getAbsolutePath());
         } else {
-            assertFileColumnsSane(match, uri, values);
+            assertFileColumnsConsistent(match, uri, values);
         }
 
         // Drop columns that aren't relevant for special tables
@@ -2168,14 +2168,14 @@ public class MediaProvider extends ContentProvider {
     }
 
     /**
-     * Sanity check that any requested {@link MediaColumns#DATA} paths actually
+     * Check that any requested {@link MediaColumns#DATA} paths actually
      * live on the storage volume being targeted.
      */
-    private static void assertFileColumnsSane(int match, Uri uri, ContentValues values)
+    private static void assertFileColumnsConsistent(int match, Uri uri, ContentValues values)
             throws VolumeArgumentException {
         if (!values.containsKey(MediaColumns.DATA)) return;
         try {
-            // Sanity check that the requested path actually lives on volume
+            // Check that the requested path actually lives on volume
             final String volumeName = resolveVolumeName(uri);
             final Collection<File> allowed = getVolumeScanPaths(volumeName);
             final File actual = new File(values.getAsString(MediaColumns.DATA))
@@ -4731,9 +4731,9 @@ public class MediaProvider extends ContentProvider {
             Trace.traceEnd(TRACE_TAG_DATABASE);
         }
 
-        // Make sure any updated paths look sane
+        // Make sure any updated paths are consistent
         try {
-            assertFileColumnsSane(match, uri, initialValues);
+            assertFileColumnsConsistent(match, uri, initialValues);
         } catch (VolumeArgumentException e) {
             return e.translateForUpdateDelete(targetSdkVersion);
         }
@@ -5742,7 +5742,7 @@ public class MediaProvider extends ContentProvider {
         // First, does caller have the needed row-level access?
         enforceCallingPermission(uri, isWrite);
 
-        // Second, does the path look sane?
+        // Second, does the path look consistent?
         if (!FileUtils.contains(Environment.getStorageDirectory(), file)) {
             checkWorldReadAccess(file.getAbsolutePath());
         }
@@ -6048,10 +6048,10 @@ public class MediaProvider extends ContentProvider {
                     "Opening and closing databases not allowed.");
         }
 
-        // Quick sanity check for shady volume names
+        // Quick check for shady volume names
         MediaStore.checkArgumentVolumeName(volume);
 
-        // Quick sanity check that volume actually exists
+        // Quick check that volume actually exists
         if (!MediaStore.VOLUME_INTERNAL.equals(volume)) {
             try {
                 getVolumePath(volume);
@@ -6085,7 +6085,7 @@ public class MediaProvider extends ContentProvider {
                     "Opening and closing databases not allowed.");
         }
 
-        // Quick sanity check for shady volume names
+        // Quick check for shady volume names
         MediaStore.checkArgumentVolumeName(volume);
 
         if (MediaStore.VOLUME_INTERNAL.equals(volume)) {
