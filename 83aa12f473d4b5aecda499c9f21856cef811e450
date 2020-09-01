@@ -1,0 +1,31 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004713225",
+      "url": "https://android-build.googleplex.com/builds/treetop/android-review/1415994?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "78902240_7f92d32f",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 6209,
+      "author": {
+        "id": 1550585
+      },
+      "writtenOn": "2020-09-01T03:31:42Z",
+      "side": 1,
+      "message": "Wrong casing for \"mUpgradeLock\". static final variables should be ALL_UPPERCASE.",
+      "range": {
+        "startLine": 6209,
+        "startChar": 12,
+        "endLine": 6209,
+        "endChar": 44
+      },
+      "revId": "83aa12f473d4b5aecda499c9f21856cef811e450",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
+    }
+  ]
+}
