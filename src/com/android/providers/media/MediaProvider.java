@@ -172,6 +172,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.content.ComponentName;
+
 
 /**
  * Media content provider. See {@link android.provider.MediaStore} for details.
@@ -437,13 +439,33 @@ public class MediaProvider extends ContentProvider {
 
         @Override
         public void onCreate(final SQLiteDatabase db) {
-            Log.v(TAG, "onCreate() for " + mName);
+            Log.d(TAG, "onCreate() for " + mName);
+
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences.Editor editor = prefs.edit();
+            if (mInternal) {
+                editor.putInt(MediaProvider.PREF_INTERNAL_OLD_DB_VERSION, 0);
+            } else {
+                editor.putInt(MediaProvider.PREF_EXTERNAL_OLD_DB_VERSION, 0);
+            }
+            editor.commit();
+
             updateDatabase(mContext, db, mInternal, 0, mVersion);
         }
 
         @Override
         public void onUpgrade(final SQLiteDatabase db, final int oldV, final int newV) {
-            Log.v(TAG, "onUpgrade() for " + mName + " from " + oldV + " to " + newV);
+            Log.d(TAG, "onUpgrade() for " + mName + " from " + oldV + " to " + newV);
+
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences.Editor editor = prefs.edit();
+            if (mInternal) {
+                editor.putInt(MediaProvider.PREF_INTERNAL_OLD_DB_VERSION, oldV);
+            } else {
+                editor.putInt(MediaProvider.PREF_EXTERNAL_OLD_DB_VERSION, oldV);
+            }
+            editor.commit();
+
             updateDatabase(mContext, db, mInternal, oldV, newV);
         }
 
@@ -781,6 +803,7 @@ public class MediaProvider extends ContentProvider {
         final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         final int thumbSize = Math.min(metrics.widthPixels, metrics.heightPixels) / 2;
         mThumbSize = new Size(thumbSize, thumbSize);
+        mRecomputeDataValues = false;
 
         mInternalDatabase = new DatabaseHelper(context, INTERNAL_DATABASE_NAME, true,
                 false, mObjectRemovedCallback);
@@ -1182,7 +1205,10 @@ public class MediaProvider extends ContentProvider {
 
     private static void updateAddOwnerPackageName(SQLiteDatabase db, boolean internal) {
         db.execSQL("ALTER TABLE files ADD COLUMN owner_package_name TEXT DEFAULT NULL");
+    }
 
+    private static void recompileAddOwnerPackageName(SQLiteDatabase db, boolean internal) {
+        Log.d(TAG, "Start recompileAddOwnerPackageName internal = " + internal);
         // Derive new column value based on well-known paths
         try (Cursor c = db.query("files", new String[] { FileColumns._ID, FileColumns.DATA },
                 FileColumns.DATA + " REGEXP '" + PATTERN_OWNED_PATH.pattern() + "'",
@@ -1204,6 +1230,7 @@ public class MediaProvider extends ContentProvider {
                 }
             }
         }
+        Log.d(TAG, "End recompileAddOwnerPackageName");
     }
 
     private static void updateAddColorSpaces(SQLiteDatabase db) {
@@ -1318,11 +1345,11 @@ public class MediaProvider extends ContentProvider {
             int fromVersion, int toVersion) {
         final long startTime = SystemClock.elapsedRealtime();
 
+        Log.d(TAG, "updateDatabase,fromVersion = "+ fromVersion + ", toVersion=" + toVersion + " , internal = " + internal);
         if (fromVersion < 700) {
             // Anything older than KK is recreated from scratch
             createLatestSchema(db, internal);
         } else {
-            boolean recomputeDataValues = false;
             if (fromVersion < 800) {
                 updateCollationKeys(db);
             }
@@ -1359,12 +1386,12 @@ public class MediaProvider extends ContentProvider {
                 updateAddExpiresAndTrashed(db, internal);
             }
             if (fromVersion < 1012) {
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1013) {
                 updateAddGroupId(db, internal);
                 updateAddDirectories(db, internal);
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1014) {
                 updateAddXmp(db, internal);
@@ -1376,12 +1403,57 @@ public class MediaProvider extends ContentProvider {
                 // Empty version bump to ensure views are recreated
             }
             if (fromVersion < 1017) {
-                updateSetIsDownload(db, internal);
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
             }
             if (fromVersion < 1018) {
                 updateAddPath(db, internal);
-                recomputeDataValues = true;
+                mRecomputeDataValues = true;
+            }
+
+            if (fromVersion < 1020) {
+                updateAddVolumeName(db, internal);
+                mRecomputeDataValues = true;
+            }
+            if (fromVersion < 1021) {
+                // Empty version bump to ensure views are recreated
+            }
+
+        }
+
+        // Always recreate latest views during upgrade; they're cheap and it's
+        // an easy way to ensure they're defined consistently
+        createLatestViews(db, internal);
+
+
+        if (mRecomputeDataValues) {
+            final Intent intent = new Intent(ACTION_UPGRADE_DATABASE);
+            android.util.Log.d(TAG, "DataBase struct complete, mRecomputeDataValues send upgradedata");
+            intent.setPackage("com.android.providers.media");
+
+            intent.setComponent(new ComponentName(context, MediaService.class));
+            context.startService(intent);
+        }
+
+        final long elapsedSeconds = (SystemClock.elapsedRealtime() - startTime)
+                / DateUtils.SECOND_IN_MILLIS;
+        logToDb(db, "Database upgraded from version " + fromVersion + " to " + toVersion
+                + " in " + elapsedSeconds + " seconds");
+    }
+
+    public static void doUpgrade(SQLiteDatabase db, int fromVersion, boolean internal) {
+        Log.d(TAG, "doUpgrade fromVersion = " + fromVersion + " , internal = " + internal);
+        if (fromVersion >= 700) {
+            if (fromVersion < 1000) {
+                recompileAddOwnerPackageName(db, internal);
+            }
+            if (fromVersion < 1007) {
+                updateClearLocation(db, internal);
+            }
+            if (fromVersion < 1008) {
+                updateSetIsDownload(db, internal);
+            }
+            if (fromVersion < 1017) {
+                updateSetIsDownload(db, internal);
             }
             if (fromVersion < 1019) {
                 // Only trigger during "external", so that it runs only once.
@@ -1389,37 +1461,45 @@ public class MediaProvider extends ContentProvider {
                     deleteLegacyThumbnailData();
                 }
             }
-            if (fromVersion < 1020) {
-                updateAddVolumeName(db, internal);
-                recomputeDataValues = true;
-            }
-            if (fromVersion < 1021) {
-                // Empty version bump to ensure views are recreated
-            }
             if (fromVersion < 1022) {
                 updateDirsMimeType(db, internal);
             }
             if (fromVersion < 1023) {
                 updateRelativePath(db, internal);
             }
-
-            if (recomputeDataValues) {
+            if (mRecomputeDataValues) {
                 recomputeDataValues(db, internal);
             }
         }
-
-        // Always recreate latest views during upgrade; they're cheap and it's
-        // an easy way to ensure they're defined consistently
-        createLatestViews(db, internal);
-
         sanityCheck(db, fromVersion);
-
         getOrCreateUuid(db);
+    }
 
-        final long elapsedSeconds = (SystemClock.elapsedRealtime() - startTime)
-                / DateUtils.SECOND_IN_MILLIS;
-        logToDb(db, "Database upgraded from version " + fromVersion + " to " + toVersion
-                + " in " + elapsedSeconds + " seconds");
+    public void upgradeInService() {
+
+        synchronized (mUpgradeLock) {
+            int dbVersion = getDatabaseVersion(getContext());
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            int internalOldVersion = prefs.getInt(MediaProvider.PREF_INTERNAL_OLD_DB_VERSION, -1);
+            int externalOldVersion = prefs.getInt(MediaProvider.PREF_EXTERNAL_OLD_DB_VERSION, -1);
+
+            Log.v(TAG, "Start Upgrade to dbVersion: " + dbVersion + ", from , internalOldVersion = " + internalOldVersion + " , externalOldVersion = " + externalOldVersion);
+
+            SharedPreferences.Editor editor = prefs.edit();
+            if (internalOldVersion != -1 && internalOldVersion != dbVersion) {
+                final SQLiteDatabase internalDB = mInternalDatabase.getWritableDatabase();
+                doUpgrade(internalDB, internalOldVersion, true);
+                editor.putInt(MediaProvider.PREF_INTERNAL_OLD_DB_VERSION, dbVersion);
+            }
+
+            if (externalOldVersion != -1 && externalOldVersion != dbVersion) {
+                final SQLiteDatabase externalDB = mExternalDatabase.getWritableDatabase();
+                doUpgrade(externalDB, externalOldVersion, false);
+                editor.putInt(MediaProvider.PREF_EXTERNAL_OLD_DB_VERSION, dbVersion);
+            }
+            editor.commit();
+            Log.v(TAG, "Complete Upgrade to dbVersion: " + dbVersion);
+        }
     }
 
     private static void downgradeDatabase(Context context, SQLiteDatabase db, boolean internal,
@@ -1439,6 +1519,9 @@ public class MediaProvider extends ContentProvider {
      * Write a persistent diagnostic message to the log table.
      */
     static void logToDb(SQLiteDatabase db, String message) {
+
+        Log.d(TAG, "logToDb message = " + message);
+
         db.execSQL("INSERT OR REPLACE" +
                 " INTO log (time,message) VALUES (strftime('%Y-%m-%d %H:%M:%f','now'),?);",
                 new String[] { message });
@@ -6118,6 +6201,12 @@ public class MediaProvider extends ContentProvider {
 
     private static final String INTERNAL_DATABASE_NAME = "internal.db";
     private static final String EXTERNAL_DATABASE_NAME = "external.db";
+
+    private static boolean mRecomputeDataValues;
+    static final String PREF_INTERNAL_OLD_DB_VERSION = "internal_old_db_version";
+    static final String PREF_EXTERNAL_OLD_DB_VERSION = "external_old_db_version";
+    static final String ACTION_UPGRADE_DATABASE = "com.fcnt.mobile_phone.mediaprovider.upgrade_database";
+    private static final Object mUpgradeLock = new Object();
 
     // maximum number of cached external databases to keep
     private static final int MAX_EXTERNAL_DATABASES = 3;

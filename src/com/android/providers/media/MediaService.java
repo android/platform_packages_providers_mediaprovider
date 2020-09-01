@@ -21,6 +21,7 @@ import static android.media.RingtoneManager.TYPE_NOTIFICATION;
 import static android.media.RingtoneManager.TYPE_RINGTONE;
 
 import static com.android.providers.media.MediaProvider.TAG;
+import static com.android.providers.media.MediaProvider.ACTION_UPGRADE_DATABASE;
 
 import android.app.IntentService;
 import android.content.ContentProviderClient;
@@ -67,9 +68,9 @@ public class MediaService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         mWakeLock.acquire();
         Trace.traceBegin(Trace.TRACE_TAG_DATABASE, intent.getAction());
-        if (Log.isLoggable(TAG, Log.INFO)) {
-            Log.i(TAG, "Begin " + intent);
-        }
+        //if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG, "MediaService onHandleIntent Begin " + intent);
+        //}
         try {
             switch (intent.getAction()) {
                 case Intent.ACTION_LOCALE_CHANGED: {
@@ -83,11 +84,16 @@ public class MediaService extends IntentService {
                     break;
                 }
                 case Intent.ACTION_MEDIA_MOUNTED: {
+                    upGradeDatabase();
                     onScanVolume(this, intent.getData());
                     break;
                 }
                 case Intent.ACTION_MEDIA_SCANNER_SCAN_FILE: {
                     onScanFile(this, intent.getData());
+                    break;
+                }
+                case ACTION_UPGRADE_DATABASE: {
+                    upGradeDatabase();
                     break;
                 }
                 default: {
@@ -103,6 +109,13 @@ public class MediaService extends IntentService {
             }
             Trace.traceEnd(Trace.TRACE_TAG_DATABASE);
             mWakeLock.release();
+        }
+    }
+
+    private void upGradeDatabase() {
+        try (ContentProviderClient cpc = getContentResolver()
+                .acquireContentProviderClient(MediaStore.AUTHORITY)) {
+            ((MediaProvider) cpc.getLocalContentProvider()).upgradeInService();
         }
     }
 
