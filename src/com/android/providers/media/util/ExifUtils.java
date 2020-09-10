@@ -110,6 +110,7 @@ public class ExifUtils {
         try {
             final Date datetime;
             synchronized (sFormatter) {
+                sFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
                 datetime = sFormatter.parse(dateTimeString, pos);
             }
             if (datetime == null) return -1;
@@ -130,6 +131,7 @@ public class ExifUtils {
             // since 1/1/1970 local time
             Date datetime;
             synchronized (sFormatter) {
+                sFormatter.setTimeZone(TimeZone.getDefault());
                 datetime = sFormatter.parse(dateTimeString, pos);
             }
 
