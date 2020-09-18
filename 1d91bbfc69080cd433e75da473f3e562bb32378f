@@ -22,6 +22,30 @@
       "revId": "1d91bbfc69080cd433e75da473f3e562bb32378f",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca4a27ac_b7e4b1f2",
+        "filename": "OWNERS",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1765766
+      },
+      "writtenOn": "2020-09-18T11:02:55Z",
+      "side": 1,
+      "message": "Done, well spotted!",
+      "parentUuid": "c67a024d_a75cbb30",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 6
+      },
+      "revId": "1d91bbfc69080cd433e75da473f3e562bb32378f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889",
+      "unresolved": false
     }
   ]
 }
