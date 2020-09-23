@@ -1,0 +1,11 @@
+Open-Source-Licensing+1: Lint 🤖 <android-build-ayeaye@system.gserviceaccount.com>
+Autosubmit+1: Lais Andrade <lsandrade@google.com>
+Lint+1: Lint 🤖 <android-build-ayeaye@system.gserviceaccount.com>
+Code-Review+2: Jeff Sharkey <jsharkey@google.com>
+Code-Review+2: Jeff Sharkey <jsharkey@android.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Wed, 23 Sep 2020 16:41:08 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1382386
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
