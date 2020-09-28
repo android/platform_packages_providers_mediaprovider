@@ -787,6 +787,11 @@ public class MediaProvider extends ContentProvider {
                 return;
             }
 
+            if (vol.getId().startsWith("stub:")) {
+                Log.i(TAG, "Skipping ensuring default folders for " + volumeName);
+                return;
+            }
+
             if (vol.isPrimary()) {
                 key = "created_default_folders";
             } else {
@@ -822,6 +827,12 @@ public class MediaProvider extends ContentProvider {
     private void ensureThumbnailsValid(@NonNull String volumeName, @NonNull SQLiteDatabase db) {
         final String uuidFromDatabase = DatabaseHelper.getOrCreateUuid(db);
         try {
+            final File path = getVolumePath(volumeName);
+            final StorageVolume vol = mStorageManager.getStorageVolume(path);
+            if (vol == null || vol.getId().startsWith("stub:")) {
+                Log.i(TAG, "Skipping ensuring thumbnails valid for " + volumeName);
+                return;
+            }
             for (File dir : getThumbnailDirectories(volumeName)) {
                 if (!dir.exists()) {
                     dir.mkdirs();
