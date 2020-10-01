@@ -806,7 +806,6 @@ public class ModernMediaScanner implements MediaScanner {
         op.withValue(MediaColumns.DATA, file.getAbsolutePath());
         op.withValue(MediaColumns.SIZE, attrs.size());
         op.withValue(MediaColumns.DATE_MODIFIED, lastModifiedTime(file, attrs));
-        op.withValue(MediaColumns.DATE_TAKEN, null);
         op.withValue(MediaColumns.IS_DRM, 0);
         op.withValue(MediaColumns.WIDTH, null);
         op.withValue(MediaColumns.HEIGHT, null);
@@ -1097,8 +1096,10 @@ public class ModernMediaScanner implements MediaScanner {
                     parseOptionalOrZero(exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH)));
             withOptionalValue(op, MediaColumns.RESOLUTION,
                     parseOptionalResolution(exif));
+          if(existingId == -1){
             withOptionalValue(op, MediaColumns.DATE_TAKEN,
                     parseOptionalDateTaken(exif, lastModifiedTime(file, attrs) * 1000));
+          }
             withOptionalValue(op, MediaColumns.ORIENTATION,
                     parseOptionalOrientation(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                             ExifInterface.ORIENTATION_UNDEFINED)));

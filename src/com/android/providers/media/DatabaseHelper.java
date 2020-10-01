@@ -763,7 +763,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
                 + "_data TEXT UNIQUE COLLATE NOCASE,_size INTEGER,format INTEGER,parent INTEGER,"
                 + "date_added INTEGER,date_modified INTEGER,mime_type TEXT,title TEXT,"
                 + "description TEXT,_display_name TEXT,picasa_id TEXT,orientation INTEGER,"
-                + "latitude DOUBLE,longitude DOUBLE,datetaken INTEGER,mini_thumb_magic INTEGER,"
+                + "latitude DOUBLE,longitude DOUBLE,datetaken INTEGER DEFAULT 0,mini_thumb_magic INTEGER,"
                 + "bucket_id TEXT,bucket_display_name TEXT,isprivate INTEGER,title_key TEXT,"
                 + "artist_id INTEGER,album_id INTEGER,composer TEXT,track INTEGER,"
                 + "year INTEGER CHECK(year!=0),is_ringtone INTEGER,is_music INTEGER,"
