@@ -1,0 +1,13 @@
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Lint-1: Lint 🤖 <ayeaye-gerrit@google.com>
+Lint+2: Mathew Inwood <mathewi@google.com>
+Autosubmit+1: Mathew Inwood <mathewi@google.com>
+Code-Review+2: Andrei-Valentin Onea <andreionea@google.com>
+Code-Review+2: Narayan Kamath <narayan@google.com>
+Global-Approval+1: Narayan Kamath <narayan@google.com>
+Open-Source-Licensing+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Wed, 28 Oct 2020 13:34:48 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1468625
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
