@@ -25,10 +25,94 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 
 public class MimeUtils {
+    public static final Set<String> sPlaylistMimes = new HashSet<String>();
+    public static final Set<String> sDocumentMimes = new HashSet<String>();
+    public static final Set<String> sSubtitleMimes = new HashSet<String>();
+
+    static {
+        sPlaylistMimes.add("application/vnd.apple.mpegurl");
+        sPlaylistMimes.add("application/vnd.ms-wpl");
+        sPlaylistMimes.add("application/x-extension-smpl");
+        sPlaylistMimes.add("application/x-mpegurl");
+        sPlaylistMimes.add("application/xspf+xml");
+        sPlaylistMimes.add("audio/mpegurl");
+        sPlaylistMimes.add("audio/x-mpegurl");
+        sPlaylistMimes.add("audio/x-scpls");
+
+        sSubtitleMimes.add("application/lrc");
+        sSubtitleMimes.add("application/smil+xml");
+        sSubtitleMimes.add("application/ttml+xml");
+        sSubtitleMimes.add("application/x-extension-cap");
+        sSubtitleMimes.add("application/x-extension-srt");
+        sSubtitleMimes.add("application/x-extension-sub");
+        sSubtitleMimes.add("application/x-extension-vtt");
+        sSubtitleMimes.add("application/x-subrip");
+        sSubtitleMimes.add("text/vtt");
+
+        sDocumentMimes.add("application/epub+zip");
+        sDocumentMimes.add("application/msword");
+        sDocumentMimes.add("application/pdf");
+        sDocumentMimes.add("application/rtf");
+        sDocumentMimes.add("application/vnd.ms-excel");
+        sDocumentMimes.add("application/vnd.ms-excel.addin.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-excel.sheet.binary.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-excel.sheet.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-excel.template.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-powerpoint");
+        sDocumentMimes.add("application/vnd.ms-powerpoint.addin.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-powerpoint.presentation.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-powerpoint.slideshow.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-powerpoint.template.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-word.document.macroenabled.12");
+        sDocumentMimes.add("application/vnd.ms-word.template.macroenabled.12");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.chart");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.database");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.formula");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.graphics");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.graphics-template");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.presentation");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.presentation-template");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.spreadsheet");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.spreadsheet-template");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.text");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.text-master");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.text-template");
+        sDocumentMimes.add("application/vnd.oasis.opendocument.text-web");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.presentationml.slideshow");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.presentationml.template");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.spreadsheetml.template");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        sDocumentMimes.add("application/vnd.openxmlformats-officedocument.wordprocessingml.template");
+        sDocumentMimes.add("application/vnd.stardivision.calc");
+        sDocumentMimes.add("application/vnd.stardivision.chart");
+        sDocumentMimes.add("application/vnd.stardivision.draw");
+        sDocumentMimes.add("application/vnd.stardivision.impress");
+        sDocumentMimes.add("application/vnd.stardivision.impress-packed");
+        sDocumentMimes.add("application/vnd.stardivision.mail");
+        sDocumentMimes.add("application/vnd.stardivision.math");
+        sDocumentMimes.add("application/vnd.stardivision.writer");
+        sDocumentMimes.add("application/vnd.stardivision.writer-global");
+        sDocumentMimes.add("application/vnd.sun.xml.calc");
+        sDocumentMimes.add("application/vnd.sun.xml.calc.template");
+        sDocumentMimes.add("application/vnd.sun.xml.draw");
+        sDocumentMimes.add("application/vnd.sun.xml.draw.template");
+        sDocumentMimes.add("application/vnd.sun.xml.impress");
+        sDocumentMimes.add("application/vnd.sun.xml.impress.template");
+        sDocumentMimes.add("application/vnd.sun.xml.math");
+        sDocumentMimes.add("application/vnd.sun.xml.writer");
+        sDocumentMimes.add("application/vnd.sun.xml.writer.global");
+        sDocumentMimes.add("application/vnd.sun.xml.writer.template");
+        sDocumentMimes.add("application/x-mspublisher");
+    }
+
     /**
      * Variant of {@link Objects#equal(Object, Object)} but which tests with
      * case-insensitivity.
@@ -129,37 +213,14 @@ public class MimeUtils {
 
     public static boolean isPlaylistMimeType(@Nullable String mimeType) {
         if (mimeType == null) return false;
-        switch (mimeType.toLowerCase(Locale.ROOT)) {
-            case "application/vnd.apple.mpegurl":
-            case "application/vnd.ms-wpl":
-            case "application/x-extension-smpl":
-            case "application/x-mpegurl":
-            case "application/xspf+xml":
-            case "audio/mpegurl":
-            case "audio/x-mpegurl":
-            case "audio/x-scpls":
-                return true;
-            default:
-                return false;
-        }
+
+        return sPlaylistMimes.contains(mimeType.toLowerCase(Locale.ROOT));
     }
 
     public static boolean isSubtitleMimeType(@Nullable String mimeType) {
         if (mimeType == null) return false;
-        switch (mimeType.toLowerCase(Locale.ROOT)) {
-            case "application/lrc":
-            case "application/smil+xml":
-            case "application/ttml+xml":
-            case "application/x-extension-cap":
-            case "application/x-extension-srt":
-            case "application/x-extension-sub":
-            case "application/x-extension-vtt":
-            case "application/x-subrip":
-            case "text/vtt":
-                return true;
-            default:
-                return false;
-        }
+
+        return sSubtitleMimes.contains(mimeType.toLowerCase(Locale.ROOT));
     }
 
     public static boolean isDocumentMimeType(@Nullable String mimeType) {
@@ -167,66 +228,6 @@ public class MimeUtils {
 
         if (startsWithIgnoreCase(mimeType, "text/")) return true;
 
-        switch (mimeType.toLowerCase(Locale.ROOT)) {
-            case "application/epub+zip":
-            case "application/msword":
-            case "application/pdf":
-            case "application/rtf":
-            case "application/vnd.ms-excel":
-            case "application/vnd.ms-excel.addin.macroenabled.12":
-            case "application/vnd.ms-excel.sheet.binary.macroenabled.12":
-            case "application/vnd.ms-excel.sheet.macroenabled.12":
-            case "application/vnd.ms-excel.template.macroenabled.12":
-            case "application/vnd.ms-powerpoint":
-            case "application/vnd.ms-powerpoint.addin.macroenabled.12":
-            case "application/vnd.ms-powerpoint.presentation.macroenabled.12":
-            case "application/vnd.ms-powerpoint.slideshow.macroenabled.12":
-            case "application/vnd.ms-powerpoint.template.macroenabled.12":
-            case "application/vnd.ms-word.document.macroenabled.12":
-            case "application/vnd.ms-word.template.macroenabled.12":
-            case "application/vnd.oasis.opendocument.chart":
-            case "application/vnd.oasis.opendocument.database":
-            case "application/vnd.oasis.opendocument.formula":
-            case "application/vnd.oasis.opendocument.graphics":
-            case "application/vnd.oasis.opendocument.graphics-template":
-            case "application/vnd.oasis.opendocument.presentation":
-            case "application/vnd.oasis.opendocument.presentation-template":
-            case "application/vnd.oasis.opendocument.spreadsheet":
-            case "application/vnd.oasis.opendocument.spreadsheet-template":
-            case "application/vnd.oasis.opendocument.text":
-            case "application/vnd.oasis.opendocument.text-master":
-            case "application/vnd.oasis.opendocument.text-template":
-            case "application/vnd.oasis.opendocument.text-web":
-            case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-            case "application/vnd.openxmlformats-officedocument.presentationml.slideshow":
-            case "application/vnd.openxmlformats-officedocument.presentationml.template":
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
-            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
-            case "application/vnd.stardivision.calc":
-            case "application/vnd.stardivision.chart":
-            case "application/vnd.stardivision.draw":
-            case "application/vnd.stardivision.impress":
-            case "application/vnd.stardivision.impress-packed":
-            case "application/vnd.stardivision.mail":
-            case "application/vnd.stardivision.math":
-            case "application/vnd.stardivision.writer":
-            case "application/vnd.stardivision.writer-global":
-            case "application/vnd.sun.xml.calc":
-            case "application/vnd.sun.xml.calc.template":
-            case "application/vnd.sun.xml.draw":
-            case "application/vnd.sun.xml.draw.template":
-            case "application/vnd.sun.xml.impress":
-            case "application/vnd.sun.xml.impress.template":
-            case "application/vnd.sun.xml.math":
-            case "application/vnd.sun.xml.writer":
-            case "application/vnd.sun.xml.writer.global":
-            case "application/vnd.sun.xml.writer.template":
-            case "application/x-mspublisher":
-                return true;
-            default:
-                return false;
-        }
+        return sDocumentMimes.contains(mimeType.toLowerCase(Locale.ROOT));
     }
 }
