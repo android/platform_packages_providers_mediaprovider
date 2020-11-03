@@ -1315,26 +1315,20 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
         final String selection = FileColumns.MEDIA_TYPE + "=?";
         final String[] selectionArgs = new String[]{String.valueOf(FileColumns.MEDIA_TYPE_NONE)};
 
-        try (Cursor c = db.query("files", new String[] { FileColumns._ID, FileColumns.MIME_TYPE },
-                selection, selectionArgs, null, null, null, null)) {
-            Log.d(TAG, "Recomputing " + c.getCount() + " MediaType values");
+        final String subtitleSelection = "(" + FileColumns.MIME_TYPE + " IN ('" +
+            String.join("','", MimeUtils.sSubtitleMimes) + "'))";
+        final String documentSelection = "(" + FileColumns.MIME_TYPE + " LIKE 'text/%' OR " +
+            FileColumns.MIME_TYPE + " IN ('" + String.join("','", MimeUtils.sDocumentMimes) + "'))";
 
-            final ContentValues values = new ContentValues();
-            while (c.moveToNext()) {
-                values.clear();
-                final long id = c.getLong(0);
-                final String mimeType = c.getString(1);
-                // Only update Document and Subtitle media type
-                if (MimeUtils.isDocumentMimeType(mimeType)) {
-                    values.put(FileColumns.MEDIA_TYPE, FileColumns.MEDIA_TYPE_DOCUMENT);
-                } else if (MimeUtils.isSubtitleMimeType(mimeType)) {
-                    values.put(FileColumns.MEDIA_TYPE, FileColumns.MEDIA_TYPE_SUBTITLE);
-                }
-                if (!values.isEmpty()) {
-                    db.update("files", values, "_id=" + id, null);
-                }
-            }
-        }
+        final ContentValues values = new ContentValues();
+
+        // Only update Document and Subtitle media type
+        // Check subtitles first so that text/vtt is not labeled as a document
+        values.put(FileColumns.MEDIA_TYPE, FileColumns.MEDIA_TYPE_SUBTITLE);
+        db.update("files", values, selection + " AND " + subtitleSelection, selectionArgs);
+
+        values.put(FileColumns.MEDIA_TYPE, FileColumns.MEDIA_TYPE_DOCUMENT);
+        db.update("files", values, selection + " AND " + documentSelection, selectionArgs);
     }
 
     static final int VERSION_J = 509;
