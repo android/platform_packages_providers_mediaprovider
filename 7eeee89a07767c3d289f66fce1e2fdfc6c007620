@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f70b5c8_d64fdf2e",
+        "filename": "src/com/android/providers/media/DatabaseHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 1530043
+      },
+      "writtenOn": "2020-11-04T13:23:04Z",
+      "side": 1,
+      "message": "This does case sensitive match. All mimeType match should be case insensitive.",
+      "range": {
+        "startLine": 1318,
+        "startChar": 47,
+        "endLine": 1319,
+        "endChar": 63
+      },
+      "revId": "7eeee89a07767c3d289f66fce1e2fdfc6c007620",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8dd2120_0d3b877c",
+        "filename": "src/com/android/providers/media/DatabaseHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1322,
+      "author": {
+        "id": 1530043
+      },
+      "writtenOn": "2020-11-04T13:23:04Z",
+      "side": 1,
+      "message": "The only concern here is having the logic in two places. \n\nIf we change isDcumentMimeType() we should remember to change it here too.",
+      "range": {
+        "startLine": 1318,
+        "startChar": 0,
+        "endLine": 1322,
+        "endChar": 0
+      },
+      "revId": "7eeee89a07767c3d289f66fce1e2fdfc6c007620",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
