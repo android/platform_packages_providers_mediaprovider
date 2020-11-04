@@ -26,6 +26,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <algorithm>
 
 #include "libfuse_jni/ReaddirHelper.h"
 #include "libfuse_jni/RedactionInfo.h"
@@ -175,16 +176,17 @@ class node {
     node* LookupChildByName(const std::string& name, bool acquire) const {
         std::lock_guard<std::recursive_mutex> guard(*lock_);
 
-        const char* name_char = name.c_str();
-        for (node* child : children_) {
-            const std::string& child_name = child->GetName();
-            if (!strcasecmp(name_char, child_name.c_str()) && !child->deleted_) {
-                if (acquire) {
-                    child->Acquire();
-                }
-
-                return child;
+        std::recursive_mutex lock;
+        NodeTracker tracker(&lock);
+        node n(nullptr, name, &lock, &tracker);
+        auto it = children_.find(&n);
+        if (it != children_.end()) {
+            node *child = *it;
+            if (acquire) {
+                child->Acquire();
             }
+
+            return child;
         }
         return nullptr;
     }
@@ -201,11 +203,9 @@ class node {
     void Rename(const std::string& name, node* new_parent) {
         std::lock_guard<std::recursive_mutex> guard(*lock_);
 
+        RemoveFromParent();
         name_ = name;
-        if (new_parent != parent_) {
-            RemoveFromParent();
-            AddToParent(new_parent);
-        }
+        AddToParent(new_parent);
     }
 
     const std::string& GetName() const {
@@ -299,7 +299,7 @@ class node {
         CHECK(parent != nullptr);
 
         parent_ = parent;
-        parent_->children_.push_back(this);
+        parent_->children_.insert(this);
 
         // TODO(narayan, zezeozue): It's unclear why we need to call Acquire on the
         // parent node when we're adding a child to it.
@@ -311,8 +311,13 @@ class node {
         std::lock_guard<std::recursive_mutex> guard(*lock_);
 
         if (parent_ != nullptr) {
-            std::list<node*>& children = parent_->children_;
-            std::list<node*>::iterator it = std::find(children.begin(), children.end(), this);
+            auto& children = parent_->children_;
+            std::recursive_mutex lock;
+            NodeTracker tracker(&lock);
+            node n(nullptr, name_, &lock, &tracker);
+            if (deleted_)
+                n.deleted_ = true;
+            auto it = children.find(&n);
 
             CHECK(it != children.end());
             children.erase(it);
@@ -331,7 +336,31 @@ class node {
     uint32_t refcount_;
     // List of children of this node. All of them contain a back reference
     // to their parent. Guarded by |lock_|.
-    std::list<node*> children_;
+    struct NodeHash {
+        size_t operator()(const node* n) const {
+            std::string name(n->name_);
+            transform(name.begin(), name.end(), name.begin(), ::tolower);
+            return std::hash<std::string>{}(name);
+        };
+    };
+
+    struct NodeEqual {
+        bool operator()(const node* n1, const node* n2) const {
+            auto icmp = [](const std::string& a, const std::string& b) {
+                if (a.length() != b.length()) return false;
+
+                return std::equal(b.begin(), b.end(), a.begin(),
+                                  [](unsigned char a, unsigned char b) {
+                                      return ::tolower(a) == ::tolower(b);
+                                  });
+            };
+
+            return n1->deleted_ == n2->deleted_ && icmp(n1->name_, n2->name_);
+        };
+    };
+
+    std::unordered_set<node*, NodeHash, NodeEqual> children_;
+
     // Containing directory for this node. Guarded by |lock_|.
     node* parent_;
     // List of file handles associated with this node. Guarded by |lock_|.
