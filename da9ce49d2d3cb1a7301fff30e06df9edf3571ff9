@@ -1,0 +1,8 @@
+Build-Cop-Override+1: Bill Yi <byi@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Lint+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Submitted-by: Bill Yi <byi@google.com>
+Submitted-at: Thu, 05 Nov 2020 01:06:44 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1486850
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
