@@ -573,7 +573,7 @@ public class FileUtils {
                     int i = Integer.parseInt(dcfStrict.group(2));
                     @Override
                     public String next() {
-                        final String res = String.format("%s%04d", prefix, i);
+                        final String res = String.format(Locale.US, "%s%04d", prefix, i);
                         i++;
                         return res;
                     }
