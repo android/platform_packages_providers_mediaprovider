@@ -16,6 +16,23 @@
       "message": "Oops.",
       "revId": "b346c28d6827d3f156c90e8669d8cccc296be297",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfc26a96_d4199d54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1530043
+      },
+      "writtenOn": "2020-12-08T13:51:55Z",
+      "side": 1,
+      "message": "Thanks for the patch. We will merge it to internal branch ",
+      "revId": "b346c28d6827d3f156c90e8669d8cccc296be297",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
