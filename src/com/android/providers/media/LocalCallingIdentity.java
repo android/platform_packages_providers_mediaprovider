@@ -54,6 +54,8 @@ import androidx.annotation.NonNull;
 
 import com.android.providers.media.util.LongArray;
 
+import java.util.Locale;
+
 public class LocalCallingIdentity {
     public final Context context;
     public final int pid;
@@ -352,7 +354,7 @@ public class LocalCallingIdentity {
     private ArrayMap<String, Long> rowIdOfDeletedPaths = new ArrayMap<>();
 
     public void addDeletedRowId(@NonNull String path, long id) {
-        rowIdOfDeletedPaths.put(path, id);
+        rowIdOfDeletedPaths.put(path.toLowerCase(Locale.US), id);
     }
 
     public boolean removeDeletedRowId(long id) {
@@ -366,6 +368,6 @@ public class LocalCallingIdentity {
     }
 
     public long getDeletedRowId(@NonNull String path) {
-        return rowIdOfDeletedPaths.getOrDefault(path, UNKNOWN_ROW_ID);
+        return rowIdOfDeletedPaths.getOrDefault(path.toLowerCase(Locale.US), UNKNOWN_ROW_ID);
     }
 }
