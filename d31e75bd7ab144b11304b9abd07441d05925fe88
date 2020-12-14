@@ -1,0 +1,9 @@
+Code-Review+2: Zimuzo Ezeozue <zezeozue@google.com>
+Presubmit-Verified+1: Treehugger Robot <treehugger-gerrit@google.com>
+Lint+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Open-Source-Licensing+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Submitted-by: Zimuzo Ezeozue <zezeozue@google.com>
+Submitted-at: Mon, 14 Dec 2020 12:57:44 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1520664
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
