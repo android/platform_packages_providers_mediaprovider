@@ -1,0 +1,8 @@
+Open-Source-Licensing+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Code-Review+2: Sam Saccone <samccone@google.com>
+Bypass-Presubmit+1: Jeff Sharkey <jsharkey@google.com>
+Submitted-by: Jeff Sharkey <jsharkey@google.com>
+Submitted-at: Wed, 16 Dec 2020 22:00:19 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1532480
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
