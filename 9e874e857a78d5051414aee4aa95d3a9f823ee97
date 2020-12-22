@@ -16,6 +16,46 @@
       "message": "please help review,thank you",
       "revId": "9e874e857a78d5051414aee4aa95d3a9f823ee97",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9d9ab76_731ed1d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1530043
+      },
+      "writtenOn": "2020-12-22T13:46:25Z",
+      "side": 1,
+      "message": "Thanks for the patchset. I will merge the changes with some corrections in Locale usage. Thanks ",
+      "revId": "9e874e857a78d5051414aee4aa95d3a9f823ee97",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96154fe3_da133b7b",
+        "filename": "src/com/android/providers/media/LocalCallingIdentity.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 1530043
+      },
+      "writtenOn": "2020-12-22T13:46:25Z",
+      "side": 1,
+      "message": "I think this should be Locale.ROOT. I will make the changes while merging the changes.",
+      "range": {
+        "startLine": 357,
+        "startChar": 49,
+        "endLine": 357,
+        "endChar": 63
+      },
+      "revId": "9e874e857a78d5051414aee4aa95d3a9f823ee97",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
