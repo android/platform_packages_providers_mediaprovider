@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4c35978_cc6dc761",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013030
+      },
+      "writtenOn": "2020-12-23T11:40:22Z",
+      "side": 1,
+      "message": "Thank you for the patch; we have merged it in our internal tree, and it will appear in a future release of the Mediaprovider module. I will abandon this change for now.",
+      "revId": "6860be1fd2b17f3fcff668124c843ab0d935e984",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
