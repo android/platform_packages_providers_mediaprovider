@@ -673,7 +673,15 @@ public class ModernMediaScanner implements MediaScanner {
             // Now that we're finished scanning this directory, release lock to
             // allow other parallel scans to proceed
             releaseDirectoryLock(dir);
-
+            synchronized (mPendingCleanDirectories) {
+                if (mIsDirectoryTreeDirty) {
+                    if (mPendingCleanDirectories.remove(dir.toFile().getPath())) {
+                        // If |dir| is still clean, then persist
+                        FileUtils.setDirectoryDirty(dir.toFile(), false /* isDirty */);
+                        mIsDirectoryTreeDirty = false;
+                    }
+                }
+            }
             return FileVisitResult.CONTINUE;
         }
 
