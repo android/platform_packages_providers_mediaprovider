@@ -16,6 +16,24 @@
       "message": "Just checking with you first if this will need to be upstreamed. Btw, I tweak this a bit so the skipping works only for stub volumes which affect only ChromeOS. I don\u0027t want to introduce isStub() and does hacky things here to check if a StorageVolume is a stub volume since I\u0027d like to get early feedback from zezeozue@.",
       "revId": "8d7b979ae01d07530fba175092d8fe9bee45ad3f",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19f7f107_1eab1fb4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1669779
+      },
+      "writtenOn": "2021-01-05T20:04:53Z",
+      "side": 1,
+      "message": "I see. Thank you!",
+      "parentUuid": "75c9a04b_82c9ecf0",
+      "revId": "8d7b979ae01d07530fba175092d8fe9bee45ad3f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
