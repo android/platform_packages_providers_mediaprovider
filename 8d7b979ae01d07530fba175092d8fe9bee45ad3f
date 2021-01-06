@@ -34,6 +34,29 @@
       "parentUuid": "75c9a04b_82c9ecf0",
       "revId": "8d7b979ae01d07530fba175092d8fe9bee45ad3f",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c38a4be_74e4c16d",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 1256579
+      },
+      "writtenOn": "2021-01-06T02:45:27Z",
+      "side": 1,
+      "message": "This CL should only affect stub volumes. Here, I am hesitant to introduce vol.isStub() since it is a public API - I\u0027m curious what you think about this CL, we\u0027d like to have a visible device without Android directory. zezeozue@",
+      "range": {
+        "startLine": 790,
+        "startChar": 12,
+        "endLine": 790,
+        "endChar": 48
+      },
+      "revId": "8d7b979ae01d07530fba175092d8fe9bee45ad3f",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
