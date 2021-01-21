@@ -1,4 +1,8 @@
 
+package {
+    default_applicable_licenses: ["packages_providers_MediaProvider_license"],
+}
+
 android_app {
     name: "MediaProviderLegacy",
     manifest: "AndroidManifest.xml",

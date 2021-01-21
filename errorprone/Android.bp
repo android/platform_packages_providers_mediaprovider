@@ -1,4 +1,8 @@
 
+package {
+    default_applicable_licenses: ["packages_providers_MediaProvider_license"],
+}
+
 java_plugin {
     name: "error_prone_mediaprovider",
 
