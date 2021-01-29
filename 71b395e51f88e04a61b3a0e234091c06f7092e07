@@ -1,0 +1,10 @@
+Lint+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Code-Review+2: Ivan Chiang <chiangi@google.com>
+Autosubmit+1: Muhammad Qureshi <muhammadq@google.com>
+Presubmit-Verified+2: Treehugger Robot <treehugger-gerrit@google.com>
+Open-Source-Licensing+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Submitted-by: Treehugger Robot <treehugger-gerrit@google.com>
+Submitted-at: Fri, 29 Jan 2021 20:27:34 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1531640
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
