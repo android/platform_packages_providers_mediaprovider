@@ -1,0 +1,9 @@
+Open-Source-Licensing+1: Lint 🤖 <ayeaye-gerrit@google.com>
+Presubmit-Verified+2: Treehugger Robot <treehugger-gerrit@google.com>
+Code-Review+2: Nandana Dutt <nandana@google.com>
+Code-Review+2: Corina Grigoras <corinac@google.com>
+Submitted-by: Nikita Ioffe <ioffe@google.com>
+Submitted-at: Fri, 12 Feb 2021 02:12:27 +0000
+Reviewed-on: https://android-review.googlesource.com/c/platform/packages/providers/MediaProvider/+/1573723
+Project: platform/packages/providers/MediaProvider
+Branch: refs/heads/master
