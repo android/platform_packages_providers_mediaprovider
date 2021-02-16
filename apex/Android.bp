@@ -4,6 +4,7 @@ apex {
     manifest: "apex_manifest.json",
     apps: ["MediaProvider"],
     prebuilts: ["media-provider-platform-compat-config"],
+    updatable: false,
 }
 
 apex_defaults {

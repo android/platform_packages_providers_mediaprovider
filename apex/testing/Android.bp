@@ -7,5 +7,6 @@ apex_test {
     manifest: "test_manifest.json",
     // Test APEX, should never be installed
     installable: false,
+    updatable: false,
     apps: ["MediaProvider"],
 }
