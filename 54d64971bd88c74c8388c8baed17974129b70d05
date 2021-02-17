@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12328652_0334d732",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013030
+      },
+      "writtenOn": "2021-02-17T09:12:00Z",
+      "side": 1,
+      "message": "I don\u0027t object to this change if this was already the default, but I\u0027m really surprised this wasn\u0027t set to true for MediaProvider, since we *do* update this module. But we can tackle that separately.",
+      "revId": "54d64971bd88c74c8388c8baed17974129b70d05",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
