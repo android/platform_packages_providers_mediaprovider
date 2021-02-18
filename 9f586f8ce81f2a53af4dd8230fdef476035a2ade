@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2ec1db0_0367a725",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010681
+      },
+      "writtenOn": "2021-02-18T09:34:23Z",
+      "side": 1,
+      "message": "Added merged-in tag since the module was set to updatable:true in internal",
+      "revId": "9f586f8ce81f2a53af4dd8230fdef476035a2ade",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
