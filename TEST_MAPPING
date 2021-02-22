@@ -20,10 +20,12 @@
             "name": "AdoptableHostTest"
         },
         {
-            "name": "CtsScopedStorageHostTest"
-        },
-        {
             "name": "fuse_node_test"
         }
-    ]
+    ],
+    "presubmit-large": [
+        {
+            "name": "CtsScopedStorageHostTest"
+        }
+  ]
 }
