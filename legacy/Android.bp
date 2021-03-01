@@ -15,6 +15,7 @@ android_app {
     static_libs: [
         "androidx.appcompat_appcompat",
         "androidx.core_core",
+        "error_prone_annotations",
         "guava",
     ],
 
