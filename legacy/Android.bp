@@ -26,6 +26,10 @@ android_app {
         ":mediaprovider-database-sources",
     ],
 
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+
     certificate: "media",
     privileged: true,
     sdk_version: "system_current",
