@@ -4647,6 +4647,7 @@ public class MediaProvider extends ContentProvider {
         }
 
         final DatabaseHelper helper = getDatabaseForUri(uri);
+        helper.beginTransaction();
         final SQLiteQueryBuilder qb = getQueryBuilder(TYPE_DELETE, match, uri, extras, null);
 
         {
@@ -4744,7 +4745,7 @@ public class MediaProvider extends ContentProvider {
                         getCallingPackageOrSelf(), count);
             }
         }
-
+        helper.endTransaction();
         return count;
     }
 
