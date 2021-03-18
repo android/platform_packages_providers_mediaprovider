@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c841c4b_75ef3cad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1593367
+      },
+      "writtenOn": "2021-03-18T05:59:49Z",
+      "side": 1,
+      "message": "After adding transaction , the deletion time of 500 pictures is reduced by about 300ms",
+      "revId": "6673aa223df2156f7cfa77c8c580e95e266437ba",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
