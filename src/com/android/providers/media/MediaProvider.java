@@ -68,6 +68,8 @@ import static com.android.providers.media.util.FileUtils.extractTopLevelDir;
 import static com.android.providers.media.util.FileUtils.extractVolumeName;
 import static com.android.providers.media.util.FileUtils.extractVolumePath;
 import static com.android.providers.media.util.FileUtils.getAbsoluteSanitizedPath;
+import static com.android.providers.media.util.FileUtils.isDirectoryHidden;
+import static com.android.providers.media.util.FileUtils.isFileHidden;
 import static com.android.providers.media.util.FileUtils.isDataOrObbPath;
 import static com.android.providers.media.util.FileUtils.isDownload;
 import static com.android.providers.media.util.FileUtils.sanitizePath;
@@ -3346,6 +3348,7 @@ public class MediaProvider extends ContentProvider {
         }
 
         final long rowId;
+        Uri newUri = uri;
         {
             if (mediaType == FileColumns.MEDIA_TYPE_PLAYLIST) {
                 String name = values.getAsString(Audio.Playlists.NAME);
@@ -3372,6 +3375,9 @@ public class MediaProvider extends ContentProvider {
                         values.put(FileColumns.SIZE, file.length());
                     }
                 }
+                if((isDirectoryHidden(file.getParentFile()) || isFileHidden(file))) {
+                    newUri = MediaStore.Files.getContentUri(MediaStore.getVolumeName(uri));
+                }
             }
 
             rowId = insertAllowingUpsert(qb, helper, values, path);
@@ -3382,7 +3388,7 @@ public class MediaProvider extends ContentProvider {
             }
         }
 
-        return ContentUris.withAppendedId(uri, rowId);
+        return ContentUris.withAppendedId(newUri, rowId);
     }
 
     /**
