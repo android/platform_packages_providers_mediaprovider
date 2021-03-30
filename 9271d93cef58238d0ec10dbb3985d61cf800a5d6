@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d6c7855_103d2ccf",
+        "filename": "apex/framework/Android.bp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1765766
+      },
+      "writtenOn": "2021-03-30T13:34:49Z",
+      "side": 1,
+      "message": "Should we use the other one instead?",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 8
+      },
+      "revId": "9271d93cef58238d0ec10dbb3985d61cf800a5d6",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
