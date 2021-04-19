@@ -6690,6 +6690,7 @@ public class MediaProvider extends ContentProvider {
 
     private Uri insertFileForFuse(@NonNull String path, @NonNull Uri uri, @NonNull String mimeType,
             boolean useData) {
+        Log.d(TAG,"insertFileForFuse");
         ContentValues values = new ContentValues();
         values.put(FileColumns.OWNER_PACKAGE_NAME, getCallingPackageOrSelf());
         values.put(MediaColumns.MIME_TYPE, mimeType);
