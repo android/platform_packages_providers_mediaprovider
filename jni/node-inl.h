@@ -252,6 +252,11 @@ class node {
         return name_;
     }
 
+    void SetName(const std::string& name) {
+        std::lock_guard<std::recursive_mutex> guard(*lock_);
+        name_ = name;
+    }
+
     node* GetParent() const {
         std::lock_guard<std::recursive_mutex> guard(*lock_);
         return parent_;
