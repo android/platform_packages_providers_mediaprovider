@@ -421,7 +421,7 @@ static node* make_node_entry(fuse_req_t req, node* parent, const string& name, c
     if (!node) {
         node = ::node::Create(parent, name, &fuse->lock, &fuse->tracker);
     } else if (!mediaprovider::fuse::containsMount(path, std::to_string(getuid() / PER_USER_RANGE))) {
-        should_inval = node->HasCaseInsensitiveMatch();
+        //should_inval = node->HasCaseInsensitiveMatch();
         // Only invalidate a path if it does not contain mount.
         // Invalidate both names to ensure there's no dentry left in the kernel after the following
         // operations:
@@ -433,6 +433,7 @@ static node* make_node_entry(fuse_req_t req, node* parent, const string& name, c
         // Note that we invalidate async otherwise we will deadlock the kernel
         if (name != node->GetName()) {
             should_inval = true;
+            LOG(INFO) << "make_node_entry name " << name << " node->GetName() " << node->GetName();
             // Record that we have made a case insensitive lookup, this allows us invalidate nodes
             // correctly on subsequent lookups for the case of |node|
             node->SetCaseInsensitiveMatch();
@@ -445,6 +446,7 @@ static node* make_node_entry(fuse_req_t req, node* parent, const string& name, c
             const std::string& node_name = node->GetName();
             std::thread t([=]() { fuse_inval(fuse->se, parent_ino, child_ino, node_name, path); });
             t.detach();
+            node->SetName(name);
         }
     }
     TRACE_NODE(node, req);
