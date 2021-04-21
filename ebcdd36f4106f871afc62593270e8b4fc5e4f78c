@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c20b10b4_be8cc6e2",
+        "filename": "src/com/android/providers/media/MediaProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 5810,
+      "author": {
+        "id": 1336554
+      },
+      "writtenOn": "2021-04-21T08:55:13Z",
+      "side": 1,
+      "message": "I think it\u0027s better to log a shorter message in that case rather logging a warning only in verbose mode",
+      "range": {
+        "startLine": 5810,
+        "startChar": 11,
+        "endLine": 5810,
+        "endChar": 36
+      },
+      "revId": "ebcdd36f4106f871afc62593270e8b4fc5e4f78c",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
