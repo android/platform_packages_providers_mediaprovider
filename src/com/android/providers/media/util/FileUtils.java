@@ -1264,6 +1264,13 @@ public class FileUtils {
             return false;
         }
 
+        if (PATTERN_VISIBLE.matcher(dir.getAbsolutePath()).matches()) {
+            // Well known paths can never be a hidden directory. Delete any non-standard nomedia
+            // presence in well known path.
+            nomedia.delete();
+            return false;
+        }
+
         // .nomedia is present which makes this directory as hidden directory
         Logging.logPersistent("Observed non-standard " + nomedia);
         return true;
