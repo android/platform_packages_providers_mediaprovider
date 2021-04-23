@@ -504,7 +504,7 @@ public class ModernMediaScanner implements MediaScanner {
 
         @Override
         public void close() {
-            // Sanity check that we drained any pending operations
+            // Check that we drained any pending operations
             if (!mPending.isEmpty()) {
                 throw new IllegalStateException();
             }
