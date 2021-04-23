@@ -848,6 +848,8 @@ public class FileUtils {
             "(?i)^\\.(pending|trashed)-(\\d+)-([^/]+)$");
     public static final Pattern PATTERN_PENDING_FILEPATH_FOR_SQL = Pattern.compile(
             ".*/\\.pending-(\\d+)-([^/]+)$");
+    private static final Pattern PATTERN_VISIBLE = Pattern.compile(
+            "(?i)^/storage/[^/]+(?:/[0-9]+)?(?:/Android/sandbox/([^/]+))?$");
 
     /**
      * File prefix indicating that the file {@link MediaColumns#IS_PENDING}.
@@ -1260,6 +1262,13 @@ public class FileUtils {
         // DCIM/Camera should always be visible regardless of .nomedia presence.
         if (CAMERA_RELATIVE_PATH.equalsIgnoreCase(
                 extractRelativePathForDirectory(dir.getAbsolutePath()))) {
+            nomedia.delete();
+            return false;
+        }
+
+        if (PATTERN_VISIBLE.matcher(dir.getAbsolutePath()).matches()) {
+            // Well known paths can never be a hidden directory. Delete any non-standard nomedia
+            // presence in well known path.
             nomedia.delete();
             return false;
         }
