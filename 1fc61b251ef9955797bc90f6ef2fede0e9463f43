@@ -22,6 +22,30 @@
       },
       "revId": "1fc61b251ef9955797bc90f6ef2fede0e9463f43",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77697b4b_0432a921",
+        "filename": "apex/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1061164
+      },
+      "writtenOn": "2021-05-12T14:57:00Z",
+      "side": 1,
+      "message": "Automerger is still enabled for aosp-\u003esc-dev I believe. But yes, ultimately we need them in sc-mainline-prod -- I\u0027ll make sure they are there.\n\nThis change in itself is a noop -- as long as a DeviceBootTest passes we are good. The atest CtsClasspathsTestCases also makes sure that BOOTCLASSPATH is what we expect it to be.",
+      "parentUuid": "1e3efbb5_c6852990",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "1fc61b251ef9955797bc90f6ef2fede0e9463f43",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
