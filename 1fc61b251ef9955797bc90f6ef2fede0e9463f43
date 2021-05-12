@@ -46,6 +46,30 @@
       },
       "revId": "1fc61b251ef9955797bc90f6ef2fede0e9463f43",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5884d59_61b8b3d7",
+        "filename": "apex/Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1765766
+      },
+      "writtenOn": "2021-05-12T15:13:50Z",
+      "side": 1,
+      "message": "Thanks for the explanation!\n(doh, I missed this was aosp..)",
+      "parentUuid": "77697b4b_0432a921",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "1fc61b251ef9955797bc90f6ef2fede0e9463f43",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
