@@ -189,8 +189,12 @@ public class PermissionActivity extends Activity {
         TextView dialogMessage = (TextView) dialog.findViewById(
                 android.R.id.message);
         if (dialogMessage != null) {
+<<<<<<< HEAD   (001778 Merge "Include sdk versioning proto in mediaprovider apex")
             dialogMessage.setTextAppearance(
                     android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
+=======
+            dialogMessage.setTextAppearance(R.style.PermissionAlertDialogTitle);
+>>>>>>> BRANCH (fe93c9 [automerger skipped] Merge "Import translations. DO NOT MERG)
         } else {
             Log.w(TAG, "Couldn't find message element");
         }
