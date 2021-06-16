@@ -151,6 +151,10 @@ public final class FuseDaemon extends Thread {
         }
     }
 
+    public String getFuseLog(){
+        return native_get_fuse_log(mPtr);
+    }
+
     private native long native_new(MediaProvider mediaProvider);
 
     // Takes ownership of the passed in file descriptor!
@@ -162,4 +166,5 @@ public final class FuseDaemon extends Thread {
     private native void native_invalidate_fuse_dentry_cache(long daemon, String path);
     private native boolean native_is_started(long daemon);
     public static native boolean native_is_fuse_thread();
+    private native String native_get_fuse_log(long daemon);
 }

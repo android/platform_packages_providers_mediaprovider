@@ -54,6 +54,8 @@ class FuseDaemon final {
      */
     void InvalidateFuseDentryCache(const std::string& path);
 
+    std::string getFuseLog();
+
   private:
     FuseDaemon(const FuseDaemon&) = delete;
     void operator=(const FuseDaemon&) = delete;

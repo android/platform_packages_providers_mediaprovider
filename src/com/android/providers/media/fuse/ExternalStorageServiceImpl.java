@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.PrintWriter;
 
 /**
  * Handles filesystem I/O from other apps.
@@ -128,6 +129,15 @@ public final class ExternalStorageServiceImpl extends ExternalStorageService {
             return (MediaProvider) cpc.getLocalContentProvider();
         } catch (OperationCanceledException e) {
             throw new IllegalStateException("Failed to acquire MediaProvider", e);
+        }
+    }
+
+    public static void printFuseLogs(PrintWriter writer) {
+        synchronized (sLock) {
+            for (Map.Entry<String, FuseDaemon> entry : sFuseDaemons.entrySet()) {
+                writer.println("Fuse Operations " + entry.getKey() + ":");
+                writer.println(entry.getValue().getFuseLog());
+            }
         }
     }
 }

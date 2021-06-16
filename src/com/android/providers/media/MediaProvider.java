@@ -7800,5 +7800,7 @@ public class MediaProvider extends ContentProvider {
         writer.println();
 
         Logging.dumpPersistent(writer);
+
+        ExternalStorageServiceImpl.printFuseLogs(writer);
     }
 }

@@ -60,6 +60,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "IOMonitor.h"
 #include "MediaProviderWrapper.h"
 #include "libfuse_jni/FuseUtils.h"
 #include "libfuse_jni/ReaddirHelper.h"
@@ -69,6 +70,7 @@
 using mediaprovider::fuse::DirectoryEntry;
 using mediaprovider::fuse::dirhandle;
 using mediaprovider::fuse::handle;
+using mediaprovider::fuse::IOMonitor;
 using mediaprovider::fuse::node;
 using mediaprovider::fuse::RedactionInfo;
 using std::list;
@@ -295,6 +297,8 @@ struct fuse {
     FAdviser fadviser;
 
     std::atomic_bool* active;
+
+    IOMonitor io_mon;
 };
 
 static inline string get_name(node* n) {
@@ -609,6 +613,7 @@ static void pf_getattr(fuse_req_t req,
         return;
     }
     TRACE_NODE(node, req);
+    per_thread_io.Insert(kFuseIOGetattr, fuse_req_ctx(req)->uid, &(fuse->io_mon));
 
     struct stat s;
     memset(&s, 0, sizeof(s));
@@ -827,6 +832,7 @@ static void pf_unlink(fuse_req_t req, fuse_ino_t parent, const char* name) {
     }
 
     TRACE_NODE(parent_node, req);
+    per_thread_io.Insert(kFuseIOUnlink, ctx->uid, &(fuse->io_mon));
 
     const string child_path = parent_path + "/" + name;
 
@@ -994,6 +1000,7 @@ static void pf_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info* fi) {
     }
 
     TRACE_NODE(node, req) << (is_requesting_write(fi->flags) ? "write" : "read");
+    per_thread_io.Insert(kFuseIOOpen, ctx->uid, &(fuse->io_mon));
 
     if (fi->flags & O_DIRECT) {
         fi->flags &= ~O_DIRECT;
@@ -1152,6 +1159,8 @@ static void pf_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
     handle* h = reinterpret_cast<handle*>(fi->fh);
     struct fuse* fuse = get_fuse(req);
 
+    per_thread_io.Insert(kFuseIORead, fuse_req_ctx(req)->uid, &(fuse->io_mon));
+
     fuse->fadviser.Record(h->fd, size);
 
     if (h->ri->isRedactionNeeded()) {
@@ -1179,6 +1188,8 @@ static void pf_write_buf(fuse_req_t req,
     struct fuse_bufvec buf = FUSE_BUFVEC_INIT(fuse_buf_size(bufv));
     ssize_t size;
     struct fuse* fuse = get_fuse(req);
+
+    per_thread_io.Insert(kFuseIOWrite, fuse_req_ctx(req)->uid, &(fuse->io_mon));
 
     buf.buf[0].fd = h->fd;
     buf.buf[0].pos = off;
@@ -1416,6 +1427,7 @@ static void do_readdir_common(fuse_req_t req,
 static void pf_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
                        struct fuse_file_info* fi) {
     ATRACE_CALL();
+    per_thread_io.Insert(kFuseIOReaddir, fuse_req_ctx(req)->uid, &(get_fuse(req)->io_mon));
     do_readdir_common(req, ino, size, off, fi, false);
 }
 
@@ -1425,6 +1437,7 @@ static void pf_readdirplus(fuse_req_t req,
                            off_t off,
                            struct fuse_file_info* fi) {
     ATRACE_CALL();
+    per_thread_io.Insert(kFuseIOReaddir, fuse_req_ctx(req)->uid, &(get_fuse(req)->io_mon));
     do_readdir_common(req, ino, size, off, fi, true);
 }
 
@@ -1493,6 +1506,7 @@ static void pf_access(fuse_req_t req, fuse_ino_t ino, int mask) {
         return;
     }
     TRACE_NODE(node, req);
+    per_thread_io.Insert(kFuseIOAccess, fuse_req_ctx(req)->uid, &(fuse->io_mon));
 
     // exists() checks are always allowed.
     if (mask == F_OK) {
@@ -1552,6 +1566,7 @@ static void pf_create(fuse_req_t req,
     }
 
     TRACE_NODE(parent_node, req);
+    per_thread_io.Insert(kFuseIOCreate, fuse_req_ctx(req)->uid, &(fuse->io_mon));
 
     const string child_path = parent_path + "/" + name;
 
@@ -1753,6 +1768,10 @@ void FuseDaemon::InvalidateFuseDentryCache(const std::string& path) {
     } else {
         LOG(WARNING) << "FUSE daemon is inactive. Cannot invalidate dentry";
     }
+}
+
+std::string FuseDaemon::getFuseLog() {
+    return fuse->io_mon.GetIOStats();
 }
 
 FuseDaemon::FuseDaemon(JNIEnv* env, jobject mediaProvider) : mp(env, mediaProvider),

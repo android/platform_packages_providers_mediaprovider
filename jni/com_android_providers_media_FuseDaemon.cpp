@@ -101,6 +101,18 @@ void com_android_providers_media_FuseDaemon_invalidate_fuse_dentry_cache(JNIEnv*
     // TODO(b/145741152): Throw exception
 }
 
+jstring com_android_provider_media_FuseDaemon_get_fuse_log(JNIEnv* env, jobject self,
+                                                           jlong java_daemon) {
+    fuse::FuseDaemon* const daemon = reinterpret_cast<fuse::FuseDaemon*>(java_daemon);
+    if (daemon) {
+        std::string logStr = daemon->getFuseLog();
+        jstring res = env->NewStringUTF(logStr.c_str());
+        return res;
+    }
+    LOG(INFO) << "Failed to get the fuse log";
+    return NULL;
+}
+
 bool com_android_providers_media_FuseDaemon_is_fuse_thread(JNIEnv* env, jclass clazz) {
     return pthread_getspecific(fuse::MediaProviderWrapper::gJniEnvKey) != nullptr;
 }
@@ -120,7 +132,9 @@ const JNINativeMethod methods[] = {
          reinterpret_cast<void*>(com_android_providers_media_FuseDaemon_is_started)},
         {"native_invalidate_fuse_dentry_cache", "(JLjava/lang/String;)V",
          reinterpret_cast<void*>(
-                 com_android_providers_media_FuseDaemon_invalidate_fuse_dentry_cache)}};
+                 com_android_providers_media_FuseDaemon_invalidate_fuse_dentry_cache)},
+        {"native_get_fuse_log", "(J)Ljava/lang/String;",
+         reinterpret_cast<void*>(com_android_provider_media_FuseDaemon_get_fuse_log)}};
 }  // namespace
 
 void register_android_providers_media_FuseDaemon(JavaVM* vm, JNIEnv* env) {
