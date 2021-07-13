@@ -87,6 +87,30 @@
       },
       "revId": "9998cd9bb5d52aa8a19be5ca859841663eb1ea0a",
       "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6156cc0c_4fb18a35",
+        "filename": "src/com/android/providers/media/util/MimeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2021-07-13T18:41:21Z",
+      "side": 1,
+      "message": "Yep, your understanding is correct, but we really don\u0027t want to diverge behavior for MediaProvider internals from what all other apps on the device will be seeing.\n\nThe safest path forward is to always defer to the mappings defined by the core OS, since that\u0027s what we\u0027ve agreed upon with our OEM partners.",
+      "parentUuid": "88a8e62e_24023203",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "9998cd9bb5d52aa8a19be5ca859841663eb1ea0a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
     }
   ]
 }
