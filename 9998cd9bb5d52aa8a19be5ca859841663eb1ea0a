@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32d8ea22_d239aef0",
+        "filename": "src/com/android/providers/media/util/MimeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1013508
+      },
+      "writtenOn": "2021-07-13T18:15:31Z",
+      "side": 1,
+      "message": "Please don\u0027t add mappings here, since this causes other apps on the devices to become very confused.\n\nInstead, please add these mappings to frameworks/base/mime/java-res/android.mime.types so that its consistent device-wide for all apps.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "9998cd9bb5d52aa8a19be5ca859841663eb1ea0a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
