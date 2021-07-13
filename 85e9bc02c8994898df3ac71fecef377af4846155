@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "517b1a4f_36ba6e36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1211949
+      },
+      "writtenOn": "2021-07-13T18:00:24Z",
+      "side": 1,
+      "message": "I believe this is the right path to allow multimedia apps to access SSA/ASS subtitle files through /sdcard scoped storage FUSE?\nAnd if I understand correctly, it will be updatadable to Android 11 devices in the field through APEX?",
+      "revId": "85e9bc02c8994898df3ac71fecef377af4846155",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    }
+  ]
+}
