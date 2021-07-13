@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a32aabef_2db58346",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1211949
+      },
+      "writtenOn": "2021-07-13T18:38:16Z",
+      "side": 1,
+      "message": "To expand on the /why/ and the /why now/: Google Play Store is closing in on forcing targetSdk 30, which removes the \"simple\" global access to /sdcard. This is a problem for most advanced video players, because they often support file formats not recognized as multimedia files by MediaProvider, as SSA in this case.\n\nThat\u0027s why you\u0027ll see that most advanced video players ATM still haven\u0027t migrated to targetSdk 30 (NOVA Video Player, Kodi, VLC, MX Player to name a few). Advanced video player is not recognized by Play Store as a valid use-case to request global file storage access, because MediaProvider supposedly provide all access for it.\n\nSince MediaProvider is a PlayStore-upgradable apex, we can have the fixes we need, without needing to request full access to Play Store.",
+      "revId": "9998cd9bb5d52aa8a19be5ca859841663eb1ea0a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "32d8ea22_d239aef0",
@@ -37,6 +54,30 @@
       "writtenOn": "2021-07-13T18:19:37Z",
       "side": 1,
       "message": "Actually, it looks like you are adding the mapping, which is great!  😊\n\nWith that mime.types change, you shouldn\u0027t need this additional logic here.",
+      "parentUuid": "32d8ea22_d239aef0",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "9998cd9bb5d52aa8a19be5ca859841663eb1ea0a",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88a8e62e_24023203",
+        "filename": "src/com/android/providers/media/util/MimeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1211949
+      },
+      "writtenOn": "2021-07-13T18:38:16Z",
+      "side": 1,
+      "message": "In my understanding, the MediaProvider APEX doesn\u0027t include android.mime.types, it comes from frameworks. So this fix would only work when deployed as APEX to non-upgraded OEM. Is my understanding wrong?\n\nI have added the \"happy path\" in https://android-review.googlesource.com/c/platform/frameworks/base/+/1764468\n\nI guess this deserves to be mentioned as a comment in the code. Is there some standard notation to mention this is specifically for APEX backward compatibility?",
       "parentUuid": "32d8ea22_d239aef0",
       "range": {
         "startLine": 62,
