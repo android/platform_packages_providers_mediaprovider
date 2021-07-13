@@ -55,9 +55,15 @@ public class MimeUtils {
         final String extension = FileUtils.extractFileExtension(file.getPath());
         if (extension == null) return ClipDescription.MIMETYPE_UNKNOWN;
 
+        final String normalizedExtension = extension.toLowerCase(Locale.ROOT);
         final String mimeType = MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT));
-        if (mimeType == null) return ClipDescription.MIMETYPE_UNKNOWN;
+                .getMimeTypeFromExtension(normalizedExtension);
+        if (mimeType == null) {
+            if("ssa".equals(normalizedExtension) || "ass".equals(normalizedExtension)) {
+                return "application/x-ssa";
+            }
+            return ClipDescription.MIMETYPE_UNKNOWN;
+        }
 
         return mimeType;
     }
@@ -154,6 +160,7 @@ public class MimeUtils {
             case "application/x-extension-srt":
             case "application/x-extension-sub":
             case "application/x-extension-vtt":
+            case "application/x-ssa":
             case "application/x-subrip":
             case "text/vtt":
                 return true;
