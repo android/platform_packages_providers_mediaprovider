@@ -135,6 +135,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5a28e0ee_2c53d32a",
+        "filename": "jni/IOMonitor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1887447
+      },
+      "writtenOn": "2021-07-14T07:30:23Z",
+      "side": 1,
+      "message": "If PerUidIOCount has a uid field, that looks good but we also need to think of the hash table \u003cK, V\u003e \u003d \u003cuid, PerUidIOCount\u003e.\n using uid_map_t \u003d std::unordered_map\u003cuid_t, PerUidIOCount\u003e;\n \nThe V of hash table will get to include the K (uid), so I think this seems to be a little bit weird.\nHow do you think about this ?",
+      "parentUuid": "b218b7ac_d1dc5437",
+      "range": {
+        "startLine": 68,
+        "startChar": 7,
+        "endLine": 68,
+        "endChar": 20
+      },
+      "revId": "ff9b524c70da61ac21f97e8f02277e4aed528bcd",
+      "serverId": "85c56323-6fa9-3386-8a01-6480fb634889"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e3449919_cd82c377",
         "filename": "jni/IOMonitor.h",
         "patchSetId": 1
